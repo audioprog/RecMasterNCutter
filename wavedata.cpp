@@ -110,7 +110,7 @@ void WaveData::run()
             lock.unlock();
         }
         else if (readpos < lastpos) {
-            if (readpos + count == lastpos - 1) {
+            if (readpos + count == lastpos) {
                 lock.lockForWrite();
                 ret << lastdata;
                 lastdata = ret;

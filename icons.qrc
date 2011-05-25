@@ -17,5 +17,7 @@
         <file alias="Standard">icons/Standard.png</file>
         <file alias="StartSilence">icons/Start_Silence.png</file>
         <file alias="StartTrack">icons/Start_Track.png</file>
+        <file alias="end">icons/go-end-24.png</file>
+        <file alias="pos1">icons/go-pos1-24.png</file>
     </qresource>
 </RCC>

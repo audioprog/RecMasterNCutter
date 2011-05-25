@@ -45,7 +45,9 @@ OTHER_FILES += \
     icons/Add_Actual.png \
     icons/Add_3.png \
     icons/Add_2.png \
-    icons/Add_1.png
+    icons/Add_1.png \
+    icons/go-pos1-24.png \
+    icons/go-end-24.png
 
 RESOURCES += \
     icons.qrc

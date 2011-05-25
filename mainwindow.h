@@ -19,7 +19,7 @@ public:
 
 public slots:
     void NewLength(int newLen, int windowlength);
-    void PosChanged(int diff);
+    void PosChanged(int diff, bool absolut = false);
     void ShowContextMenu(QPoint pos, int x, int mark);
     void MainPosChanged(int newPos);
     void OverviewLength(int newLen, int windowlength);
@@ -85,6 +85,10 @@ private slots:
     void on_actionEditStart_Silence_triggered();
 
     void on_actionEditEnd_Silence_triggered();
+
+    void on_actionPos1_triggered();
+
+    void on_actionEnd_triggered();
 
 private:
     MarkImages mimages;

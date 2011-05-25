@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->widget, SIGNAL(LenghtChanged(int,int)), this, SLOT(NewLength(int,int)));
     QObject::connect(ui->PosScrollBar, SIGNAL(valueChanged(int)), ui->widget, SLOT(NewPos(int)));
     QObject::connect(ui->PosScrollBar, SIGNAL(valueChanged(int)), this, SLOT(MainPosChanged(int)));
-    QObject::connect(ui->widget, SIGNAL(PosChanged(int,bool)), this, SLOT(PosChanged(int)));
+    QObject::connect(ui->widget, SIGNAL(PosChanged(int,bool)), this, SLOT(PosChanged(int,bool)));
     QObject::connect(ui->actionSaveMarks, SIGNAL(triggered()), ui->widget, SLOT(SaveMarks()));
     QObject::connect(ui->widget, SIGNAL(ContextMenuWanted(QPoint,int,int)), this, SLOT(ShowContextMenu(QPoint,int,int)));
     QObject::connect(ui->Overview, SIGNAL(LenghtChanged(int,int)), this, SLOT(OverviewLength(int,int)));
@@ -74,9 +74,9 @@ void MainWindow::NewLength(int newLen, int windowlength)
     ui->PosScrollBar->setPageStep(windowlength);
 }
 
-void MainWindow::PosChanged(int diff)
+void MainWindow::PosChanged(int diff, bool absolut)
 {
-    int nv = ui->PosScrollBar->value() + diff;
+    int nv = absolut ? diff : ui->PosScrollBar->value() + diff;
     bool update = false;
     if (nv < 0) {
         nv = 0;
@@ -326,4 +326,14 @@ void MainWindow::on_actionEditEnd_Silence_triggered()
 {
     if (ui->widget->Selected() > -1)
         marks->setMark(ui->widget->Selected(), Marks::EndSilence);
+}
+
+void MainWindow::on_actionPos1_triggered()
+{
+    ui->PosScrollBar->setValue(0);
+}
+
+void MainWindow::on_actionEnd_triggered()
+{
+    ui->PosScrollBar->setValue(ui->PosScrollBar->maximum());
 }

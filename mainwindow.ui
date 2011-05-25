@@ -81,6 +81,8 @@
     <addaction name="actionNext"/>
     <addaction name="actionFirst"/>
     <addaction name="actionLast"/>
+    <addaction name="actionPos1"/>
+    <addaction name="actionEnd"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -321,6 +323,8 @@
    <addaction name="actionNext"/>
    <addaction name="actionFirst"/>
    <addaction name="actionLast"/>
+   <addaction name="actionPos1"/>
+   <addaction name="actionEnd"/>
   </widget>
   <action name="action_Open">
    <property name="icon">
@@ -644,6 +648,24 @@
    </property>
    <property name="text">
     <string>End Silence</string>
+   </property>
+  </action>
+  <action name="actionPos1">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/pos1</normaloff>:/symbols/pos1</iconset>
+   </property>
+   <property name="text">
+    <string>Pos1</string>
+   </property>
+  </action>
+  <action name="actionEnd">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/end</normaloff>:/symbols/end</iconset>
+   </property>
+   <property name="text">
+    <string>End</string>
    </property>
   </action>
  </widget>

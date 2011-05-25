@@ -195,7 +195,7 @@ void WaveForm::paintEvent(QPaintEvent * /* event */)
         }
 
         int dmax = 1;
-        for (int i = 0; i < vectors.count(); i += channel) {
+        for (int i = 0; i < vectors.count() - 1; i += channel) {
             if (dmax < vectors.at(i))
                 dmax = vectors.at(i);
             if (dmax < -vectors.at(i + 1))
