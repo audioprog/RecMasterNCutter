@@ -1,0 +1,680 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1046</width>
+    <height>554</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="margin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="WaveForm" name="widget" native="true"/>
+    </item>
+    <item>
+     <widget class="QScrollBar" name="PosScrollBar">
+      <property name="maximum">
+       <number>0</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1046</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="action_Open"/>
+    <addaction name="actionSaveMarks"/>
+    <addaction name="separator"/>
+    <addaction name="actionClose"/>
+   </widget>
+   <widget class="QMenu" name="menuInsert">
+    <property name="title">
+     <string>Insert</string>
+    </property>
+    <addaction name="actionStandard_1"/>
+    <addaction name="actionStandard_2"/>
+    <addaction name="actionStandard_3"/>
+    <addaction name="actionAktuell"/>
+   </widget>
+   <widget class="QMenu" name="menuLastMark">
+    <property name="title">
+     <string>LastMark</string>
+    </property>
+    <addaction name="actionLastMarkStandard"/>
+    <addaction name="actionLastMarkStart_Track"/>
+    <addaction name="actionLastMarkEnd_Track"/>
+    <addaction name="actionLastMarkStart_Silence"/>
+    <addaction name="actionLastMarkEnd_Silence"/>
+   </widget>
+   <widget class="QMenu" name="menuGoTo">
+    <property name="title">
+     <string>GoTo</string>
+    </property>
+    <addaction name="actionPrevious"/>
+    <addaction name="actionNext"/>
+    <addaction name="actionFirst"/>
+    <addaction name="actionLast"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionEditDelete"/>
+    <addaction name="separator"/>
+    <addaction name="actionEditStandard"/>
+    <addaction name="actionEditStart_Track"/>
+    <addaction name="actionEditEnd_Track"/>
+    <addaction name="actionEditStart_Silence"/>
+    <addaction name="actionEditEnd_Silence"/>
+   </widget>
+   <addaction name="menu_File"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuInsert"/>
+   <addaction name="menuLastMark"/>
+   <addaction name="menuGoTo"/>
+  </widget>
+  <widget class="QToolBar" name="toolBar_4">
+   <property name="windowTitle">
+    <string>toolBar_4</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action_Open"/>
+   <addaction name="actionSaveMarks"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionEditDelete"/>
+   <addaction name="actionEditStandard"/>
+   <addaction name="actionEditStart_Track"/>
+   <addaction name="actionEditEnd_Track"/>
+   <addaction name="actionEditStart_Silence"/>
+   <addaction name="actionEditEnd_Silence"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QDockWidget" name="dockWidget">
+   <property name="features">
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::BottomDockWidgetArea|Qt::TopDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Follower</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>4</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QFrame" name="frame">
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="WaveForm" name="FollowWaveEnd" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>100</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonIconOnly</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionStandard_1"/>
+   <addaction name="actionStandard_2"/>
+   <addaction name="actionStandard_3"/>
+   <addaction name="actionAktuell"/>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_3">
+   <property name="features">
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::BottomDockWidgetArea|Qt::TopDockWidgetArea</set>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_3">
+    <layout class="QVBoxLayout" name="verticalLayout_5">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QFrame" name="frame_2">
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="WaveForm" name="Overview" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>100</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QScrollBar" name="OverPos">
+          <property name="maximum">
+           <number>0</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QToolBar" name="toolBar_2">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionLastMarkStandard"/>
+   <addaction name="actionLastMarkStart_Track"/>
+   <addaction name="actionLastMarkEnd_Track"/>
+   <addaction name="actionLastMarkStart_Silence"/>
+   <addaction name="actionLastMarkEnd_Silence"/>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_2">
+   <property name="features">
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_2">
+    <layout class="QVBoxLayout" name="verticalLayout_6">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QTableWidget" name="markTable">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::SingleSelection</enum>
+       </property>
+       <property name="selectionBehavior">
+        <enum>QAbstractItemView::SelectRows</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QToolBar" name="toolBar_3">
+   <property name="windowTitle">
+    <string>toolBar_3</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionPrevious"/>
+   <addaction name="actionNext"/>
+   <addaction name="actionFirst"/>
+   <addaction name="actionLast"/>
+  </widget>
+  <action name="action_Open">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/open</normaloff>:/symbols/open</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Open</string>
+   </property>
+  </action>
+  <action name="actionSaveMarks">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/save</normaloff>:/symbols/save</iconset>
+   </property>
+   <property name="text">
+    <string>SaveMarks</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionStandard">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/Standard</normaloff>:/symbols/Standard</iconset>
+   </property>
+   <property name="text">
+    <string>Standard</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+7</string>
+   </property>
+  </action>
+  <action name="actionStart_Track">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/StartTrack</normaloff>:/symbols/StartTrack</iconset>
+   </property>
+   <property name="text">
+    <string>Start Track</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+8</string>
+   </property>
+  </action>
+  <action name="actionEnd_Track">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/EndTrack</normaloff>:/symbols/EndTrack</iconset>
+   </property>
+   <property name="text">
+    <string>End Track</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+9</string>
+   </property>
+  </action>
+  <action name="actionStart_Silence">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/StartSilence</normaloff>:/symbols/StartSilence</iconset>
+   </property>
+   <property name="text">
+    <string>Start Silence</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+0</string>
+   </property>
+  </action>
+  <action name="actionEnd_Silence">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/EndSilence</normaloff>:/symbols/EndSilence</iconset>
+   </property>
+   <property name="text">
+    <string>End Silence</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+ß</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/del</normaloff>:/symbols/del</iconset>
+   </property>
+   <property name="text">
+    <string>delete</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+D</string>
+   </property>
+  </action>
+  <action name="actionStandard_1">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/Add1</normaloff>:/symbols/Add1</iconset>
+   </property>
+   <property name="text">
+    <string>1</string>
+   </property>
+   <property name="toolTip">
+    <string>Standardmark at position 1</string>
+   </property>
+   <property name="shortcut">
+    <string>F1</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionStandard_2">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/Add2</normaloff>:/symbols/Add2</iconset>
+   </property>
+   <property name="text">
+    <string>2</string>
+   </property>
+   <property name="toolTip">
+    <string>Standardmark at position 2</string>
+   </property>
+   <property name="shortcut">
+    <string>F2</string>
+   </property>
+  </action>
+  <action name="actionStandard_3">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/Add3</normaloff>:/symbols/Add3</iconset>
+   </property>
+   <property name="text">
+    <string>3</string>
+   </property>
+   <property name="toolTip">
+    <string>Standardmark at position 3</string>
+   </property>
+   <property name="shortcut">
+    <string>F3</string>
+   </property>
+  </action>
+  <action name="actionAktuell">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/AddAct</normaloff>:/symbols/AddAct</iconset>
+   </property>
+   <property name="text">
+    <string>Aktuell</string>
+   </property>
+   <property name="shortcut">
+    <string>F4</string>
+   </property>
+  </action>
+  <action name="actionLastMarkStandard">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/Standard</normaloff>:/symbols/Standard</iconset>
+   </property>
+   <property name="text">
+    <string>Standard</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+1</string>
+   </property>
+  </action>
+  <action name="actionLastMarkStart_Track">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/StartTrack</normaloff>:/symbols/StartTrack</iconset>
+   </property>
+   <property name="text">
+    <string>Start Track</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+2</string>
+   </property>
+  </action>
+  <action name="actionLastMarkEnd_Track">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/EndTrack</normaloff>:/symbols/EndTrack</iconset>
+   </property>
+   <property name="text">
+    <string>End Track</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+3</string>
+   </property>
+  </action>
+  <action name="actionLastMarkStart_Silence">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/StartSilence</normaloff>:/symbols/StartSilence</iconset>
+   </property>
+   <property name="text">
+    <string>Start Silence</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+4</string>
+   </property>
+  </action>
+  <action name="actionLastMarkEnd_Silence">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/EndSilence</normaloff>:/symbols/EndSilence</iconset>
+   </property>
+   <property name="text">
+    <string>End Silence</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+5</string>
+   </property>
+  </action>
+  <action name="actionPrevious">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/previous</normaloff>:/symbols/previous</iconset>
+   </property>
+   <property name="text">
+    <string>Previous</string>
+   </property>
+   <property name="shortcut">
+    <string>Left</string>
+   </property>
+  </action>
+  <action name="actionNext">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/next</normaloff>:/symbols/next</iconset>
+   </property>
+   <property name="text">
+    <string>Next</string>
+   </property>
+   <property name="shortcut">
+    <string>Right</string>
+   </property>
+  </action>
+  <action name="actionFirst">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/first</normaloff>:/symbols/first</iconset>
+   </property>
+   <property name="text">
+    <string>First</string>
+   </property>
+   <property name="shortcut">
+    <string>Home</string>
+   </property>
+  </action>
+  <action name="actionLast">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/last</normaloff>:/symbols/last</iconset>
+   </property>
+   <property name="text">
+    <string>Last</string>
+   </property>
+   <property name="shortcut">
+    <string>End</string>
+   </property>
+  </action>
+  <action name="actionClose">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/close</normaloff>:/symbols/close</iconset>
+   </property>
+   <property name="text">
+    <string>Close</string>
+   </property>
+  </action>
+  <action name="actionEditDelete">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/del</normaloff>:/symbols/del</iconset>
+   </property>
+   <property name="text">
+    <string>Delete</string>
+   </property>
+  </action>
+  <action name="actionEditStandard">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/Standard</normaloff>:/symbols/Standard</iconset>
+   </property>
+   <property name="text">
+    <string>Standard</string>
+   </property>
+  </action>
+  <action name="actionEditStart_Track">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/StartTrack</normaloff>:/symbols/StartTrack</iconset>
+   </property>
+   <property name="text">
+    <string>Start Track</string>
+   </property>
+  </action>
+  <action name="actionEditEnd_Track">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/EndTrack</normaloff>:/symbols/EndTrack</iconset>
+   </property>
+   <property name="text">
+    <string>End Track</string>
+   </property>
+  </action>
+  <action name="actionEditStart_Silence">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/StartSilence</normaloff>:/symbols/StartSilence</iconset>
+   </property>
+   <property name="text">
+    <string>Start Silence</string>
+   </property>
+  </action>
+  <action name="actionEditEnd_Silence">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/EndSilence</normaloff>:/symbols/EndSilence</iconset>
+   </property>
+   <property name="text">
+    <string>End Silence</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>WaveForm</class>
+   <extends>QWidget</extends>
+   <header>waveform.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>actionClose</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>522</x>
+     <y>276</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

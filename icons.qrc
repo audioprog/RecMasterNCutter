@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/symbols">
+        <file alias="first">icons/go-first-24.png</file>
+        <file alias="last">icons/go-last-24.png</file>
+        <file alias="next">icons/go-next-24.png</file>
+        <file alias="previous">icons/go-previous-24.png</file>
+        <file alias="del">icons/delete.png</file>
+        <file alias="open">icons/open.png</file>
+        <file alias="save">icons/save.png</file>
+        <file alias="close">icons/standardbutton-closetab-16.png</file>
+        <file alias="Add1">icons/Add_1.png</file>
+        <file alias="Add2">icons/Add_2.png</file>
+        <file alias="Add3">icons/Add_3.png</file>
+        <file alias="AddAct">icons/Add_Actual.png</file>
+        <file alias="EndSilence">icons/End_Silence.png</file>
+        <file alias="EndTrack">icons/End_Track.png</file>
+        <file alias="Standard">icons/Standard.png</file>
+        <file alias="StartSilence">icons/Start_Silence.png</file>
+        <file alias="StartTrack">icons/Start_Track.png</file>
+    </qresource>
+</RCC>
