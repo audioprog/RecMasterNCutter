@@ -78,6 +78,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableTracks->horizontalHeader()->restoreState(settings.value("TracksHeader").toByteArray());
 
     this->setWindowTitle(QCoreApplication::organizationName() + " " + QCoreApplication::applicationName());
+
+    tracks = new SaveTracks();
 }
 
 MainWindow::~MainWindow()
@@ -238,6 +240,7 @@ void MainWindow::on_action_Open_triggered()
         ui->FollowWaveEnd->setMarks(marks);
         ui->Overview->SetFile(file);
         ui->Overview->OverviewMarkChanged((int)((qint64)ui->PosScrollBar->pageStep() * (qint64)ui->widget->DotWidth() / (qint64)ui->Overview->DotWidth()), 0);
+        tracks->SetFile(file);
     }
 }
 
@@ -410,7 +413,7 @@ void MainWindow::on_tableTracks_cellChanged(int row, int column)
             if (ui->tableTracks->item(row, column)->data(Qt::CheckStateRole) != 0) {
                 //Save title
                 //sox -r 44100 -e signed -b 24 -c 2 input.raw Track.wav trim [start] [lenght]
-                //sox "|sox -n -p" "|sox -n -p" Track.wav splice ... : fade 300 0 300
+                //sox "|sox input1 -p" "|sox -n -p" Track.wav splice ... : fade 300 0 300
                 //or
                 //and splice input1 input2 Track.wav  [sec].[msec]
                 // fade [type] fade-in-length [stop-time [fade-out-length]]

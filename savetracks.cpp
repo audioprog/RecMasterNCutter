@@ -1,6 +1,7 @@
 #include "savetracks.h"
 
 #include <QtDebug>
+#include <QStringList>
 
 SaveTracks::SaveTracks(QObject *parent) :
     QObject(parent)
@@ -19,12 +20,14 @@ void SaveTracks::canread()
 void SaveTracks::SaveTrack(int TrackNr)
 {
     list.append(TrackNr);
+    if (!isworking)
+        Start();
 }
 
 void SaveTracks::finished()
 {
     emit Finished(list.takeFirst());
-
+    Start();
 }
 
 void SaveTracks::Start()
@@ -47,7 +50,7 @@ void SaveTracks::Start()
         }
         if (last > 0) {
             if (list.first() == last - 1) { // No Marks between Start and End of Track
-                //
+                Save(list.first(), last);
             }
             else {
                 int silent = 0;
@@ -64,15 +67,15 @@ void SaveTracks::Start()
                         havesilent = true;
                     }
                 }
-                if (!havesilent && silent = 0) {
-                    // Same as NoMarks
+                if (!havesilent && silent == 0) {
+                    Save(list.first(), last);
                 }
                 else if (!havesilent && silent > 0) { // silent starts, but not end
                     last = firstsilent; // set Track-end to silent start
-                    // then same as nomarks
+                    Save(list.first(), last);
                 }
                 else if (havesilent) {
-                    // multi places to one track
+                    SaveMerged(list.first(), last);
                 }
             }
         }
@@ -80,5 +83,44 @@ void SaveTracks::Start()
             list.removeFirst();
             Start();
         }
+    }
+    else
+        isworking = false;
+}
+
+void SaveTracks::Save(int startmark, int endmark)
+{
+    isworking = true;
+    proc.start(soxpath + "sox", QStringList() << "-r 44100" << "-e signed" << "-b 24" << "-c 2" << file->fileName() << path + QString::number(marks->Pos(startmark)) + ".wav"
+               << "trim " + QString::number(marks->Pos(startmark)) + "s " + QString::number(marks->Pos(endmark) - marks->Pos(startmark)) + "s");
+}
+
+void SaveTracks::SaveMerged(int startmark, int endmark)
+{
+    QStringList parts;
+    int silence = 0;
+    int last = startmark;
+    for (int i = startmark + 1; i < endmark; i++) {
+        if (marks->Type(i) == Marks::StartSilence) {
+            silence++;
+            if (silence == 1) {
+                QString part = "\"|" + soxpath + "sox -r 44100 -e signed -b 24 -c 2 '" + file->fileName() + "' -p trim "
+                        + QString::number(marks->Pos(last)) + "s " + QString::number(marks->Pos(i) - marks->Pos(last)) + "s\"";
+                parts.append(part);
+                last = 0;
+            }
+        }
+        else if (marks->Type(i) == Marks::EndSilence) {
+            silence--;
+            if (silence == 0)
+                last = i;
+        }
+    }
+    if (last > 0) {
+        parts << "\"|" + soxpath + "sox -r 44100 -e signed -b 24 -c 2 '" + file->fileName() + "' -p trim "
+                + QString::number(marks->Pos(last)) + "s " + QString::number(marks->Pos(endmark) - marks->Pos(last)) + "s\" ";
+    }
+    if (parts.length() > 0) {
+        proc.start(soxpath + "sox", parts << path + QString::number(marks->Pos(startmark)) + ".wav" << "splice 0.1");
     }
 }

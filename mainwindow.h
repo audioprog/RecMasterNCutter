@@ -5,6 +5,7 @@
 #include <QSettings>
 #include "marks.h"
 #include "markimages.h"
+#include "savetracks.h"
 
 namespace Ui {
     class MainWindow;
@@ -102,6 +103,7 @@ private:
     int contextmenuX;
     Marks *marks;
     QMenu *contextmenu;
+    SaveTracks *tracks;
 };
 
 #endif // MAINWINDOW_H
