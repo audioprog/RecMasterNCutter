@@ -17,14 +17,16 @@ SOURCES += main.cpp\
     wavedata.cpp \
     marks.cpp \
     markimages.cpp \
-    icondelegate.cpp
+    icondelegate.cpp \
+    savetracks.cpp
 
 HEADERS  += mainwindow.h \
     waveform.h \
     wavedata.h \
     marks.h \
     markimages.h \
-    icondelegate.h
+    icondelegate.h \
+    savetracks.h
 
 FORMS    += mainwindow.ui
 
@@ -47,7 +49,8 @@ OTHER_FILES += \
     icons/Add_2.png \
     icons/Add_1.png \
     icons/go-pos1-24.png \
-    icons/go-end-24.png
+    icons/go-end-24.png \
+    icons/saveWave.png
 
 RESOURCES += \
     icons.qrc

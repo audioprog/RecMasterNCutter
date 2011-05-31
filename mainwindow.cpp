@@ -1,6 +1,8 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QTime>
+#include <QCloseEvent>
+#include <QtDebug>
 
 #include "icondelegate.h"
 #include "mainwindow.h"
@@ -49,23 +51,49 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->Overview->SetDotWidth(1);
     this->setCorner(Qt::TopLeftCorner, Qt:: LeftDockWidgetArea);
     this->setCorner(Qt::BottomLeftCorner, Qt:: LeftDockWidgetArea);
+    this->setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
+    this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
+
+    //ui->markTable->setColumnCount(2);
+    ui->markTable->setColumnWidth(0, 20);
+    //ui->markTable->setHorizontalHeaderLabels(QStringList() << tr("M") << tr("Position"));
+    ui->markTable->setItemDelegateForColumn(0, new IconDelegate());
+
+    //ui->tableTracks->setColumnCount(3);
+    //ui->tableTracks->setHorizontalHeaderLabels(QStringList() << tr("Start") << tr("End") << tr("text"));
+
     contextmenuNr = -1;
     contextmenuX = -1;
-    ui->markTable->setColumnCount(2);
-    ui->markTable->setColumnWidth(0, 20);
-    ui->markTable->setHorizontalHeaderLabels(QStringList() << tr("M") << tr("Position"));
-    ui->markTable->setItemDelegateForColumn(0, new IconDelegate());
     contextmenu = new QMenu(this);
     contextmenu->addActions(QList<QAction*>() << ui->actionDelete << ui->actionStart_Track << ui->actionEnd_Track << ui->actionStart_Silence << ui->actionEnd_Silence);
 
     ui->FollowWaveEnd->SetDebugNr(0);
     ui->widget->SetDebugNr(1);
     ui->Overview->SetDebugNr(2);
+
+    QSettings settings;
+    restoreGeometry(settings.value("geometry").toByteArray());
+    restoreState(settings.value("windowState").toByteArray());
+    ui->markTable->horizontalHeader()->restoreState(settings.value("MarksHeader").toByteArray());
+    ui->tableTracks->horizontalHeader()->restoreState(settings.value("TracksHeader").toByteArray());
+
+    this->setWindowTitle(QCoreApplication::organizationName() + " " + QCoreApplication::applicationName());
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+ {
+     QSettings settings;
+     settings.setValue("geometry", saveGeometry());
+     QByteArray ba = saveState();
+     settings.setValue("windowState", ba);
+     settings.setValue("MarksHeader", ui->markTable->horizontalHeader()->saveState());
+     settings.setValue("TracksHeader", ui->tableTracks->horizontalHeader()->saveState());
+     event->accept();
 }
 
 void MainWindow::NewLength(int newLen, int windowlength)
@@ -129,9 +157,12 @@ void MainWindow::OverviewMarkChanged(int newPos)
 void MainWindow::MarksChanged()
 {
     ui->markTable->setRowCount(marks->Count());
+    ui->tableTracks->setRowCount(marks->Count(Marks::StartTrack));
+    int idxStartTrack = -1, idxEndTrack = -1;
     for (int i = 0; i < marks->Count(); ++i) {
+        Marks::MarkTypes typ;
         if (ui->markTable->item(i, 0) != NULL) {
-            Marks::MarkTypes typ = static_cast<Marks::MarkTypes>(qVariantValue<int>(ui->markTable->item(i, 0)->data(Qt::DisplayRole)));
+            typ = static_cast<Marks::MarkTypes>(qVariantValue<int>(ui->markTable->item(i, 0)->data(Qt::DisplayRole)));
             if (typ != marks->Type(i)) {
                 typ = marks->Type(i);
                 QTableWidgetItem *wi = new QTableWidgetItem(mimages.icon(typ), "");
@@ -140,7 +171,7 @@ void MainWindow::MarksChanged()
             }
         }
         else {
-            Marks::MarkTypes typ = marks->Type(i);
+            typ = marks->Type(i);
             QTableWidgetItem *wi = new QTableWidgetItem(mimages.icon(typ), "");
             wi->setData(Qt::DisplayRole, qVariantFromValue(static_cast<int>(typ)));
             ui->markTable->setItem(i, 0, wi);
@@ -152,10 +183,44 @@ void MainWindow::MarksChanged()
         time = time.addMSecs(msecs);
         QString txt = time.hour() > 0 ? time.toString("HH:mm:ss.zzz") : time.toString("mm:ss.zzz");
         if (ui->markTable->item(i, 1) == NULL) {
-            ui->markTable->setItem(i, 1, new QTableWidgetItem(txt));
+            QTableWidgetItem *di = new QTableWidgetItem(txt);
+            di->setFlags(di->flags() & ~Qt::ItemIsEditable);
+            ui->markTable->setItem(i, 1, di);
         }
         else {
             ui->markTable->item(i, 1)->setText(txt);
+        }
+
+        if (typ == Marks::StartTrack) {
+            idxStartTrack++;
+            if (ui->tableTracks->item(idxStartTrack, 0) == NULL) {
+                QTableWidgetItem *ti = new QTableWidgetItem();
+                ti->setData(Qt::DisplayRole, qVariantFromValue(false));
+                ti->setData(Qt::CheckStateRole, qVariantFromValue(0));
+                ui->tableTracks->setItem(idxStartTrack, 0, ti);
+            }
+            if (ui->tableTracks->item(idxStartTrack, 1) != NULL) {
+                ui->tableTracks->item(idxStartTrack, 1)->setText(txt);
+            }
+            else {
+                QTableWidgetItem *di = new QTableWidgetItem(txt);
+                di->setFlags(di->flags() & ~Qt::ItemIsEditable);
+                ui->tableTracks->setItem(idxStartTrack, 1, di);
+            }
+            if (ui->tableTracks->item(idxStartTrack, 3) == NULL) {
+                ui->tableTracks->setItem(idxStartTrack, 3, new QTableWidgetItem(QString("")));
+            }
+        }
+        else if (typ == Marks::EndTrack && idxEndTrack < ui->tableTracks->rowCount() - 1) {
+            idxEndTrack++;
+            if (ui->tableTracks->item(idxEndTrack, 2) != NULL) {
+                ui->tableTracks->item(idxEndTrack, 2)->setText(txt);
+            }
+            else {
+                QTableWidgetItem *di = new QTableWidgetItem(txt);
+                di->setFlags(di->flags() & ~Qt::ItemIsEditable);
+                ui->tableTracks->setItem(idxEndTrack, 2, di);
+            }
         }
     }
 }
@@ -336,4 +401,21 @@ void MainWindow::on_actionPos1_triggered()
 void MainWindow::on_actionEnd_triggered()
 {
     ui->PosScrollBar->setValue(ui->PosScrollBar->maximum());
+}
+
+void MainWindow::on_tableTracks_cellChanged(int row, int column)
+{
+    if (ui->tableTracks->item(row, column) != NULL) {
+        if (column == 0) {
+            if (ui->tableTracks->item(row, column)->data(Qt::CheckStateRole) != 0) {
+                //Save title
+                //sox -r 44100 -e signed -b 24 -c 2 input.raw Track.wav trim [start] [lenght]
+                //sox "|sox -n -p" "|sox -n -p" Track.wav splice ... : fade 300 0 300
+                //or
+                //and splice input1 input2 Track.wav  [sec].[msec]
+                // fade [type] fade-in-length [stop-time [fade-out-length]]
+            }
+        }
+    }
+    qDebug() << row << column;
 }

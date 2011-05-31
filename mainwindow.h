@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QSettings>
 #include "marks.h"
 #include "markimages.h"
 
@@ -16,6 +17,9 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+protected:
+    void closeEvent(QCloseEvent *event);
 
 public slots:
     void NewLength(int newLen, int windowlength);
@@ -89,6 +93,8 @@ private slots:
     void on_actionPos1_triggered();
 
     void on_actionEnd_triggered();
+
+    void on_tableTracks_cellChanged(int row, int column);
 
 private:
     MarkImages mimages;
