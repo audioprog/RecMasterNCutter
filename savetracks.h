@@ -16,6 +16,7 @@ public:
     void SetFile(QFile *newfile) { file = newfile; }
     void SetPath(QString newPath) { path = newPath; }
     void SetSoxPath(QString newPath) { soxpath = newPath; }
+    void SetMarks(Marks *newMarks) { marks = newMarks; }
 
 signals:
     void Finished(int TrackNr);

@@ -54,13 +54,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
     this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
-    //ui->markTable->setColumnCount(2);
     ui->markTable->setColumnWidth(0, 20);
-    //ui->markTable->setHorizontalHeaderLabels(QStringList() << tr("M") << tr("Position"));
     ui->markTable->setItemDelegateForColumn(0, new IconDelegate());
-
-    //ui->tableTracks->setColumnCount(3);
-    //ui->tableTracks->setHorizontalHeaderLabels(QStringList() << tr("Start") << tr("End") << tr("text"));
 
     contextmenuNr = -1;
     contextmenuX = -1;
@@ -77,9 +72,20 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->markTable->horizontalHeader()->restoreState(settings.value("MarksHeader").toByteArray());
     ui->tableTracks->horizontalHeader()->restoreState(settings.value("TracksHeader").toByteArray());
 
+    ui->cboxPath->insertItems(0, settings.value("PathList", QStringList()).toStringList());
+    ui->cboxPath->setCurrentIndex(settings.value("PathIndex", -1).toInt());
+    ui->dateEdit->setDate(QDate::currentDate());
+    if (QTime::currentTime().hour() < 12)
+        ui->comboDayTime->setCurrentIndex(0);
+    else if (QTime::currentTime().hour() < 17)
+        ui->comboDayTime->setCurrentIndex(2);
+    else
+        ui->comboDayTime->setCurrentIndex(1);
+
     this->setWindowTitle(QCoreApplication::organizationName() + " " + QCoreApplication::applicationName());
 
     tracks = new SaveTracks();
+    tracks->SetMarks(marks);
 }
 
 MainWindow::~MainWindow()
@@ -95,6 +101,18 @@ void MainWindow::closeEvent(QCloseEvent *event)
      settings.setValue("windowState", ba);
      settings.setValue("MarksHeader", ui->markTable->horizontalHeader()->saveState());
      settings.setValue("TracksHeader", ui->tableTracks->horizontalHeader()->saveState());
+     QStringList pathlist;
+     for (int i = 0; i < ui->cboxPath->count(); i++) {
+         pathlist << ui->cboxPath->itemText(i);
+     }
+     if (pathlist.contains(ui->cboxPath->currentText())) {
+         settings.setValue("PathIndex", pathlist.indexOf(QRegExp(ui->cboxPath->currentText())));
+     }
+     else {
+         settings.setValue("PathIndex", pathlist.count());
+         pathlist << ui->cboxPath->currentText();
+     }
+     settings.setValue("PathList", pathlist);
      event->accept();
 }
 
@@ -203,10 +221,12 @@ void MainWindow::MarksChanged()
             }
             if (ui->tableTracks->item(idxStartTrack, 1) != NULL) {
                 ui->tableTracks->item(idxStartTrack, 1)->setText(txt);
+                ui->tableTracks->item(idxStartTrack, 1)->setData(Qt::UserRole, qVariantFromValue(i));
             }
             else {
                 QTableWidgetItem *di = new QTableWidgetItem(txt);
                 di->setFlags(di->flags() & ~Qt::ItemIsEditable);
+                di->setData(Qt::UserRole, qVariantFromValue(i));
                 ui->tableTracks->setItem(idxStartTrack, 1, di);
             }
             if (ui->tableTracks->item(idxStartTrack, 3) == NULL) {
@@ -217,10 +237,12 @@ void MainWindow::MarksChanged()
             idxEndTrack++;
             if (ui->tableTracks->item(idxEndTrack, 2) != NULL) {
                 ui->tableTracks->item(idxEndTrack, 2)->setText(txt);
+                ui->tableTracks->item(idxEndTrack, 2)->setData(Qt::UserRole, qVariantFromValue(i));
             }
             else {
                 QTableWidgetItem *di = new QTableWidgetItem(txt);
                 di->setFlags(di->flags() & ~Qt::ItemIsEditable);
+                di->setData(Qt::UserRole, qVariantFromValue(i));
                 ui->tableTracks->setItem(idxEndTrack, 2, di);
             }
         }
@@ -236,6 +258,7 @@ void MainWindow::on_action_Open_triggered()
         marks->Read(new QFile(fileName + ".rmrk"));
         ui->widget->SetFile(file); //
         ui->widget->setMarks(marks);
+        tracks->SetMarks(marks);
         ui->FollowWaveEnd->SetFile(file);
         ui->FollowWaveEnd->setMarks(marks);
         ui->Overview->SetFile(file);
@@ -411,6 +434,18 @@ void MainWindow::on_tableTracks_cellChanged(int row, int column)
     if (ui->tableTracks->item(row, column) != NULL) {
         if (column == 0) {
             if (ui->tableTracks->item(row, column)->data(Qt::CheckStateRole) != 0) {
+                QString path = ui->cboxPath->currentText().replace('\\', "/");
+                if (!path.endsWith("/"))
+                    path += "/";
+                path += ui->dateEdit->date().toString("yyyy-MM-dd") + "/";
+                if (ui->comboDayTime->currentIndex() < 3)
+                    path += ui->comboDayTime->currentText().left(1);
+                else
+                    path += ui->comboDayTime->currentText();
+                path += "/";
+                tracks->SetPath(path);
+
+                tracks->SaveTrack(qVariantValue<int>(ui->tableTracks->item(row, 1)->data(Qt::UserRole)));
                 //Save title
                 //sox -r 44100 -e signed -b 24 -c 2 input.raw Track.wav trim [start] [lenght]
                 //sox "|sox input1 -p" "|sox -n -p" Track.wav splice ... : fade 300 0 300
@@ -420,5 +455,4 @@ void MainWindow::on_tableTracks_cellChanged(int row, int column)
             }
         }
     }
-    qDebug() << row << column;
 }
