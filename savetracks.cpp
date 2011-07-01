@@ -94,7 +94,8 @@ void SaveTracks::Save(int startmark, int endmark)
     isworking = true;
     QStringList strlist;
     strlist << "-V3" << "-r" << "44100" << "-s" << "-3" << "-c" << "2" << file->fileName() << "-t" << "wavpcm" << path + QString::number(marks->Pos(startmark)) + ".wav"
-                              << "trim" << QString::number(marks->Pos(startmark)) + "s" << QString::number(marks->Pos(endmark) - marks->Pos(startmark)) + "s";
+                              << "trim" << QString::number(marks->Pos(startmark)) + "s" << QString::number(marks->Pos(endmark) - marks->Pos(startmark)) + "s"
+                              << "gain" << "-n";
     //Prüfen und erstellen Dir
     proc.start(soxpath + "sox", strlist);
     qDebug() << strlist;
@@ -126,6 +127,6 @@ void SaveTracks::SaveMerged(int startmark, int endmark)
                 + QString::number(marks->Pos(last)) + "s " + QString::number(marks->Pos(endmark) - marks->Pos(last)) + "s";
     }
     if (parts.length() > 0) {
-        proc.start(soxpath + "sox", parts << "-t" << "wavpcm" << path + QString::number(marks->Pos(startmark)) + ".wav" << "splice" << "0.1");
+        proc.start(soxpath + "sox", parts << "-t" << "wavpcm" << path + QString::number(marks->Pos(startmark)) + ".wav" << "splice" << "0.1" << "gain" << "-n");
     }
 }

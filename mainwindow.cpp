@@ -28,6 +28,12 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->Overview, SIGNAL(OverviewMarkPosChanged(int)), this, SLOT(OverviewMarkChanged(int)));
     QObject::connect(marks, SIGNAL(MarksChanged()), ui->widget, SLOT(actualize()));
     QObject::connect(marks, SIGNAL(MarksChanged()), this, SLOT(MarksChanged()));
+
+    audio = new AudioOutput();
+
+    QObject::connect(ui->widget, SIGNAL(Play(qint64)), this, SLOT(PlayStart(qint64)));
+    QObject::connect(audio, SIGNAL(PosChanged(qint64)), this, SLOT(PlayNotify(qint64)));
+
     ui->actionStandard->setIcon(mimages.icon(0));
     ui->actionStart_Track->setIcon(mimages.icon(1));
     ui->actionEnd_Track->setIcon(mimages.icon(2));
@@ -48,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->FollowWaveEnd->AddInsertPos(0.7);
     ui->FollowWaveEnd->AddInsertPos(1.0);
     ui->Overview->SetRulerHeight(0);
-    ui->Overview->SetDotWidth(1);
+    ui->Overview->SetDotWidthSecs(1);
     this->setCorner(Qt::TopLeftCorner, Qt:: LeftDockWidgetArea);
     this->setCorner(Qt::BottomLeftCorner, Qt:: LeftDockWidgetArea);
     this->setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
@@ -78,9 +84,9 @@ MainWindow::MainWindow(QWidget *parent) :
     if (QTime::currentTime().hour() < 12)
         ui->comboDayTime->setCurrentIndex(0);
     else if (QTime::currentTime().hour() < 17)
-        ui->comboDayTime->setCurrentIndex(2);
-    else
         ui->comboDayTime->setCurrentIndex(1);
+    else
+        ui->comboDayTime->setCurrentIndex(2);
 
     this->setWindowTitle(QCoreApplication::organizationName() + " " + QCoreApplication::applicationName());
 
@@ -249,10 +255,21 @@ void MainWindow::MarksChanged()
     }
 }
 
+void MainWindow::PlayNotify(qint64 pos)
+{
+    ui->statusBar->showMessage(QString::number(pos));
+}
+
+void MainWindow::PlayStart(qint64 pos)
+{
+    audio->setFilePos(pos);
+    audio->startPlaying();
+}
+
 void MainWindow::on_action_Open_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
-         tr("Open RawAudio"), "", tr("RawAudio Files (*.raw)"));
+         tr("Open Audio"), "", tr("Audio Files (*.raw *.wav)"));
     if (fileName.count() > 0) {
         QFile *file = new QFile(fileName);
         marks->Read(new QFile(fileName + ".rmrk"));
@@ -261,9 +278,11 @@ void MainWindow::on_action_Open_triggered()
         tracks->SetMarks(marks);
         ui->FollowWaveEnd->SetFile(file);
         ui->FollowWaveEnd->setMarks(marks);
+        ui->FollowWaveEnd->SetDotWidth(ui->widget->DotWidth() * 3);
         ui->Overview->SetFile(file);
         ui->Overview->OverviewMarkChanged((int)((qint64)ui->PosScrollBar->pageStep() * (qint64)ui->widget->DotWidth() / (qint64)ui->Overview->DotWidth()), 0);
         tracks->SetFile(file);
+        audio->setFile(fileName);
     }
 }
 
@@ -455,4 +474,24 @@ void MainWindow::on_tableTracks_cellChanged(int row, int column)
             }
         }
     }
+}
+
+void MainWindow::on_actionStop_triggered()
+{
+    audio->stop();
+}
+
+void MainWindow::on_actionPlay_triggered()
+{
+    ui->widget->Play();
+}
+
+void MainWindow::on_actionZoomOut_triggered()
+{
+    ui->FollowWaveEnd->SetDotWidth(ui->FollowWaveEnd->DotWidth() * 2);
+}
+
+void MainWindow::on_actionZoomIn_triggered()
+{
+    ui->FollowWaveEnd->SetDotWidth(ui->FollowWaveEnd->DotWidth() / 2);
 }

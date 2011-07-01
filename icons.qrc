@@ -20,5 +20,6 @@
         <file alias="end">icons/go-end-24.png</file>
         <file alias="pos1">icons/go-pos1-24.png</file>
         <file>icons/saveWave.png</file>
+        <file alias="Add4">icons/Add_4.png</file>
     </qresource>
 </RCC>

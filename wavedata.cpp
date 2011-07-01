@@ -171,6 +171,8 @@ QVector<int> WaveData::Data(uint count, qint64 newpos)
             else if (lastpos <= _pos && Count() <= _pos + count )
                 ret = lastdata.mid((_pos - lastpos) * channel * 2);
         }
+        else
+            lastpos = -1;
     }
     if (lastpos > -1) {
         if (lastwidth == dotwidth) {
@@ -192,6 +194,8 @@ QVector<int> WaveData::Data(uint count, qint64 newpos)
                 read(lastpos + lastcount, count - (_pos - lastpos - lastcount));
             }
         }
+        else
+            lastpos = -1;
     }
     lock.unlock();
     isworking = false;

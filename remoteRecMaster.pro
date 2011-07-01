@@ -6,6 +6,7 @@
 
 QT       += core gui
 QT += network
+QT += multimedia
 
 TARGET = remoteRecMaster
 TEMPLATE = app
@@ -18,7 +19,8 @@ SOURCES += main.cpp\
     marks.cpp \
     markimages.cpp \
     icondelegate.cpp \
-    savetracks.cpp
+    savetracks.cpp \
+    audiooutput.cpp
 
 HEADERS  += mainwindow.h \
     waveform.h \
@@ -26,7 +28,8 @@ HEADERS  += mainwindow.h \
     marks.h \
     markimages.h \
     icondelegate.h \
-    savetracks.h
+    savetracks.h \
+    audiooutput.h
 
 FORMS    += mainwindow.ui
 
@@ -50,7 +53,11 @@ OTHER_FILES += \
     icons/Add_1.png \
     icons/go-pos1-24.png \
     icons/go-end-24.png \
-    icons/saveWave.png
+    icons/saveWave.png \
+    remoteRecMaster_de.ts \
+    icons/Add_4.png
 
 RESOURCES += \
     icons.qrc
+
+TRANSLATIONS = remoteRecMaster.ts

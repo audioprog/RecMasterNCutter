@@ -4,6 +4,7 @@
 #include <QProcess>
 #include <QList>
 #include <QFile>
+#include <QDir>
 
 #include "marks.h"
 
@@ -14,7 +15,7 @@ public:
     explicit SaveTracks(QObject *parent = 0);
 
     void SetFile(QFile *newfile) { file = newfile; }
-    void SetPath(QString newPath) { path = newPath; }
+    void SetPath(QString newPath) { path = newPath; QDir(path).mkpath(path); }
     void SetSoxPath(QString newPath) { soxpath = newPath; }
     void SetMarks(Marks *newMarks) { marks = newMarks; }
 

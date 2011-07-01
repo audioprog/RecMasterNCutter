@@ -85,6 +85,7 @@ void WaveForm::paintEvent(QPaintEvent * /* event */)
     QPainter painter(this);
     //painter.setPen(palette().dark().brush());
     //painter.setBrush(brush);
+    //qDebug() << onesecund << data.DotWidth();
     if (onesecund == 0) {
         onesecund = painter.device()->logicalDpiX() * 1.2;
         data.SetDotWidth(44100 / onesecund);
@@ -109,7 +110,8 @@ void WaveForm::paintEvent(QPaintEvent * /* event */)
         if (rulerHeight > 0) {
             painter.setPen(Qt::black);
             painter.drawLine(0, rulerHeight, width(), rulerHeight);
-            for (int i = onesecund - (data.Pos() % onesecund); i < width(); i += onesecund) {
+            int counter = onesecund > 80 ? onesecund : 80 - ( 80 % onesecund );
+            for (int i = onesecund - (data.Pos() % onesecund); i < width(); i += counter) {
                 QTime time = QTime(0,0,0);
                 time = time.addSecs((data.Pos() + i) / onesecund);
                 QString text = "";
@@ -119,7 +121,7 @@ void WaveForm::paintEvent(QPaintEvent * /* event */)
                     text += time.toString("m") + " m ";
                 if (time.second() > 0)
                     text += time.toString("s") + " s";
-                painter.drawText(i + 2, -1, onesecund - 4, rulerHeight - 1, Qt::AlignVCenter | Qt::AlignLeft, text);
+                painter.drawText(i + 2, -1, counter - 4, rulerHeight - 1, Qt::AlignVCenter | Qt::AlignLeft, text);
                 painter.drawLine(i, 0, i, rulerHeight);
             }
 
@@ -393,6 +395,10 @@ void WaveForm::mouseReleaseEvent(QMouseEvent *event)
             emit OverviewMarkPosChanged(x);
         }
         mrkMoveNr = 0;
+    }
+    if (event->buttons() == Qt::MiddleButton)
+    {
+        emit Play((data.Pos() + event->x()) * (qint64)data.DotWidth());
     }
 }
 

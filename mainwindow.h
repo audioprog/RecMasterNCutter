@@ -6,6 +6,7 @@
 #include "marks.h"
 #include "markimages.h"
 #include "savetracks.h"
+#include "audiooutput.h"
 
 namespace Ui {
     class MainWindow;
@@ -33,9 +34,12 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
+    AudioOutput* audio;
 
 private slots:
     void MarksChanged();
+    void PlayNotify(qint64 pos);
+    void PlayStart(qint64 pos);
 
     void on_action_Open_triggered();
 
@@ -96,6 +100,14 @@ private slots:
     void on_actionEnd_triggered();
 
     void on_tableTracks_cellChanged(int row, int column);
+
+    void on_actionStop_triggered();
+
+    void on_actionPlay_triggered();
+
+    void on_actionZoomOut_triggered();
+
+    void on_actionZoomIn_triggered();
 
 private:
     MarkImages mimages;
