@@ -27,7 +27,7 @@ public:
     void AddMarkAtInsertPos(int InsPosItem, Marks::MarkTypes typ);
     void SetRulerHeight( int newheight ) { rulerHeight = newheight; }
     void SetDotWidthSecs(int sec) { onesecund = sec; data.SetDotWidth(44100 * sec); }
-    int SetDotWidth( int newwidth ) { data.SetDotWidth(newwidth); onesecund = 44100 / newwidth; }
+    void SetDotWidth( int newwidth ) { data.SetDotWidth(newwidth); onesecund = 44100 / newwidth; }
     int DotWidth() { return data.DotWidth(); }
     int Selected() { return selected; }
     void SetDebugNr(int nr) { data.setDebugNr(nr); }
@@ -50,6 +50,7 @@ public slots:
     void MoveToSelection() { if (selected > -1 && selected < marks->Count()) { int np = marks->Pos(selected) / data.DotWidth() - width() / 2; emit PosChanged(np, true); } }
     void OverviewMarkChanged(int count, int pos) { mrkMovePos = pos; mrkMoveSlide = count; emit PosChanged(pos - width() / 2, true); actualize(); update(); }
     void Play() { emit Play(data.Pos() * data.DotWidth()); }
+    void Clear() { data.Clear(); }
 
 protected:
     void paintEvent(QPaintEvent *event);

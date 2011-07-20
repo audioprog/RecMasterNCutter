@@ -495,3 +495,9 @@ void MainWindow::on_actionZoomIn_triggered()
 {
     ui->FollowWaveEnd->SetDotWidth(ui->FollowWaveEnd->DotWidth() / 2);
 }
+
+void MainWindow::on_actionRefresh_triggered()
+{
+    ui->widget->Clear();
+    ui->Overview->Clear();
+}

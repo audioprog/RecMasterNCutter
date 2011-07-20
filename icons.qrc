@@ -21,5 +21,8 @@
         <file alias="pos1">icons/go-pos1-24.png</file>
         <file>icons/saveWave.png</file>
         <file alias="Add4">icons/Add_4.png</file>
+        <file alias="zoomin">icons/zoom-in.svg</file>
+        <file alias="zoomout">icons/zoom-out.svg</file>
+        <file alias="refresh">icons/media_playlist_refresh.png</file>
     </qresource>
 </RCC>

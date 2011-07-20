@@ -129,6 +129,7 @@
    </attribute>
    <addaction name="action_Open"/>
    <addaction name="actionSaveMarks"/>
+   <addaction name="actionRefresh"/>
   </widget>
   <widget class="QToolBar" name="tbarEditMark">
    <attribute name="toolBarArea">
@@ -852,11 +853,19 @@
    </property>
   </action>
   <action name="actionZoomIn">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/zoomin</normaloff>:/symbols/zoomin</iconset>
+   </property>
    <property name="text">
     <string>ZoomIn</string>
    </property>
   </action>
   <action name="actionZoomOut">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/zoomout</normaloff>:/symbols/zoomout</iconset>
+   </property>
    <property name="text">
     <string>ZoomOut</string>
    </property>
@@ -868,6 +877,15 @@
    </property>
    <property name="text">
     <string>Standard 4</string>
+   </property>
+  </action>
+  <action name="actionRefresh">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/refresh</normaloff>:/symbols/refresh</iconset>
+   </property>
+   <property name="text">
+    <string>Refresh</string>
    </property>
   </action>
  </widget>

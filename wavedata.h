@@ -27,6 +27,7 @@ public:
     void SetDotWidth ( uint newwidth ) { dotwidth = newwidth; }
     int MaxClip() { return maxclip; }
     void setDebugNr(int nr) { debugnr = nr; }
+    void Clear() { lastdata.clear(); }
 
     void run();
 

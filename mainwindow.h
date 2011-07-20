@@ -109,6 +109,8 @@ private slots:
 
     void on_actionZoomIn_triggered();
 
+    void on_actionRefresh_triggered();
+
 private:
     MarkImages mimages;
     int contextmenuNr;

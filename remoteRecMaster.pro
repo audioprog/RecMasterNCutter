@@ -55,7 +55,10 @@ OTHER_FILES += \
     icons/go-end-24.png \
     icons/saveWave.png \
     remoteRecMaster_de.ts \
-    icons/Add_4.png
+    icons/Add_4.png \
+    icons/zoom-out.svg \
+    icons/zoom-in.svg \
+    icons/media_playlist_refresh.png
 
 RESOURCES += \
     icons.qrc
