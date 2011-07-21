@@ -50,7 +50,8 @@ public slots:
     void MoveToSelection() { if (selected > -1 && selected < marks->Count()) { int np = marks->Pos(selected) / data.DotWidth() - width() / 2; emit PosChanged(np, true); } }
     void OverviewMarkChanged(int count, int pos) { mrkMovePos = pos; mrkMoveSlide = count; emit PosChanged(pos - width() / 2, true); actualize(); update(); }
     void Play() { emit Play(data.Pos() * data.DotWidth()); }
-    void Clear() { data.Clear(); }
+    void Clear() { data.Clear(); update(); }
+    void setExpand( bool newVal ) { expand = newVal; update(); }
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -71,6 +72,7 @@ private:
     int onesecund;
     bool followend;
     int selected;
+    bool expand;
 
     Marks::MarkTypes mrkMoveType;
     int mrkMoveNr;

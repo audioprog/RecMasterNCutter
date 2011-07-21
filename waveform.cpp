@@ -21,6 +21,7 @@ WaveForm::WaveForm(QWidget *parent) :
     mrkMoveSlide = 0;
     setContextMenuPolicy(Qt::DefaultContextMenu);
     selected = -1;
+    expand = true;
     QObject::connect(&data, SIGNAL(CanReadNow()), this, SLOT(update()));
 }
 
@@ -196,14 +197,16 @@ void WaveForm::paintEvent(QPaintEvent * /* event */)
             painter.drawRect(x, 0, mrkMoveSlide, height() - 1);
         }
 
-        int dmax = 1;
-        for (int i = 0; i < vectors.count() - 1; i += channel) {
-            if (dmax < vectors.at(i))
-                dmax = vectors.at(i);
-            if (dmax < -vectors.at(i + 1))
-                dmax = -vectors.at(i + 1);
+        if (expand) {
+            int dmax = 1;
+            for (int i = 0; i < vectors.count() - 1; i += channel) {
+                if (dmax < vectors.at(i))
+                    dmax = vectors.at(i);
+                if (dmax < -vectors.at(i + 1))
+                    dmax = -vectors.at(i + 1);
+            }
+            max = dmax;
         }
-        max = dmax;
 
         painter.setPen(Qt::black);
         int idxv = 0, midx = 0, vectorsidx = 0;

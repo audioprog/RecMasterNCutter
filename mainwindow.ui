@@ -129,7 +129,6 @@
    </attribute>
    <addaction name="action_Open"/>
    <addaction name="actionSaveMarks"/>
-   <addaction name="actionRefresh"/>
   </widget>
   <widget class="QToolBar" name="tbarEditMark">
    <attribute name="toolBarArea">
@@ -490,6 +489,19 @@
      </item>
     </layout>
    </widget>
+  </widget>
+  <widget class="QToolBar" name="tbarView">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionExpand_WaveForm"/>
+   <addaction name="actionRefresh"/>
   </widget>
   <action name="action_Open">
    <property name="icon">
@@ -886,6 +898,21 @@
    </property>
    <property name="text">
     <string>Refresh</string>
+   </property>
+  </action>
+  <action name="actionExpand_WaveForm">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/waveform</normaloff>:/symbols/waveform</iconset>
+   </property>
+   <property name="text">
+    <string>Expand WaveForm</string>
    </property>
   </action>
  </widget>

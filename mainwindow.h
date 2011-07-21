@@ -111,6 +111,8 @@ private slots:
 
     void on_actionRefresh_triggered();
 
+    void on_actionExpand_WaveForm_toggled(bool arg1);
+
 private:
     MarkImages mimages;
     int contextmenuNr;

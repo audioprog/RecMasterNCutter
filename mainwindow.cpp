@@ -501,3 +501,9 @@ void MainWindow::on_actionRefresh_triggered()
     ui->widget->Clear();
     ui->Overview->Clear();
 }
+
+void MainWindow::on_actionExpand_WaveForm_toggled(bool arg1)
+{
+    ui->widget->setExpand(arg1);
+    ui->Overview->setExpand(arg1);
+}

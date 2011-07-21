@@ -58,7 +58,8 @@ OTHER_FILES += \
     icons/Add_4.png \
     icons/zoom-out.svg \
     icons/zoom-in.svg \
-    icons/media_playlist_refresh.png
+    icons/media_playlist_refresh.png \
+    icons/waveform.png
 
 RESOURCES += \
     icons.qrc

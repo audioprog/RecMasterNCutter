@@ -24,5 +24,6 @@
         <file alias="zoomin">icons/zoom-in.svg</file>
         <file alias="zoomout">icons/zoom-out.svg</file>
         <file alias="refresh">icons/media_playlist_refresh.png</file>
+        <file alias="waveform">icons/waveform.png</file>
     </qresource>
 </RCC>
