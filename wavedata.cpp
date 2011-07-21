@@ -27,7 +27,7 @@ void WaveData::FileOpen(QFile *newFile)
         file->close();
         lastpos = -1;
     }
-    file = newFile;
+    file = new QFile(newFile->fileName());
     if (!file->isOpen())
         file->open(QFile::ReadOnly);
     fileloaded = true;
