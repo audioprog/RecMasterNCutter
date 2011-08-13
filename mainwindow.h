@@ -113,7 +113,14 @@ private slots:
 
     void on_actionExpand_WaveForm_toggled(bool arg1);
 
+    void on_btnListDevices_clicked();
+
+    void on_btnStartRec_clicked();
+
 private:
+    QString getPath();
+    void open(QString fileName);
+
     MarkImages mimages;
     int contextmenuNr;
     int contextmenuX;

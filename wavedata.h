@@ -27,7 +27,7 @@ public:
     void SetDotWidth ( uint newwidth ) { dotwidth = newwidth; }
     int MaxClip() { return maxclip; }
     void setDebugNr(int nr) { debugnr = nr; }
-    void Clear() { lastdata.clear(); }
+    void Clear() { if (isworking) { breakWork = true; } else { lastdata.clear(); } }
 
     void run();
 
@@ -40,6 +40,7 @@ private:
     QReadWriteLock lock;
     bool isworking;
     bool fileloaded;
+    bool breakWork;
     QFile *file;
     qint64 _pos;
     QVector<int> lastdata;

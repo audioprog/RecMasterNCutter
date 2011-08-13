@@ -2,6 +2,7 @@
 #include <QFileDialog>
 #include <QTime>
 #include <QCloseEvent>
+#include <QProcess>
 #include <QtDebug>
 
 #include "icondelegate.h"
@@ -270,20 +271,7 @@ void MainWindow::on_action_Open_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
          tr("Open Audio"), "", tr("Audio Files (*.raw *.wav)"));
-    if (fileName.count() > 0) {
-        QFile *file = new QFile(fileName);
-        marks->Read(new QFile(fileName + ".rmrk"));
-        ui->widget->SetFile(file); //
-        ui->widget->setMarks(marks);
-        tracks->SetMarks(marks);
-        ui->FollowWaveEnd->SetFile(file);
-        ui->FollowWaveEnd->setMarks(marks);
-        ui->FollowWaveEnd->SetDotWidth(ui->widget->DotWidth() * 3);
-        ui->Overview->SetFile(file);
-        ui->Overview->OverviewMarkChanged((int)((qint64)ui->PosScrollBar->pageStep() * (qint64)ui->widget->DotWidth() / (qint64)ui->Overview->DotWidth()), 0);
-        tracks->SetFile(file);
-        audio->setFile(fileName);
-    }
+    open(fileName);
 }
 
 void MainWindow::on_actionDelete_triggered()
@@ -453,15 +441,7 @@ void MainWindow::on_tableTracks_cellChanged(int row, int column)
     if (ui->tableTracks->item(row, column) != NULL) {
         if (column == 0) {
             if (ui->tableTracks->item(row, column)->data(Qt::CheckStateRole) != 0) {
-                QString path = ui->cboxPath->currentText().replace('\\', "/");
-                if (!path.endsWith("/"))
-                    path += "/";
-                path += ui->dateEdit->date().toString("yyyy-MM-dd") + "/";
-                if (ui->comboDayTime->currentIndex() < 3)
-                    path += ui->comboDayTime->currentText().left(1);
-                else
-                    path += ui->comboDayTime->currentText();
-                path += "/";
+                QString path = getPath();
                 tracks->SetPath(path);
 
                 tracks->SaveTrack(qVariantValue<int>(ui->tableTracks->item(row, 1)->data(Qt::UserRole)));
@@ -506,4 +486,72 @@ void MainWindow::on_actionExpand_WaveForm_toggled(bool arg1)
 {
     ui->widget->setExpand(arg1);
     ui->Overview->setExpand(arg1);
+}
+
+void MainWindow::on_btnListDevices_clicked()
+{
+    QProcess devlist;
+    devlist.setProcessChannelMode(QProcess::SeparateChannels);
+    devlist.start("parec -s");
+    if (devlist.waitForFinished()) {
+        ui->comboDevices->clear();
+        QStringList lines = ((QString)devlist.readAll()).split('\n');
+        foreach (QString line, lines) {
+            if (line.contains('=')) {
+                bool ok;
+                int nr = line.section('=', 0,0).toInt(&ok);
+                if (ok)
+                    ui->comboDevices->addItem(line);
+            }
+        }
+
+        ui->pteDebug->setPlainText(devlist.readAll());
+    }
+}
+
+void MainWindow::on_btnStartRec_clicked()
+{
+    if (ui->comboDevices->currentText().contains('=')) {
+        bool ok;
+        int nr = ui->comboDevices->currentText().section('=', 0, 0).toInt(&ok);
+        if (ok) {
+            QString path = getPath();
+            QDir(path).mkpath(path);
+            if (QProcess::startDetached("parec " + QString::number(nr) + " \"" + path + "full.raw\""))
+                if (QFile::exists(path + "full.raw"))
+                    open(path + "fill.raw");
+        }
+    }
+}
+
+QString MainWindow::getPath()
+{
+    QString path = ui->cboxPath->currentText().replace('\\', "/");
+    if (!path.endsWith("/"))
+        path += "/";
+    path += ui->dateEdit->date().toString("yyyy-MM-dd") + "/";
+    if (ui->comboDayTime->currentIndex() < 3)
+        path += ui->comboDayTime->currentText().left(1);
+    else
+        path += ui->comboDayTime->currentText();
+    path += "/";
+    return path;
+}
+
+void MainWindow::open(QString fileName)
+{
+    if (fileName.count() > 0) {
+        QFile *file = new QFile(fileName);
+        marks->Read(new QFile(fileName + ".rmrk"));
+        ui->widget->SetFile(file); //
+        ui->widget->setMarks(marks);
+        tracks->SetMarks(marks);
+        ui->FollowWaveEnd->SetFile(file);
+        ui->FollowWaveEnd->setMarks(marks);
+        ui->FollowWaveEnd->SetDotWidth(ui->widget->DotWidth() * 3);
+        ui->Overview->SetFile(file);
+        ui->Overview->OverviewMarkChanged((int)((qint64)ui->PosScrollBar->pageStep() * (qint64)ui->widget->DotWidth() / (qint64)ui->Overview->DotWidth()), 0);
+        tracks->SetFile(file);
+        audio->setFile(fileName);
+    }
 }

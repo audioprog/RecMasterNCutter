@@ -27,7 +27,7 @@ public:
     void AddMarkAtInsertPos(int InsPosItem, Marks::MarkTypes typ);
     void SetRulerHeight( int newheight ) { rulerHeight = newheight; }
     void SetDotWidthSecs(int sec) { onesecund = sec; data.SetDotWidth(44100 * sec); }
-    void SetDotWidth( int newwidth ) { data.SetDotWidth(newwidth); onesecund = 44100 / newwidth; }
+    void SetDotWidth( int newwidth ) { if (newwidth > 0) { data.SetDotWidth(newwidth); onesecund = 44100 / newwidth; } }
     int DotWidth() { return data.DotWidth(); }
     int Selected() { return selected; }
     void SetDebugNr(int nr) { data.setDebugNr(nr); }

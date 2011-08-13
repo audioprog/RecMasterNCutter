@@ -9,6 +9,7 @@ SaveTracks::SaveTracks(QObject *parent) :
     QObject::connect(&proc, SIGNAL(readyRead()), this, SLOT(canread()));
     QObject::connect(&proc, SIGNAL(finished(int)), this, SLOT(finished()));
     proc.setProcessChannelMode(QProcess::MergedChannels);
+    isworking = false;
 }
 
 void SaveTracks::canread()
@@ -19,6 +20,7 @@ void SaveTracks::canread()
 
 void SaveTracks::SaveTrack(int TrackNr)
 {
+    qDebug() << "SaveTrack" << TrackNr << isworking;
     list.append(TrackNr);
     if (!isworking)
         Start();

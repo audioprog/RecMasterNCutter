@@ -1,5 +1,5 @@
 #include "wavedata.h"
-//#include <QtDebug>
+#include <QtDebug>
 
 WaveData::WaveData()
 {
@@ -68,14 +68,14 @@ void WaveData::run()
         int retnr = 0;
         int max1[channel], max2[channel];
         int act;
-        for(int i = 0; retnr < ret.count() && (i + channel) * samplesize < ba.count(); i+=channel) {
+        for(int i = 0; retnr < ret.count() && (i + channel) * samplesize < ba.count() && !breakWork; i+=channel) {
             for (uint j = 0; j < channel; j++) {
                 int iba = (i + j) * samplesize;
                 if ((qint8)ba.at(iba + 2) < 0) {
-                    act = 0xff000000 | ba.at(iba + 2) << 16 | ba.at(iba + 1) << 8 | ba.at(iba);
+                    act = 0xff000000 | ((quint8)ba.at(iba + 2)) << 16 | ((quint8)ba.at(iba + 1)) << 8 | (quint8)ba.at(iba);
                 }
                 else {
-                    act = ba.at(iba + 2) << 16 | ba.at(iba + 1) << 8 | ba.at(iba);
+                    act = ((quint8)ba.at(iba + 2)) << 16 | ((quint8)ba.at(iba + 1)) << 8 | (quint8)ba.at(iba);
                 }
                 if (cnt == 0) {
                     max1[j] = act;
@@ -95,52 +95,60 @@ void WaveData::run()
                 cnt = 0;
             }
         }
-        if (retnr < ret.count() && retnr < ret.count() + samplesize + channel) {
-            for (uint j = 0; j < channel; j++) {
-                ret[retnr++] = max2[j];
-                ret[retnr++] = max1[j];
+        if (breakWork) {
+            breakWork = false;
+            lastdata.clear();
+            lastpos = -1;
+            emit CanReadNow();
+        }
+        else {
+            if (retnr < ret.count() && retnr < ret.count() + samplesize + channel) {
+                for (uint j = 0; j < channel; j++) {
+                    ret[retnr++] = max2[j];
+                    ret[retnr++] = max1[j];
+                }
             }
-        }
-        if (lastpos == -1 || lastwidth != dotwidth) {
-            lock.lockForWrite();
-            lastdata = ret;
-            lastpos = readpos;
-            lastcount = count;
-            lastwidth = dotwidth;
-            lock.unlock();
-        }
-        else if (readpos < lastpos) {
-            if (readpos + count == lastpos) {
+            if (lastpos == -1 || lastwidth != dotwidth) {
                 lock.lockForWrite();
-                ret << lastdata;
                 lastdata = ret;
                 lastpos = readpos;
-                lastcount = lastdata.count() / channel / 2;
+                lastcount = count;
+                lastwidth = dotwidth;
                 lock.unlock();
             }
-            else {
+            else if (readpos < lastpos) {
+                if (readpos + count == lastpos) {
+                    lock.lockForWrite();
+                    ret << lastdata;
+                    lastdata = ret;
+                    lastpos = readpos;
+                    lastcount = lastdata.count() / channel / 2;
+                    lock.unlock();
+                }
+                else {
+                    lock.lockForWrite();
+                    lastdata = ret;
+                    lastpos = readpos;
+                    lastcount = count;
+                    lock.unlock();
+                }
+            }
+            else if (readpos > lastpos + lastcount + 1) {
                 lock.lockForWrite();
                 lastdata = ret;
                 lastpos = readpos;
                 lastcount = count;
                 lock.unlock();
             }
-        }
-        else if (readpos > lastpos + lastcount + 1) {
-            lock.lockForWrite();
-            lastdata = ret;
-            lastpos = readpos;
-            lastcount = count;
-            lock.unlock();
-        }
-        else if (readpos == lastpos + lastcount) {
-            lock.lockForWrite();
-            lastdata << ret;
-            lastcount = lastdata.count() / channel / 2;
-            lock.unlock();
-        }
+            else if (readpos == lastpos + lastcount) {
+                lock.lockForWrite();
+                lastdata << ret;
+                lastcount = lastdata.count() / channel / 2;
+                lock.unlock();
+            }
 
-        emit CanReadNow();
+            emit CanReadNow();
+        }
     }
 }
 
