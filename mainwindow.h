@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QSettings>
+#include <QTimer>
 #include "marks.h"
 #include "markimages.h"
 #include "savetracks.h"
@@ -117,6 +118,8 @@ private slots:
 
     void on_btnStartRec_clicked();
 
+    void on_btnOpen_clicked();
+
 private:
     QString getPath();
     void open(QString fileName);
@@ -127,6 +130,7 @@ private:
     Marks *marks;
     QMenu *contextmenu;
     SaveTracks *tracks;
+    QTimer timer;
 };
 
 #endif // MAINWINDOW_H

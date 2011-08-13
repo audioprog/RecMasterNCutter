@@ -77,6 +77,8 @@ void WaveForm::AddMark(int x, Marks::MarkTypes Mark)
 
 void WaveForm::NewPos(int newPos)
 {
+    if (newPos < 0)
+        newPos = 0;
     data.SetPos(newPos);
     this->update();
 }
@@ -112,7 +114,7 @@ void WaveForm::paintEvent(QPaintEvent * /* event */)
             painter.setPen(Qt::black);
             painter.drawLine(0, rulerHeight, width(), rulerHeight);
             int counter = onesecund > 80 ? onesecund : 80 - ( 80 % onesecund );
-            for (int i = onesecund - (data.Pos() % onesecund); i < width(); i += counter) {
+            for (int i = counter - (data.Pos() % counter); i < width(); i += counter) {
                 QTime time = QTime(0,0,0);
                 time = time.addSecs((data.Pos() + i) / onesecund);
                 QString text = "";

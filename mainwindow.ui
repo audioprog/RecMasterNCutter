@@ -480,6 +480,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="maxVisibleItems">
+             <number>20</number>
+            </property>
            </widget>
           </item>
           <item>
@@ -490,6 +493,13 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="text">
+             <string>&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="btnOpen">
             <property name="text">
              <string>o</string>
             </property>

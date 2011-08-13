@@ -93,6 +93,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     tracks = new SaveTracks();
     tracks->SetMarks(marks);
+
+    QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(on_btnListDevices_clicked()));
+    timer.singleShot(1000, this, SLOT(on_btnListDevices_clicked()));
 }
 
 MainWindow::~MainWindow()
@@ -270,7 +273,7 @@ void MainWindow::PlayStart(qint64 pos)
 void MainWindow::on_action_Open_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
-         tr("Open Audio"), "", tr("Audio Files (*.raw *.wav)"));
+         tr("Open Audio"), getPath(), tr("Audio Files (*.raw *.wav)"));
     open(fileName);
 }
 
@@ -505,6 +508,18 @@ void MainWindow::on_btnListDevices_clicked()
             }
         }
 
+        QSettings settings;
+        int lastnr = settings.value("LastRecChannel", qVariantFromValue((int)0)).toInt();
+        for (int i = 0; i < ui->comboDevices->count(); i++) {
+            bool ok;
+            int nr = ui->comboDevices->itemText(i).section('=', 0,0).toInt(&ok);
+            if (ok)
+                if (nr == lastnr) {
+                    ui->comboDevices->setCurrentIndex(i);
+                    break;
+                }
+        }
+
         ui->pteDebug->setPlainText(devlist.readAll());
     }
 }
@@ -515,11 +530,12 @@ void MainWindow::on_btnStartRec_clicked()
         bool ok;
         int nr = ui->comboDevices->currentText().section('=', 0, 0).toInt(&ok);
         if (ok) {
+            QSettings settings;
+            settings.setValue("LastRecChannel", qVariantFromValue(nr));
             QString path = getPath();
             QDir(path).mkpath(path);
             if (QProcess::startDetached("parec " + QString::number(nr) + " \"" + path + "full.raw\""))
-                if (QFile::exists(path + "full.raw"))
-                    open(path + "fill.raw");
+                on_btnOpen_clicked();
         }
     }
 }
@@ -553,5 +569,15 @@ void MainWindow::open(QString fileName)
         ui->Overview->OverviewMarkChanged((int)((qint64)ui->PosScrollBar->pageStep() * (qint64)ui->widget->DotWidth() / (qint64)ui->Overview->DotWidth()), 0);
         tracks->SetFile(file);
         audio->setFile(fileName);
+    }
+}
+
+void MainWindow::on_btnOpen_clicked()
+{
+    QString path = getPath();
+    if (QFile::exists(path + "full.raw")) {
+        QString fileName = QFileDialog::getOpenFileName(this,
+                                                        tr("Open Audio"), getPath() + "full.raw", tr("Audio Files (*.raw *.wav)"));
+        open(fileName);
     }
 }

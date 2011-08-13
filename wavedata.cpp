@@ -1,4 +1,6 @@
 #include "wavedata.h"
+#include <QFileInfo>
+
 #include <QtDebug>
 
 WaveData::WaveData()
@@ -17,8 +19,9 @@ WaveData::WaveData()
 WaveData::~WaveData()
 {
     if (fileloaded)
-        if (file->isOpen())
+        if (file->isOpen()) {
             file->close();
+        }
 }
 
 void WaveData::FileOpen(QFile *newFile)
@@ -46,7 +49,19 @@ int WaveData::Count()
 {
     if (fileloaded)
     {
-        return (int)(file->size() / dotwidth / channel / samplesize);
+        //qDebug() << "Count" << file->size() << DotWidth() << channel << samplesize;
+        int len = (int)(file->size() / dotwidth / channel / samplesize);
+        if (len == 0) {
+            //qdir
+            QFileInfo fi(file->fileName());
+            fi.setCaching(false);
+            //file->open(QFile::ReadOnly);
+            len = (int)(fi.size() / dotwidth / channel / samplesize);
+            return len;
+        }
+        else
+            return len;
+//        return (int)(file->size() / dotwidth / channel / samplesize);
     }
     return 0;
 }
