@@ -50,6 +50,7 @@ public:
     qint64 writeData(const char *data, qint64 len);
     qint64 bytesAvailable() const;
     void setPos(const qint64 newPos);
+    qint64 len() { return ofile->size() - m_headersize; }
 
 private slots:
     void readFile();

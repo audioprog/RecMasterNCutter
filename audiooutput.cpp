@@ -208,7 +208,15 @@ void WaveOutIODevice::readFile()
         //qint64 anfang = m_pos;
         qint64 filebytesavail = (ofile->size() - ofile->pos()) / 3 * 2;
         if (len > filebytesavail)
-            len = (int)filebytesavail;
+            if (filebytesavail == 0) {
+                for (int i = 0; i < m_sizebuffer; i++)
+                    m_buffer[i] = 0;
+                m_pos += ring.In(m_buffer, len) / 2 * 3;
+                readTimer.start();
+                return;
+            } else {
+                len = (int)filebytesavail;
+            }
 
         QByteArray bf = ofile->read(len / 2 * 3);
         len = bf.count() / 3 * 2;
@@ -300,5 +308,9 @@ void AudioOutput::finishedPlaying(QAudio::State state)
 
 void AudioOutput::notify()
 {
-    emit PosChanged(Pos());
+    qint64 actpos = Pos();
+    if (actpos >= out->len())
+        stop();
+    else
+        emit PosChanged(Pos());
 }
