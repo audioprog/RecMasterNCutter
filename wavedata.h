@@ -42,6 +42,7 @@ private:
     bool fileloaded;
     bool breakWork;
     QFile *file;
+    qint64 _headersize;
     qint64 _pos;
     QVector<int> lastdata;
     qint64 lastpos;

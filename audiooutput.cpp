@@ -1,7 +1,9 @@
 #include "audiooutput.h"
 
-#include <QtDebug>
+//#include <QtDebug>
 #include <QtEndian>
+#include "wavfile.h"
+
 
 RingBuffer::RingBuffer() :
 mBuffer(NULL),
@@ -77,33 +79,27 @@ int RingBuffer::In(const void* data, int ioBytes) {
     int copiedBytes = GetSpaceAvailable();
     if (copiedBytes > ioBytes)
         copiedBytes = ioBytes;
+   // else if (copiedBytes != ioBytes)
+   //     qDebug() << copiedBytes << ioBytes;
 
     if (mBEnd == mBSize) {
         memcpy(mBuffer, data, copiedBytes);
         mBEnd = copiedBytes;
-        mBWrapped = false;
-    } else if (mBEnd + copiedBytes <= mBSize || mBEnd == mBSize) {
+    } else if (mBEnd + copiedBytes <= mBSize) {
         memcpy(mBuffer + mBEnd, data, copiedBytes);
-        //BlockMoveData(data, mBuffer + mBEnd, copiedBytes);
         mBEnd += copiedBytes;
-        if (mBEnd == mBStart)
-            mBWrapped = true;
-        else
-            mBWrapped = false;
     } else {
         int wrappedBytes = mBSize - mBEnd;
         const qint8* dataSplit = static_cast<const qint8*>(data) + wrappedBytes;
         memcpy(mBuffer + mBEnd, data, wrappedBytes);
-        //BlockMoveData(data, mBuffer + mBEnd, wrappedBytes);
 
         mBEnd = copiedBytes - wrappedBytes;
         memcpy(mBuffer, dataSplit, mBEnd);
-        if (copiedBytes == mBSize)
-            mBWrapped = true;
-        else
-            mBWrapped = false;
-        //BlockMoveData(dataSplit, mBuffer, mBEnd);
     }
+    if (mBEnd == mBStart)
+        mBWrapped = true;
+    else
+        mBWrapped = false;
 
     mutex.unlock();
     return copiedBytes;
@@ -111,25 +107,26 @@ int RingBuffer::In(const void* data, int ioBytes) {
 
 int RingBuffer::Out(void *data, int ioBytes)
 {
-   mutex.lock();
-   int copiedBytes = GetDataAvailable();
-   if (copiedBytes > ioBytes)
-       copiedBytes = ioBytes;
+    mutex.lock();
+    int copiedBytes = GetDataAvailable();
+    if (copiedBytes > ioBytes)
+        copiedBytes = ioBytes;
 
-   if (mBStart + copiedBytes <= mBSize) {
-       memcpy(data, mBuffer + mBStart, copiedBytes);
-       mBStart += copiedBytes;
-   } else {
-       int wrappedBytes = mBSize - mBStart;
-       qint8* dataSplit = static_cast<qint8*>(data) + wrappedBytes;
-       memcpy(data, mBuffer + mBStart, wrappedBytes);
-       mBStart = copiedBytes - wrappedBytes;
-       memcpy(dataSplit, mBuffer, mBStart);
-   }
-   mBWrapped = false;
+    if (mBStart + copiedBytes <= mBSize) {
+        memcpy(data, mBuffer + mBStart, copiedBytes);
+        mBStart += copiedBytes;
+    } else {
+        int wrappedBytes = mBSize - mBStart;
+        qint8* dataSplit = static_cast<qint8*>(data) + wrappedBytes;
+        memcpy(data, mBuffer + mBStart, wrappedBytes);
+        mBStart = copiedBytes - wrappedBytes;
+        memcpy(dataSplit, mBuffer, mBStart);
+    }
+    if (copiedBytes == mBSize)
+        mBWrapped = false;
 
-   mutex.unlock();
-   return copiedBytes;
+    mutex.unlock();
+    return copiedBytes;
 }
 
 WaveOutIODevice::WaveOutIODevice(QFile *file, QObject *parent)
@@ -137,12 +134,17 @@ WaveOutIODevice::WaveOutIODevice(QFile *file, QObject *parent)
     ,   m_pos(0)
 {
     ofile = new QFile(file->fileName());
-    ring.Initialize(10 * 44100 * 2 * 2);
+
+    m_headersize = file->fileName().section('.', -1, -1).toLower() == "wav" ? WavFile(file->fileName()).headerLength() : 0;
 
     m_sizebuffer = 10 * 44100 * 2 * 2;
+
+    ring.Initialize(m_sizebuffer);
+
     m_buffer.resize(m_sizebuffer);
+
     QObject::connect(&readTimer, SIGNAL(timeout()), this, SLOT(readFile()));
-    readTimer.setInterval(50);
+    readTimer.setInterval(100);
 }
 
 WaveOutIODevice::~WaveOutIODevice()
@@ -152,8 +154,9 @@ WaveOutIODevice::~WaveOutIODevice()
 void WaveOutIODevice::start()
 {
     ofile->open(QFile::ReadOnly);
-    readFile();
     open(QIODevice::ReadOnly);
+    ofile->seek(m_headersize + m_pos);
+    readFile();
 }
 
 void WaveOutIODevice::stop()
@@ -168,6 +171,7 @@ qint64 WaveOutIODevice::readData(char *data, qint64 len)
         int chunk = (int)qMin(len, (qint64)ring.GetDataAvailable());
         return ring.Out(data, chunk);
     }
+    return 0;
 }
 
 qint64 WaveOutIODevice::writeData(const char *data, qint64 len)
@@ -185,42 +189,35 @@ qint64 WaveOutIODevice::bytesAvailable() const
 
 void WaveOutIODevice::setPos(const qint64 newPos)
 {
-    qDebug() << "wionewpos" << newPos;
-    m_pos = newPos;
+    //qDebug() << "wionewpos" << newPos;
+    //ofile->seek(newPos);
+    if (newPos > -1)
+        m_pos = newPos;
+    else
+        m_pos = m_pos;
 }
 
 void WaveOutIODevice::readFile()
 {
     readTimer.stop();
     //qDebug() << "readfile" << m_pos;
-    ofile->seek(m_pos);
+    //ofile->seek(m_pos);
     //qDebug() << "seek" << m_pos;
     int len = ring.GetSpaceAvailable();
     if (len > 0) {
+        //qint64 anfang = m_pos;
         qint64 filebytesavail = (ofile->size() - ofile->pos()) / 3 * 2;
         if (len > filebytesavail)
             len = (int)filebytesavail;
 
         QByteArray bf = ofile->read(len / 2 * 3);
-        //uchar *sptr = reinterpret_cast<uchar*>(bf.data());
-        //uchar *dptr = reinterpret_cast<uchar*>(m_buffer.data());
-        //sptr++;
         len = bf.count() / 3 * 2;
-        for (int i = 0, j = 1; i < len; i+=2, j+=3) {
-            //qint16 value = *sptr;
-            //qToLittleEndian<qint16>(value, dptr);
+        for (int i = 0, j = 1; j < bf.count(); i+=2, j+=3) {
             m_buffer[i] = bf.at(j);
             m_buffer[i+1] = bf.at(j+1);
-            /**dptr = *sptr;
-            dptr++;
-            sptr++;
-            *dptr = *sptr;
-            dptr++;
-            sptr+=2;*/
-            //dptr+=2;
-            //sptr+=3;
         }
         m_pos += ring.In(m_buffer, len) / 2 * 3;
+        //qDebug() << "readFile" << m_pos << ofile->pos() << m_pos - anfang - bf.count();
     }
     readTimer.start();
 }
@@ -229,42 +226,56 @@ AudioOutput::AudioOutput(QObject *parent) :
     QObject(parent)
 {
     convert = false;
+    firstrun = true;
 }
 
-void AudioOutput::startPlaying()
+void AudioOutput::startPlaying(qint64 newpos)
 {
+    if (!firstrun) {
+        if (audio->state() != QAudio::StoppedState)
+            stop();
+    }
+    else {
+        QAudioFormat format;
+        // Set up the format, eg.
+        format.setFrequency(44100);
+        format.setChannels(2);
+        format.setSampleSize(24);
+        format.setCodec("audio/pcm");
+        format.setByteOrder(QAudioFormat::LittleEndian);
+        format.setSampleType(QAudioFormat::SignedInt);
+
+        QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
+        if (!info.isFormatSupported(format)) {
+            convert = true;
+            format.setSampleSize(16);
+            audio = new QAudioOutput(format, this);
+        }
+        else {
+            audio = new QAudioOutput(format, this);
+        }
+        connect(audio,SIGNAL(stateChanged(QAudio::State)),SLOT(finishedPlaying(QAudio::State)));
+        connect(audio, SIGNAL(notify()), this, SLOT(notify()));
+        firstrun = false;
+    }
     //delete out;
     out = 0;
     out = new WaveOutIODevice(&inputFile, this);
-    out->setPos(inputFile.pos());
+    startpos = newpos;
+    out->setPos(startpos);
     out->start();
 
-    QAudioFormat format;
-    // Set up the format, eg.
-    format.setFrequency(44100);
-    format.setChannels(2);
-    format.setSampleSize(24);
-    format.setCodec("audio/pcm");
-    format.setByteOrder(QAudioFormat::LittleEndian);
-    format.setSampleType(QAudioFormat::SignedInt);
+    audio->setNotifyInterval(100);
+    audio->start(out);
+}
 
-    QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
-    if (!info.isFormatSupported(format)) {
-        convert = true;
-        format.setSampleSize(16);
-        audio = new QAudioOutput(format, this);
-        connect(audio,SIGNAL(stateChanged(QAudio::State)),SLOT(finishedPlaying(QAudio::State)));
-        audio->start(out);
-        qDebug() << audio->error();
-        //finishedPlaying(QAudio::ActiveState);
-        qWarning()<<"raw audio format not supported by backend, cannot play audio.";
-        return;
-    }
-    else {
-        audio = new QAudioOutput(format, this);
-        connect(audio,SIGNAL(stateChanged(QAudio::State)),SLOT(finishedPlaying(QAudio::State)));
-        audio->start(out);
-    }
+void AudioOutput::setFilePos(qint64 newpos)
+{
+    //qDebug() << newpos;
+    if (newpos > -1)
+        startpos = newpos;
+    else
+        startpos = startpos;
 }
 
 /*void AudioOutput::setFile(QString Filename)
@@ -280,10 +291,14 @@ void AudioOutput::setFilePos(qint64 pos)
 
 void AudioOutput::finishedPlaying(QAudio::State state)
 {
-    qDebug() << "state" << state;
+    //qDebug() << "state" << state;
+    if (state == QAudio::StoppedState) {
+        emit PosChanged(-1);
+        startpos = -1;
+    }
 }
 
 void AudioOutput::notify()
 {
-    emit PosChanged((qint64)((double)audio->processedUSecs() * ((double)audio->format().frequency() / 1000000.0)));
+    emit PosChanged(Pos());
 }

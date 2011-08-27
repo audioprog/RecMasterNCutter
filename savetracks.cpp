@@ -1,6 +1,6 @@
 #include "savetracks.h"
 
-#include <QtDebug>
+//#include <QtDebug>
 #include <QStringList>
 
 SaveTracks::SaveTracks(QObject *parent) :
@@ -15,12 +15,12 @@ SaveTracks::SaveTracks(QObject *parent) :
 void SaveTracks::canread()
 {
     QString out = proc.readAll();
-    qDebug() << out;
+    //qDebug() << out;
 }
 
 void SaveTracks::SaveTrack(int TrackNr)
 {
-    qDebug() << "SaveTrack" << TrackNr << isworking;
+    //qDebug() << "SaveTrack" << TrackNr << isworking;
     list.append(TrackNr);
     if (!isworking)
         Start();
@@ -100,7 +100,7 @@ void SaveTracks::Save(int startmark, int endmark)
                               << "gain" << "-n";
     //Prüfen und erstellen Dir
     proc.start(soxpath + "sox", strlist);
-    qDebug() << strlist;
+    //qDebug() << strlist;
 }
 
 void SaveTracks::SaveMerged(int startmark, int endmark)

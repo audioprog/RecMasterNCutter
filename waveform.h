@@ -49,9 +49,10 @@ public slots:
     void Select(int Nr) { if (Nr > -1 && Nr < marks->Count()) { selected = Nr; MoveToSelection(); } }
     void MoveToSelection() { if (selected > -1 && selected < marks->Count()) { int np = marks->Pos(selected) / data.DotWidth() - width() / 2; emit PosChanged(np, true); } }
     void OverviewMarkChanged(int count, int pos) { mrkMovePos = pos; mrkMoveSlide = count; emit PosChanged(pos - width() / 2, true); actualize(); update(); }
-    void Play() { emit Play(data.Pos() * data.DotWidth()); }
+    void Play() { emit Play(data.Pos() * data.DotWidth() * 6); }
     void Clear() { data.Clear(); update(); }
     void setExpand( bool newVal ) { expand = newVal; update(); }
+    void PlayPos(qint64 pPos);
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -83,6 +84,7 @@ private:
     QList<float> insPosList;
 
     int rulerHeight;
+    qint64 actPlayPos;
 };
 
 #endif // WAVEFORM_H

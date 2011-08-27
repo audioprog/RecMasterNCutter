@@ -1,7 +1,7 @@
 #include <QtGui>
 #include "waveform.h"
 
-#include <QtDebug>
+//#include <QtDebug>
 
 WaveForm::WaveForm(QWidget *parent) :
     QWidget(parent)
@@ -22,6 +22,7 @@ WaveForm::WaveForm(QWidget *parent) :
     setContextMenuPolicy(Qt::DefaultContextMenu);
     selected = -1;
     expand = true;
+    actPlayPos = -1;
     QObject::connect(&data, SIGNAL(CanReadNow()), this, SLOT(update()));
 }
 
@@ -72,6 +73,12 @@ void WaveForm::SaveMarks()
 void WaveForm::AddMark(int x, Marks::MarkTypes Mark)
 {
     marks->Add((data.Pos() + x) * data.DotWidth(), Mark);
+    update();
+}
+
+void WaveForm::PlayPos(qint64 pPos)
+{
+    actPlayPos = pPos;
     update();
 }
 
@@ -280,6 +287,18 @@ void WaveForm::paintEvent(QPaintEvent * /* event */)
                 }
             }
         }
+        else if (actPlayPos > -1) {
+            qint64 np = actPlayPos / 6 / data.DotWidth() - data.Pos();
+            if (np <= width() && np > -1) {
+                painter.setPen(Qt::blue);
+                painter.drawLine((int)np, rulerHeight + 1, (int)np, height());
+                if (np > width() / 5 * 4)
+                    emit PosChanged(actPlayPos / 6 / data.DotWidth(), true);
+            }
+            else {
+                emit PosChanged(actPlayPos / 6 / data.DotWidth(), true);
+            }
+        }
 
         if (lastwidth != width()) {
             lastwidth = width();
@@ -401,9 +420,11 @@ void WaveForm::mouseReleaseEvent(QMouseEvent *event)
         }
         mrkMoveNr = 0;
     }
-    if (event->buttons() == Qt::MiddleButton)
+
+    if (event->button() == Qt::MidButton)
     {
-        emit Play((data.Pos() + event->x()) * (qint64)data.DotWidth());
+        //qDebug() << data.Pos() << event->x() << data.DotWidth();
+        emit Play((data.Pos() + event->x()) * (qint64)data.DotWidth() * 6);
     }
 }
 

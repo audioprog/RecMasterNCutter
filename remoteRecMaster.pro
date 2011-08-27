@@ -20,7 +20,8 @@ SOURCES += main.cpp\
     markimages.cpp \
     icondelegate.cpp \
     savetracks.cpp \
-    audiooutput.cpp
+    audiooutput.cpp \
+    wavfile.cpp
 
 HEADERS  += mainwindow.h \
     waveform.h \
@@ -29,7 +30,8 @@ HEADERS  += mainwindow.h \
     markimages.h \
     icondelegate.h \
     savetracks.h \
-    audiooutput.h
+    audiooutput.h \
+    wavfile.h
 
 FORMS    += mainwindow.ui
 

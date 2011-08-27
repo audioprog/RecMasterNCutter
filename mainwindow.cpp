@@ -3,7 +3,7 @@
 #include <QTime>
 #include <QCloseEvent>
 #include <QProcess>
-#include <QtDebug>
+//#include <QtDebug>
 
 #include "icondelegate.h"
 #include "mainwindow.h"
@@ -34,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(ui->widget, SIGNAL(Play(qint64)), this, SLOT(PlayStart(qint64)));
     QObject::connect(audio, SIGNAL(PosChanged(qint64)), this, SLOT(PlayNotify(qint64)));
+    QObject::connect(audio, SIGNAL(PosChanged(qint64)), ui->widget, SLOT(PlayPos(qint64)));
 
     ui->actionStandard->setIcon(mimages.icon(0));
     ui->actionStart_Track->setIcon(mimages.icon(1));
@@ -134,6 +135,7 @@ void MainWindow::NewLength(int newLen, int windowlength)
 
 void MainWindow::PosChanged(int diff, bool absolut)
 {
+    //qDebug() << diff << absolut;
     int nv = absolut ? diff : ui->PosScrollBar->value() + diff;
     bool update = false;
     if (nv < 0) {
@@ -266,8 +268,9 @@ void MainWindow::PlayNotify(qint64 pos)
 
 void MainWindow::PlayStart(qint64 pos)
 {
+    //qDebug() << "PlayStart" << pos;
     audio->setFilePos(pos);
-    audio->startPlaying();
+    audio->startPlaying(pos);
 }
 
 void MainWindow::on_action_Open_triggered()
@@ -503,6 +506,7 @@ void MainWindow::on_btnListDevices_clicked()
             if (line.contains('=')) {
                 bool ok;
                 int nr = line.section('=', 0,0).toInt(&ok);
+                Q_UNUSED(nr);
                 if (ok)
                     ui->comboDevices->addItem(line);
             }

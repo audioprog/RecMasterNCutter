@@ -56,7 +56,9 @@ private slots:
 
 private:
     QFile *ofile;
+    qint64 m_headersize;
     qint64 m_pos;
+    qint64 c_pos;
     QByteArray m_buffer;
     int m_sizebuffer;
 
@@ -70,25 +72,32 @@ class AudioOutput : public QObject
     Q_OBJECT
 public:
     explicit AudioOutput(QObject *parent = 0);
+    qint64 Pos() const { qint64 bytesInBuffer = audio->bufferSize() - audio->bytesFree(); qint64 byProcc = audio->processedUSecs() * 6 * 44100 / (qint64)(1000000);
+                   qint64 byPlayed = startpos + byProcc - (bytesInBuffer / 2 * 3); return byPlayed; }
 
 signals:
     void PosChanged(qint64 pos);
 
 public slots:
-    void startPlaying();
+    void startPlaying(qint64 newpos);
     void finishedPlaying(QAudio::State state);
-    void setFile(QString Filename) { inputFile.setFileName(Filename); inputFile.open(QIODevice::ReadOnly); }
-    void setFilePos(qint64 pos) { inputFile.seek(pos); }
+    //void setFile(QString Filename) { inputFile.setFileName(Filename); inputFile.open(QIODevice::ReadOnly); }
+    //void setFilePos(qint64 pos) { if (startpos == -1) { inputFile.seek(pos); startpos = pos; } }
+
+    void setFile(QString Filename) { inputFile.setFileName(Filename); }
+    void setFilePos(qint64 newpos);
     void stop() { audio->stop(); }
 
 private slots:
     void notify();
 
 private:
+    qint64 startpos;
     QFile inputFile;
     QAudioOutput* audio;
     bool convert;
     WaveOutIODevice *out;
+    bool firstrun;
 };
 
 #endif // AUDIOOUTPUT_H

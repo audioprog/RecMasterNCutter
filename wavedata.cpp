@@ -1,7 +1,8 @@
 #include "wavedata.h"
 #include <QFileInfo>
+#include "wavfile.h"
 
-#include <QtDebug>
+//#include <QtDebug>
 
 WaveData::WaveData()
 {
@@ -14,6 +15,7 @@ WaveData::WaveData()
     _pos = 0;
     isworking = false;
     debugnr = -1;
+    _headersize = 0;
 }
 
 WaveData::~WaveData()
@@ -31,6 +33,7 @@ void WaveData::FileOpen(QFile *newFile)
         lastpos = -1;
     }
     file = new QFile(newFile->fileName());
+    _headersize = newFile->fileName().section('.', -1, -1).toLower() == "wav" ? WavFile(newFile->fileName()).headerLength() : 0;
     if (!file->isOpen())
         file->open(QFile::ReadOnly);
     fileloaded = true;
@@ -40,7 +43,7 @@ qlonglong WaveData::Length()
 {
     if (fileloaded)
     {
-        return file->size() / channel / samplesize;
+        return (file->size() - _headersize) / channel / samplesize;
     }
     return 0;
 }
@@ -50,13 +53,13 @@ int WaveData::Count()
     if (fileloaded)
     {
         //qDebug() << "Count" << file->size() << DotWidth() << channel << samplesize;
-        int len = (int)(file->size() / dotwidth / channel / samplesize);
+        int len = (int)((file->size() - _headersize) / dotwidth / channel / samplesize);
         if (len == 0) {
             //qdir
             QFileInfo fi(file->fileName());
             fi.setCaching(false);
             //file->open(QFile::ReadOnly);
-            len = (int)(fi.size() / dotwidth / channel / samplesize);
+            len = (int)((fi.size() - _headersize) / dotwidth / channel / samplesize);
             return len;
         }
         else
@@ -68,7 +71,7 @@ int WaveData::Count()
 
 void WaveData::run()
 {
-    qlonglong npos = readpos * dotwidth * channel * samplesize;
+    qlonglong npos = _headersize + readpos * dotwidth * channel * samplesize;
     if (npos > file->size()) {
         return;
     }

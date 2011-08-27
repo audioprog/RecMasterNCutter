@@ -2,7 +2,7 @@
 #include <QPainter>
 #include <QBitmap>
 #include <QImage>
-#include <QtDebug>
+//#include <QtDebug>
 
 MarkImages::MarkImages()
 {
