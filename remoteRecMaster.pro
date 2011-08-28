@@ -61,9 +61,15 @@ OTHER_FILES += \
     icons/zoom-out.svg \
     icons/zoom-in.svg \
     icons/media_playlist_refresh.png \
-    icons/waveform.png
+    icons/waveform.png \
+    myapp.rc \
+    icons/icon.png \
+    icon.ico \
+    icons/player_stop.png \
+    icons/player_play.png
 
 RESOURCES += \
     icons.qrc
+RC_FILE = myapp.rc
 
 TRANSLATIONS = remoteRecMaster.ts

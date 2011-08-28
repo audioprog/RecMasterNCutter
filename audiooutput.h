@@ -75,6 +75,7 @@ public:
     explicit AudioOutput(QObject *parent = 0);
     qint64 Pos() const { qint64 bytesInBuffer = audio->bufferSize() - audio->bytesFree(); qint64 byProcc = audio->processedUSecs() * 6 * 44100 / (qint64)(1000000);
                    qint64 byPlayed = startpos + byProcc - (bytesInBuffer / 2 * 3); return byPlayed; }
+    bool isPlaying() { return firstrun ? false : audio->state() == QAudio::ActiveState; }
 
 signals:
     void PosChanged(qint64 pos);

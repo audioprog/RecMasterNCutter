@@ -421,11 +421,16 @@ void WaveForm::mouseReleaseEvent(QMouseEvent *event)
         mrkMoveNr = 0;
     }
 
-    if (event->button() == Qt::MidButton)
+    /*if (event->button() == Qt::MidButton)
     {
         //qDebug() << data.Pos() << event->x() << data.DotWidth();
         emit Play((data.Pos() + event->x()) * (qint64)data.DotWidth() * 6);
-    }
+    }*/
+}
+
+void WaveForm::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    emit Play((data.Pos() + event->x()) * (qint64)data.DotWidth() * 6);
 }
 
 void WaveForm::leaveEvent(QEvent *)

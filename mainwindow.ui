@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="icons.qrc">
+    <normaloff>:/symbols/Icon</normaloff>:/symbols/Icon</iconset>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="spacing">
@@ -565,6 +569,19 @@
     </layout>
    </widget>
   </widget>
+  <widget class="QToolBar" name="tbarPlayer">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionPlay"/>
+   <addaction name="actionStop"/>
+  </widget>
   <action name="action_Open">
    <property name="icon">
     <iconset resource="icons.qrc">
@@ -909,7 +926,7 @@
   </action>
   <action name="actionSave_Track">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset>
      <normaloff>:/symbols/icons/saveWave.png</normaloff>:/symbols/icons/saveWave.png</iconset>
    </property>
    <property name="text">
@@ -917,11 +934,19 @@
    </property>
   </action>
   <action name="actionPlay">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/Play</normaloff>:/symbols/Play</iconset>
+   </property>
    <property name="text">
     <string>&amp;Play</string>
    </property>
   </action>
   <action name="actionStop">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/Stop</normaloff>:/symbols/Stop</iconset>
+   </property>
    <property name="text">
     <string>&amp;Stop</string>
    </property>

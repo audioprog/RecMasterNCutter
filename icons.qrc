@@ -19,11 +19,14 @@
         <file alias="StartTrack">icons/Start_Track.png</file>
         <file alias="end">icons/go-end-24.png</file>
         <file alias="pos1">icons/go-pos1-24.png</file>
-        <file>icons/saveWave.png</file>
+        <file alias="SaveWave">icons/saveWave.png</file>
         <file alias="Add4">icons/Add_4.png</file>
         <file alias="zoomin">icons/zoom-in.svg</file>
         <file alias="zoomout">icons/zoom-out.svg</file>
         <file alias="refresh">icons/media_playlist_refresh.png</file>
         <file alias="waveform">icons/waveform.png</file>
+        <file alias="Icon">icons/icon.png</file>
+        <file alias="Play">icons/player_play.png</file>
+        <file alias="Stop">icons/player_stop.png</file>
     </qresource>
 </RCC>

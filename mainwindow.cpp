@@ -269,8 +269,12 @@ void MainWindow::PlayNotify(qint64 pos)
 void MainWindow::PlayStart(qint64 pos)
 {
     //qDebug() << "PlayStart" << pos;
-    audio->setFilePos(pos);
-    audio->startPlaying(pos);
+    if (audio->isPlaying())
+        audio->stop();
+    else {
+        audio->setFilePos(pos);
+        audio->startPlaying(pos);
+    }
 }
 
 void MainWindow::on_action_Open_triggered()
@@ -579,6 +583,11 @@ void MainWindow::open(QString fileName)
 void MainWindow::on_btnOpen_clicked()
 {
     QString path = getPath();
+    if (!QFile::exists(path + "full.raw")) {
+        path = path.replace("/E/", "/A/");
+        if (!QFile::exists(path + "full.raw"))
+            path = path.replace("/A/", "/E/");
+    }
     if (QFile::exists(path + "full.raw")) {
         QString fileName = QFileDialog::getOpenFileName(this,
                                                         tr("Open Audio"), getPath() + "full.raw", tr("Audio Files (*.raw *.wav)"));
