@@ -94,6 +94,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     tracks = new SaveTracks();
     tracks->SetMarks(marks);
+    QObject::connect(tracks, SIGNAL(Debug(QString)), ui->pteDebug, SLOT(appendPlainText(QString)));
 
     QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(on_btnListDevices_clicked()));
     timer.singleShot(1000, this, SLOT(on_btnListDevices_clicked()));

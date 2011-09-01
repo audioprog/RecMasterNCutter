@@ -17,6 +17,9 @@
    <iconset resource="icons.qrc">
     <normaloff>:/symbols/Icon</normaloff>:/symbols/Icon</iconset>
   </property>
+  <property name="dockOptions">
+   <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="spacing">

@@ -21,6 +21,7 @@ public:
 
 signals:
     void Finished(int TrackNr);
+    void Debug(QString text);
 
 public slots:
     void SaveTrack(int TrackNr);

@@ -15,6 +15,7 @@ SaveTracks::SaveTracks(QObject *parent) :
 void SaveTracks::canread()
 {
     QString out = proc.readAll();
+    emit Debug(out);
     //qDebug() << out;
 }
 
@@ -59,7 +60,7 @@ void SaveTracks::Start()
                 int silent = 0;
                 int firstsilent = 0;
                 bool havesilent = false;
-                for (int i = list.first() + 1; i < last - 1; i++) {
+                for (int i = list.first() + 1; i < last; i++) {
                     if (marks->Type(i) == Marks::StartSilence) {
                         silent++;
                         if (firstsilent == 0)
@@ -108,12 +109,13 @@ void SaveTracks::SaveMerged(int startmark, int endmark)
     QStringList parts;
     int silence = 0;
     int last = startmark;
+    int nr = 0;
     for (int i = startmark + 1; i < endmark; i++) {
         if (marks->Type(i) == Marks::StartSilence) {
             silence++;
             if (silence == 1) {
-                QString part = "|" + soxpath + "sox -r 44100 -s -3 -c 2 '" + file->fileName() + "' -p trim "
-                        + QString::number(marks->Pos(last)) + "s " + QString::number(marks->Pos(i) - marks->Pos(last)) + "s";
+                QString part = soxpath + "sox -r 44100 -s -3 -c 2 \"" + file->fileName() + "\" -t wavpcm \"" + file->fileName() + "." + QString::number(++nr) + ".wav\" trim "
+                        + QString::number(marks->Pos(last)) + "s " + QString::number(marks->Pos(i) - marks->Pos(last)) + "s &";
                 parts.append(part);
                 last = 0;
             }
@@ -125,10 +127,18 @@ void SaveTracks::SaveMerged(int startmark, int endmark)
         }
     }
     if (last > 0) {
-        parts << "|" + soxpath + "sox -r 44100 -s -3 -c 2 '" + file->fileName() + "' -p trim "
-                + QString::number(marks->Pos(last)) + "s " + QString::number(marks->Pos(endmark) - marks->Pos(last)) + "s";
+        parts << soxpath + "sox -r 44100 -s -3 -c 2 \"" + file->fileName() + "\" -t wavpcm \"" + file->fileName() + "." + QString::number(++nr) + ".wav\" trim "
+                + QString::number(marks->Pos(last)) + "s " + QString::number(marks->Pos(endmark) - marks->Pos(last)) + "s &";
     }
     if (parts.length() > 0) {
-        proc.start(soxpath + "sox", parts << "-t" << "wavpcm" << path + QString::number(marks->Pos(startmark)) + ".wav" << "splice" << "0.1" << "gain" << "-n");
+        parts << soxpath + "sox";
+        for (int i = 1; i <= nr; i++)
+            parts << "\"" + file->fileName() + "." + QString::number(i) + ".wav\"";
+        parts << "-t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".wav\" splice 0.1 gain -n";
+        for (int i = 1; i <= nr; i++)
+            parts << "& del \"" + file->fileName().replace('/', '\\') + "." + QString::number(i) + ".wav\"";
+
+        emit Debug("cmd /c " + parts.join(" "));
+        proc.start("cmd /c " + parts.join(" "));
     }
 }

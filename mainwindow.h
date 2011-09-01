@@ -33,10 +33,6 @@ public slots:
     void OverviewPosChanged(int diff, bool absolut = false);
     void OverviewMarkChanged(int newPos);
 
-private:
-    Ui::MainWindow *ui;
-    AudioOutput* audio;
-
 private slots:
     void MarksChanged();
     void PlayNotify(qint64 pos);
@@ -120,7 +116,11 @@ private slots:
 
     void on_btnOpen_clicked();
 
+
 private:
+    Ui::MainWindow *ui;
+    AudioOutput* audio;
+
     QString getPath();
     void open(QString fileName);
 
