@@ -21,7 +21,8 @@ SOURCES += main.cpp\
     icondelegate.cpp \
     savetracks.cpp \
     audiooutput.cpp \
-    wavfile.cpp
+    wavfile.cpp \
+    optionsdialog.cpp
 
 HEADERS  += mainwindow.h \
     waveform.h \
@@ -31,9 +32,11 @@ HEADERS  += mainwindow.h \
     icondelegate.h \
     savetracks.h \
     audiooutput.h \
-    wavfile.h
+    wavfile.h \
+    optionsdialog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    optionsdialog.ui
 
 OTHER_FILES += \
     icons/go-next-24.png \
@@ -73,3 +76,6 @@ RESOURCES += \
 RC_FILE = myapp.rc
 
 TRANSLATIONS = remoteRecMaster.ts
+
+
+

@@ -4,10 +4,12 @@
 #include <QMainWindow>
 #include <QSettings>
 #include <QTimer>
+#include <QModelIndex>
 #include "marks.h"
 #include "markimages.h"
 #include "savetracks.h"
 #include "audiooutput.h"
+#include "optionsdialog.h"
 
 namespace Ui {
     class MainWindow;
@@ -37,6 +39,7 @@ private slots:
     void MarksChanged();
     void PlayNotify(qint64 pos);
     void PlayStart(qint64 pos);
+    void OptionsUpdate();
 
     void on_action_Open_triggered();
 
@@ -117,9 +120,16 @@ private slots:
     void on_btnOpen_clicked();
 
 
+    void on_btnChangePath_clicked();
+
+    void on_actionOptions_triggered();
+
+    void on_tableTracks_doubleClicked(const QModelIndex &index);
+
 private:
     Ui::MainWindow *ui;
     AudioOutput* audio;
+    OptionsDialog* optins;
 
     QString getPath();
     void open(QString fileName);
@@ -131,6 +141,11 @@ private:
     QMenu *contextmenu;
     SaveTracks *tracks;
     QTimer timer;
+    QString waveprog;
+    QString lameprog;
+    QString mp3path;
+    QStringList lameparams;
+    bool initializing;
 };
 
 #endif // MAINWINDOW_H

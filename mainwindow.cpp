@@ -8,6 +8,7 @@
 #include "icondelegate.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "optionsdialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -98,6 +99,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(on_btnListDevices_clicked()));
     timer.singleShot(1000, this, SLOT(on_btnListDevices_clicked()));
+
+    waveprog = settings.value("WaveProc", "C:/Program Files/Steinberg/WaveLab LE 7/WaveLab LE 7.exe").toString();
+    lameprog = settings.value("Lame", "C:/Program Files/lame/lame.exe").toString();
+    lameparams = settings.value("Lame Parameters", QStringList() << "-b" << "192" << "--cbr" << "-h" << "--tg" << "12").toStringList();
+    mp3path = settings.value("MP3Path", "D:/MP3/Gottesdienste 2011 MP3/").toString();
+    initializing = false;
 }
 
 MainWindow::~MainWindow()
@@ -115,12 +122,14 @@ void MainWindow::closeEvent(QCloseEvent *event)
      settings.setValue("TracksHeader", ui->tableTracks->horizontalHeader()->saveState());
      QStringList pathlist;
      for (int i = 0; i < ui->cboxPath->count(); i++) {
-         pathlist << ui->cboxPath->itemText(i);
+         if (ui->cboxPath->itemText(i).simplified() != "")
+            pathlist << ui->cboxPath->itemText(i);
      }
      if (pathlist.contains(ui->cboxPath->currentText())) {
-         settings.setValue("PathIndex", pathlist.indexOf(QRegExp(ui->cboxPath->currentText())));
+         int idx = pathlist.indexOf(ui->cboxPath->currentText());
+         settings.setValue("PathIndex", idx);
      }
-     else {
+     else if (ui->cboxPath->currentText().simplified() != ""){
          settings.setValue("PathIndex", pathlist.count());
          pathlist << ui->cboxPath->currentText();
      }
@@ -189,6 +198,9 @@ void MainWindow::OverviewMarkChanged(int newPos)
 
 void MainWindow::MarksChanged()
 {
+    initializing = true;
+    QString path = getPath();
+
     ui->markTable->setRowCount(marks->Count());
     ui->tableTracks->setRowCount(marks->Count(Marks::StartTrack));
     int idxStartTrack = -1, idxEndTrack = -1;
@@ -228,8 +240,15 @@ void MainWindow::MarksChanged()
             idxStartTrack++;
             if (ui->tableTracks->item(idxStartTrack, 0) == NULL) {
                 QTableWidgetItem *ti = new QTableWidgetItem();
-                ti->setData(Qt::DisplayRole, qVariantFromValue(false));
-                ti->setData(Qt::CheckStateRole, qVariantFromValue(0));
+                if (QFile(path + QString::number(marks->Pos(i)) + ".wav").exists()) {
+                    ti->setData(Qt::DisplayRole, qVariantFromValue(true));
+                    ti->setData(Qt::CheckStateRole, qVariantFromValue(1));
+                    ti->setCheckState(Qt::Checked);
+                }
+                else {
+                    ti->setData(Qt::DisplayRole, qVariantFromValue(false));
+                    ti->setData(Qt::CheckStateRole, qVariantFromValue(0));
+                }
                 ui->tableTracks->setItem(idxStartTrack, 0, ti);
             }
             if (ui->tableTracks->item(idxStartTrack, 1) != NULL) {
@@ -244,6 +263,12 @@ void MainWindow::MarksChanged()
             }
             if (ui->tableTracks->item(idxStartTrack, 3) == NULL) {
                 ui->tableTracks->setItem(idxStartTrack, 3, new QTableWidgetItem(QString("")));
+            }
+            if (ui->tableTracks->item(idxStartTrack, 4) == NULL) {
+                QTableWidgetItem *ti = new QTableWidgetItem();
+                ti->setData(Qt::DisplayRole, qVariantFromValue(false));
+                ti->setData(Qt::CheckStateRole, qVariantFromValue(0));
+                ui->tableTracks->setItem(idxStartTrack, 4, ti);
             }
         }
         else if (typ == Marks::EndTrack && idxEndTrack < ui->tableTracks->rowCount() - 1) {
@@ -260,6 +285,7 @@ void MainWindow::MarksChanged()
             }
         }
     }
+    initializing = false;
 }
 
 void MainWindow::PlayNotify(qint64 pos)
@@ -269,13 +295,21 @@ void MainWindow::PlayNotify(qint64 pos)
 
 void MainWindow::PlayStart(qint64 pos)
 {
-    //qDebug() << "PlayStart" << pos;
+    //qbbug() << "PlayStart" << pos;
     if (audio->isPlaying())
         audio->stop();
     else {
         audio->setFilePos(pos);
         audio->startPlaying(pos);
     }
+}
+
+void MainWindow::OptionsUpdate()
+{
+    for (int i = ui->cboxPath->count(); i >= 0; i--)
+        ui->cboxPath->removeItem(0);
+    QSettings settings;
+    ui->cboxPath->insertItems(0, settings.value("PathList", QStringList()).toStringList());
 }
 
 void MainWindow::on_action_Open_triggered()
@@ -449,6 +483,8 @@ void MainWindow::on_actionEnd_triggered()
 
 void MainWindow::on_tableTracks_cellChanged(int row, int column)
 {
+    if (initializing)
+        return;
     if (ui->tableTracks->item(row, column) != NULL) {
         if (column == 0) {
             if (ui->tableTracks->item(row, column)->data(Qt::CheckStateRole) != 0) {
@@ -462,6 +498,37 @@ void MainWindow::on_tableTracks_cellChanged(int row, int column)
                 //or
                 //and splice input1 input2 Track.wav  [sec].[msec]
                 // fade [type] fade-in-length [stop-time [fade-out-length]]
+            }
+        }
+        else if (column == 4) {
+            if (ui->tableTracks->item(row, column)->data(Qt::CheckStateRole) != 0) {
+                QString path = getPath();
+                int pnam = marks->Pos(qVariantValue<int>(ui->tableTracks->item(row, 1)->data(Qt::UserRole)));
+                QString name = path.replace('/', '\\') + QString::number(pnam) + ".wav";
+                QString pmp3path = mp3path;
+                if (!pmp3path.endsWith("/"))
+                    pmp3path += "/";
+                pmp3path += ui->dateEdit->date().toString("yyyy-MM-dd");
+                if (ui->comboDayTime->currentIndex() < 3)
+                    pmp3path += ui->comboDayTime->currentText().left(1);
+                else
+                    pmp3path += ui->comboDayTime->currentText();
+                pmp3path += "/";
+                pmp3path += ui->dateEdit->date().toString("dd.MM.yyyy") + " ";
+                pmp3path += ui->comboDayTime->currentText();
+                pmp3path += "/";
+
+                QString newname = pmp3path.replace('/', '\\') + QString::number(row + 1);
+                if (ui->tableTracks->item(row, 3)->text() != "")
+                    newname += " " + ui->tableTracks->item(row, 3)->text();
+                newname += ".mp3";
+                QStringList params(lameparams);
+                params << name << newname;
+
+                QDir(pmp3path).mkpath(pmp3path);
+                ui->pteDebug->setPlainText(lameprog.replace('/', '\\') + " " + params.join(" ").replace('/', '\\'));
+
+                QProcess::startDetached(lameprog, params);
             }
         }
     }
@@ -585,9 +652,9 @@ void MainWindow::on_btnOpen_clicked()
 {
     QString path = getPath();
     if (!QFile::exists(path + "full.raw")) {
-        path = path.replace("/E/", "/A/");
+        path = path.replace("/A/", "/N/");
         if (!QFile::exists(path + "full.raw"))
-            path = path.replace("/A/", "/E/");
+            path = path.replace("/N/", "/M/");
     }
     if (QFile::exists(path + "full.raw")) {
         QString fileName = QFileDialog::getOpenFileName(this,
@@ -595,3 +662,45 @@ void MainWindow::on_btnOpen_clicked()
         open(fileName);
     }
 }
+
+void MainWindow::on_btnChangePath_clicked()
+{
+    QString path = QFileDialog::getExistingDirectory(this, tr("Open Directory"), "",
+                                                     QFileDialog::ShowDirsOnly
+                                                     | QFileDialog::DontResolveSymlinks);
+    if (path != "") {
+        if (!path.endsWith('\\') && !path.endsWith('/'))
+            path += "/";
+        ui->cboxPath->setEditText(path.replace('\\', '/'));
+    }
+}
+
+void MainWindow::on_actionOptions_triggered()
+{
+    optins = new OptionsDialog(this);
+    QObject::connect(optins, SIGNAL(OptionsUpdate()), this, SLOT(OptionsUpdate()));
+    optins->show();
+}
+
+void MainWindow::on_tableTracks_doubleClicked(const QModelIndex &index)
+{
+    if (index.column() > 0 && index.column() < 3) {
+        int row = index.row();
+        int idx = qVariantValue<int>(ui->tableTracks->item(row, 1)->data(Qt::UserRole));
+        qint64 pos = marks->Pos(idx);
+        QString path = getPath();
+        if (QFile(path + QString::number(pos) + ".wav").exists()) {
+            QProcess::startDetached(waveprog, QStringList(path + QString::number(pos) + ".wav"));
+        }
+    }
+}
+
+/*void MainWindow::on_tableTracks_cellDoubleClicked(int row, int column)
+{
+    int idx = qVariantValue<int>(ui->tableTracks->item(row, 1)->data(Qt::UserRole));
+    qint64 pos = marks->Pos(idx);
+    QString path = getPath();
+    if (QFile(path + QString::number(pos) + ".wav").exists()) {
+        QProcess::startDetached(waveprog, QStringList(path + QString::number(pos) + ".wav"));
+    }
+}*/

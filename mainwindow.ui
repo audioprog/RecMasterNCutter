@@ -102,6 +102,8 @@
     <addaction name="actionEditEnd_Track"/>
     <addaction name="actionEditStart_Silence"/>
     <addaction name="actionEditEnd_Silence"/>
+    <addaction name="separator"/>
+    <addaction name="actionOptions"/>
    </widget>
    <widget class="QMenu" name="menuTracks">
     <property name="title">
@@ -435,17 +437,17 @@
            <widget class="QComboBox" name="comboDayTime">
             <item>
              <property name="text">
-              <string>Morning</string>
+              <string>Morgen</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>Afternoon</string>
+              <string>Nachmittag</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>Evening</string>
+              <string>Abend</string>
              </property>
             </item>
             <item>
@@ -537,6 +539,11 @@
        <column>
         <property name="text">
          <string>Text</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>M</string>
         </property>
        </column>
       </widget>
@@ -1003,6 +1010,11 @@
    </property>
    <property name="text">
     <string>Expand WaveForm</string>
+   </property>
+  </action>
+  <action name="actionOptions">
+   <property name="text">
+    <string>Options</string>
    </property>
   </action>
  </widget>
