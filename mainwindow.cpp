@@ -16,6 +16,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    QObject::connect(this, SIGNAL(mDebug(QString)), ui->pteDebug, SLOT(appendPlainText(QString)));
+
     marks = new Marks();
 
     QObject::connect(ui->widget, SIGNAL(LenghtChanged(int,int)), this, SLOT(NewLength(int,int)));
@@ -100,10 +102,17 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(on_btnListDevices_clicked()));
     timer.singleShot(1000, this, SLOT(on_btnListDevices_clicked()));
 
+#ifdef Q_OS_WIN32
     waveprog = settings.value("WaveProc", "C:/Program Files/Steinberg/WaveLab LE 7/WaveLab LE 7.exe").toString();
     lameprog = settings.value("Lame", "C:/Program Files/lame/lame.exe").toString();
-    lameparams = settings.value("Lame Parameters", QStringList() << "-b" << "192" << "--cbr" << "-h" << "--tg" << "12").toStringList();
     mp3path = settings.value("MP3Path", "D:/MP3/Gottesdienste 2011 MP3/").toString();
+#else
+    waveprog = settings.value("WaveProc", "audacity").toString();
+    lameprog = settings.value("Lame", "lame").toString();
+    mp3path = settings.value("MP3Path", QDir::homePath()).toString();
+#endif
+    lameparams = settings.value("Lame Parameters", QStringList() << "-b" << "192" << "--cbr" << "-h" << "--tg" << "12").toStringList();
+
     initializing = false;
 }
 
@@ -570,11 +579,16 @@ void MainWindow::on_btnListDevices_clicked()
 {
     QProcess devlist;
     devlist.setProcessChannelMode(QProcess::SeparateChannels);
+#ifdef Q_OS_WIN32
     devlist.start("parec -s");
+#else
+    devlist.start("arecord -l");
+#endif
     if (devlist.waitForFinished()) {
         ui->comboDevices->clear();
         QStringList lines = ((QString)devlist.readAll()).split('\n');
         foreach (QString line, lines) {
+#ifdef Q_OS_WIN32
             if (line.contains('=')) {
                 bool ok;
                 int nr = line.section('=', 0,0).toInt(&ok);
@@ -582,6 +596,12 @@ void MainWindow::on_btnListDevices_clicked()
                 if (ok)
                     ui->comboDevices->addItem(line);
             }
+#else
+            if (line.contains(':') && !line.startsWith(" ")) {
+                ui->comboDevices->addItem(line.section(':', 1, -1));
+                emit mDebug(line);
+            }
+#endif
         }
 
         QSettings settings;
@@ -596,7 +616,7 @@ void MainWindow::on_btnListDevices_clicked()
                 }
         }
 
-        ui->pteDebug->setPlainText(devlist.readAll());
+        //ui->pteDebug->setPlainText(devlist.readAll());
     }
 }
 

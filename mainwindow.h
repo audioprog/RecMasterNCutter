@@ -26,6 +26,9 @@ public:
 protected:
     void closeEvent(QCloseEvent *event);
 
+signals:
+    void mDebug(QString text);
+
 public slots:
     void NewLength(int newLen, int windowlength);
     void PosChanged(int diff, bool absolut = false);
