@@ -38,6 +38,8 @@ public slots:
     void OverviewPosChanged(int diff, bool absolut = false);
     void OverviewMarkChanged(int newPos);
 
+    void Debug(QString text) { emit mDebug(text); }
+
 private slots:
     void MarksChanged();
     void PlayNotify(qint64 pos);
@@ -102,7 +104,7 @@ private slots:
 
     void on_actionEnd_triggered();
 
-    void on_tableTracks_cellChanged(int row, int column);
+    void onTitleFieldClicked(int row, int column);
 
     void on_actionStop_triggered();
 
@@ -127,7 +129,7 @@ private slots:
 
     void on_actionOptions_triggered();
 
-    void on_tableTracks_doubleClicked(const QModelIndex &index);
+    //void on_tableTracks_doubleClicked(const QModelIndex &index);
 
 private:
     Ui::MainWindow *ui;
@@ -149,6 +151,9 @@ private:
     QString mp3path;
     QStringList lameparams;
     bool initializing;
+    int indexstart;
+    int indextext;
+    int indexmp3;
 };
 
 #endif // MAINWINDOW_H

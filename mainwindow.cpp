@@ -9,16 +9,23 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "optionsdialog.h"
+#include "buttonstateitemdelegate.h"
+#include "buttonstate.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    indexstart(2), indextext(4), indexmp3(5)
 {
     ui->setupUi(this);
 
     QObject::connect(this, SIGNAL(mDebug(QString)), ui->pteDebug, SLOT(appendPlainText(QString)));
 
     marks = new Marks();
+
+    ButtonStateItemDelegate *bsiDelegate = new ButtonStateItemDelegate();
+
+    ui->tableTracks->setItemDelegate(bsiDelegate);
 
     QObject::connect(ui->widget, SIGNAL(LenghtChanged(int,int)), this, SLOT(NewLength(int,int)));
     QObject::connect(ui->PosScrollBar, SIGNAL(valueChanged(int)), ui->widget, SLOT(NewPos(int)));
@@ -32,6 +39,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->Overview, SIGNAL(OverviewMarkPosChanged(int)), this, SLOT(OverviewMarkChanged(int)));
     QObject::connect(marks, SIGNAL(MarksChanged()), ui->widget, SLOT(actualize()));
     QObject::connect(marks, SIGNAL(MarksChanged()), this, SLOT(MarksChanged()));
+
+    QObject::connect(bsiDelegate, SIGNAL(fieldClicked(int,int)), this, SLOT(onTitleFieldClicked(int,int)));
 
     audio = new AudioOutput();
 
@@ -103,7 +112,7 @@ MainWindow::MainWindow(QWidget *parent) :
     timer.singleShot(1000, this, SLOT(on_btnListDevices_clicked()));
 
 #ifdef Q_OS_WIN32
-    waveprog = settings.value("WaveProc", "C:/Program Files/Steinberg/WaveLab LE 7/WaveLab LE 7.exe").toString();
+    waveprog = settings.value("WaveProc", "C:/Program Files/Acon Digital Media/Acoustica 4/Acoustica.exe").toString();
     lameprog = settings.value("Lame", "C:/Program Files/lame/lame.exe").toString();
     mp3path = settings.value("MP3Path", "D:/MP3/Gottesdienste 2011 MP3/").toString();
 #else
@@ -231,7 +240,7 @@ void MainWindow::MarksChanged()
             ui->markTable->setItem(i, 0, wi);
         }
         int secs = marks->Pos(i) / 44100;
-        int msecs = (int)((float)(marks->Pos(i) - secs) / 44.100);
+        int msecs = (int)((float)(marks->Pos(i) - (secs * 44100)) / 44.100);
         QTime time(0,0,0);
         time = time.addSecs(secs);
         time = time.addMSecs(msecs);
@@ -250,47 +259,50 @@ void MainWindow::MarksChanged()
             if (ui->tableTracks->item(idxStartTrack, 0) == NULL) {
                 QTableWidgetItem *ti = new QTableWidgetItem();
                 if (QFile(path + QString::number(marks->Pos(i)) + ".wav").exists()) {
-                    ti->setData(Qt::DisplayRole, qVariantFromValue(true));
-                    ti->setData(Qt::CheckStateRole, qVariantFromValue(1));
-                    ti->setCheckState(Qt::Checked);
+                    ti->setData(0, qVariantFromValue(ButtonState("Save")));
+                    ButtonState state = qVariantValue<ButtonState>(ti->data(0));
+                    state.setIconMode(QIcon::Selected);
                 }
                 else {
-                    ti->setData(Qt::DisplayRole, qVariantFromValue(false));
-                    ti->setData(Qt::CheckStateRole, qVariantFromValue(0));
+                    ti->setData(0, qVariantFromValue(ButtonState("Save")));
                 }
                 ui->tableTracks->setItem(idxStartTrack, 0, ti);
             }
-            if (ui->tableTracks->item(idxStartTrack, 1) != NULL) {
-                ui->tableTracks->item(idxStartTrack, 1)->setText(txt);
-                ui->tableTracks->item(idxStartTrack, 1)->setData(Qt::UserRole, qVariantFromValue(i));
+            if (ui->tableTracks->item(idxStartTrack, 1) == NULL) {
+                QTableWidgetItem *di = new QTableWidgetItem();
+                di->setData(0, qVariantFromValue(ButtonState("Open", "OpenShaddow")));
+                ui->tableTracks->setItem(idxStartTrack, 1, di);
+            }
+            if (ui->tableTracks->item(idxStartTrack, indexstart) != NULL) {
+                ui->tableTracks->item(idxStartTrack, indexstart)->setText(txt);
+                ui->tableTracks->item(idxStartTrack, indexstart)->setData(Qt::UserRole, qVariantFromValue(i));
             }
             else {
                 QTableWidgetItem *di = new QTableWidgetItem(txt);
                 di->setFlags(di->flags() & ~Qt::ItemIsEditable);
                 di->setData(Qt::UserRole, qVariantFromValue(i));
-                ui->tableTracks->setItem(idxStartTrack, 1, di);
+                ui->tableTracks->setItem(idxStartTrack, indexstart, di);
             }
-            if (ui->tableTracks->item(idxStartTrack, 3) == NULL) {
-                ui->tableTracks->setItem(idxStartTrack, 3, new QTableWidgetItem(QString("")));
+            if (ui->tableTracks->item(idxStartTrack, indextext) == NULL) {
+                ui->tableTracks->setItem(idxStartTrack, indextext, new QTableWidgetItem(QString("")));
             }
-            if (ui->tableTracks->item(idxStartTrack, 4) == NULL) {
+            if (ui->tableTracks->item(idxStartTrack, indexmp3) == NULL) {
                 QTableWidgetItem *ti = new QTableWidgetItem();
-                ti->setData(Qt::DisplayRole, qVariantFromValue(false));
-                ti->setData(Qt::CheckStateRole, qVariantFromValue(0));
-                ui->tableTracks->setItem(idxStartTrack, 4, ti);
+                ti->setData(0, qVariantFromValue(ButtonState("MP3")));
+                ui->tableTracks->setItem(idxStartTrack, indexmp3, ti);
             }
         }
         else if (typ == Marks::EndTrack && idxEndTrack < ui->tableTracks->rowCount() - 1) {
             idxEndTrack++;
-            if (ui->tableTracks->item(idxEndTrack, 2) != NULL) {
-                ui->tableTracks->item(idxEndTrack, 2)->setText(txt);
-                ui->tableTracks->item(idxEndTrack, 2)->setData(Qt::UserRole, qVariantFromValue(i));
+            if (ui->tableTracks->item(idxEndTrack, 3) != NULL) {
+                ui->tableTracks->item(idxEndTrack, 3)->setText(txt);
+                ui->tableTracks->item(idxEndTrack, 3)->setData(Qt::UserRole, qVariantFromValue(i));
             }
             else {
                 QTableWidgetItem *di = new QTableWidgetItem(txt);
                 di->setFlags(di->flags() & ~Qt::ItemIsEditable);
                 di->setData(Qt::UserRole, qVariantFromValue(i));
-                ui->tableTracks->setItem(idxEndTrack, 2, di);
+                ui->tableTracks->setItem(idxEndTrack, 3, di);
             }
         }
     }
@@ -490,29 +502,37 @@ void MainWindow::on_actionEnd_triggered()
     ui->PosScrollBar->setValue(ui->PosScrollBar->maximum());
 }
 
-void MainWindow::on_tableTracks_cellChanged(int row, int column)
+void MainWindow::onTitleFieldClicked(int row, int column)
 {
     if (initializing)
         return;
     if (ui->tableTracks->item(row, column) != NULL) {
         if (column == 0) {
-            if (ui->tableTracks->item(row, column)->data(Qt::CheckStateRole) != 0) {
+            //if (ui->tableTracks->item(row, column)->data(Qt::CheckStateRole) != 0) {
                 QString path = getPath();
                 tracks->SetPath(path);
 
-                tracks->SaveTrack(qVariantValue<int>(ui->tableTracks->item(row, 1)->data(Qt::UserRole)));
+                tracks->SaveTrack(qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole)));
                 //Save title
                 //sox -r 44100 -e signed -b 24 -c 2 input.raw Track.wav trim [start] [lenght]
                 //sox "|sox input1 -p" "|sox -n -p" Track.wav splice ... : fade 300 0 300
                 //or
                 //and splice input1 input2 Track.wav  [sec].[msec]
                 // fade [type] fade-in-length [stop-time [fade-out-length]]
+            //}
+        }
+        else if (column == 1) {
+            int idx = qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole));
+            qint64 pos = marks->Pos(idx);
+            QString path = getPath();
+            if (QFile(path + QString::number(pos) + ".wav").exists()) {
+                QProcess::startDetached(waveprog, QStringList(path + QString::number(pos) + ".wav"));
             }
         }
-        else if (column == 4) {
-            if (ui->tableTracks->item(row, column)->data(Qt::CheckStateRole) != 0) {
+        else if (column == indextext) {
+            //if (ui->tableTracks->item(row, 0)->data(Qt::CheckStateRole) != 0) {
                 QString path = getPath();
-                int pnam = marks->Pos(qVariantValue<int>(ui->tableTracks->item(row, 1)->data(Qt::UserRole)));
+                int pnam = marks->Pos(qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole)));
                 QString name = path.replace('/', '\\') + QString::number(pnam) + ".wav";
                 QString pmp3path = mp3path;
                 if (!pmp3path.endsWith("/"))
@@ -535,10 +555,10 @@ void MainWindow::on_tableTracks_cellChanged(int row, int column)
                 params << name << newname;
 
                 QDir(pmp3path).mkpath(pmp3path);
-                ui->pteDebug->setPlainText(lameprog.replace('/', '\\') + " " + params.join(" ").replace('/', '\\'));
+                emit mDebug(lameprog.replace('/', '\\') + " " + params.join(" ").replace('/', '\\'));
 
                 QProcess::startDetached(lameprog, params);
-            }
+            //}
         }
     }
 }
@@ -598,7 +618,10 @@ void MainWindow::on_btnListDevices_clicked()
             }
 #else
             if (line.contains(':') && !line.startsWith(" ")) {
-                ui->comboDevices->addItem(line.section(':', 1, -1));
+                QString txt = line.section(' ', 1, -1).replace(QRegExp(" Ger..?t"), "").replace(QRegExp("[:] [^:\\[]+ \\["), ": ").replace("]", "").replace(" Analog", "").replace(" Audio", "");
+                txt = txt.section(':', 0, 0).simplified() + ":" + txt.section(':', 1, 1).section(',', -1, -1).simplified()
+                        + "=" + txt.section(':', 1, 1).section(',', 0, -2).simplified() + " " + txt.section(':', -1, -1);
+                ui->comboDevices->addItem(txt);
                 emit mDebug(line);
             }
 #endif
@@ -623,6 +646,7 @@ void MainWindow::on_btnListDevices_clicked()
 void MainWindow::on_btnStartRec_clicked()
 {
     if (ui->comboDevices->currentText().contains('=')) {
+#ifdef Q_OS_WIN32
         bool ok;
         int nr = ui->comboDevices->currentText().section('=', 0, 0).toInt(&ok);
         if (ok) {
@@ -633,6 +657,22 @@ void MainWindow::on_btnStartRec_clicked()
             if (QProcess::startDetached("parec " + QString::number(nr) + " \"" + path + "full.raw\""))
                 on_btnOpen_clicked();
         }
+#else
+        bool ok;
+        QString hwid = ui->comboDevices->currentText().section('=', 0, 0);
+        int nr = hwid.section(':', 0, 0).toInt(&ok);
+        if (ok) {
+            int nr2 = hwid.section(':', -1, -1).toInt(&ok);
+            if (ok) {
+                QSettings settings;
+                settings.setValue("LastRecChannel", qVariantFromValue(hwid));
+                QString path = getPath();
+                QDir(path).mkpath(path);
+                if (QProcess::startDetached("arecord " + hwid + " \"" + path + "full.raw\""))
+                    on_btnOpen_clicked();
+            }
+        }
+#endif
     }
 }
 
@@ -702,7 +742,7 @@ void MainWindow::on_actionOptions_triggered()
     optins->show();
 }
 
-void MainWindow::on_tableTracks_doubleClicked(const QModelIndex &index)
+/*void MainWindow::on_tableTracks_doubleClicked(const QModelIndex &index)
 {
     if (index.column() > 0 && index.column() < 3) {
         int row = index.row();
@@ -713,7 +753,7 @@ void MainWindow::on_tableTracks_doubleClicked(const QModelIndex &index)
             QProcess::startDetached(waveprog, QStringList(path + QString::number(pos) + ".wav"));
         }
     }
-}
+}*/
 
 /*void MainWindow::on_tableTracks_cellDoubleClicked(int row, int column)
 {

@@ -22,7 +22,10 @@ SOURCES += main.cpp\
     savetracks.cpp \
     audiooutput.cpp \
     wavfile.cpp \
-    optionsdialog.cpp
+    optionsdialog.cpp \
+    buttonstateitemdelegate.cpp \
+    buttonstate.cpp \
+    buttonstatewidget.cpp
 
 HEADERS  += mainwindow.h \
     waveform.h \
@@ -33,7 +36,10 @@ HEADERS  += mainwindow.h \
     savetracks.h \
     audiooutput.h \
     wavfile.h \
-    optionsdialog.h
+    optionsdialog.h \
+    buttonstateitemdelegate.h \
+    buttonstate.h \
+    buttonstatewidget.h
 
 FORMS    += mainwindow.ui \
     optionsdialog.ui
@@ -69,13 +75,20 @@ OTHER_FILES += \
     icons/icon.png \
     icon.ico \
     icons/player_stop.png \
-    icons/player_play.png
+    icons/player_play.png \
+    buttonstyleicons/WaveDiskette.png \
+    buttonstyleicons/WaveDiscTick24.png \
+    buttonstyleicons/WaveDiscGearShaddow24.png \
+    buttonstyleicons/WaveDiscGear24.png \
+    buttonstyleicons/notecompressTick24.png \
+    buttonstyleicons/notecompressGearShaddow24.png \
+    buttonstyleicons/notecompressGear24.png \
+    buttonstyleicons/notecompress24.png \
+    buttonstyleicons/fileopen_proc.png \
+    buttonstyleicons/fileopen.png
 
 RESOURCES += \
     icons.qrc
 RC_FILE = myapp.rc
 
 TRANSLATIONS = remoteRecMaster.ts
-
-
-
