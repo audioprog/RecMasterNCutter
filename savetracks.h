@@ -33,8 +33,8 @@ private slots:
 private:
     void Start();
 
-    void Save(int startmark, int endmark);
-    void SaveMerged(int startmark, int endmark);
+    void Save(int startmark, int fadein, int fadeout, int endmark);
+    void SaveMerged(int startmark, int fadein, int fadeout, int endmark);
 
     QProcess proc;
 

@@ -152,6 +152,8 @@
    <addaction name="actionEditEnd_Track"/>
    <addaction name="actionEditStart_Silence"/>
    <addaction name="actionEditEnd_Silence"/>
+   <addaction name="actionEditFadeIn"/>
+   <addaction name="actionEditFadeOut"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QDockWidget" name="dockFollower">
@@ -301,6 +303,8 @@
    <addaction name="actionLastMarkEnd_Track"/>
    <addaction name="actionLastMarkStart_Silence"/>
    <addaction name="actionLastMarkEnd_Silence"/>
+   <addaction name="actionLastFadeIn"/>
+   <addaction name="actionLastFadeOut"/>
   </widget>
   <widget class="QDockWidget" name="dockMarks">
    <property name="features">
@@ -1023,6 +1027,78 @@
   <action name="actionOptions">
    <property name="text">
     <string>Options</string>
+   </property>
+  </action>
+  <action name="actionFadeIn">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/FadeIn</normaloff>:/symbols/FadeIn</iconset>
+   </property>
+   <property name="text">
+    <string>FadeIn</string>
+   </property>
+   <property name="toolTip">
+    <string>FadeIn</string>
+   </property>
+  </action>
+  <action name="actionFadeOut">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/FadeOut</normaloff>:/symbols/FadeOut</iconset>
+   </property>
+   <property name="text">
+    <string>FaedOut</string>
+   </property>
+   <property name="toolTip">
+    <string>FadeOut</string>
+   </property>
+  </action>
+  <action name="actionEditFadeIn">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/FadeIn</normaloff>:/symbols/FadeIn</iconset>
+   </property>
+   <property name="text">
+    <string>EditFadeIn</string>
+   </property>
+   <property name="toolTip">
+    <string>EditFadeIn</string>
+   </property>
+  </action>
+  <action name="actionEditFadeOut">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/FadeOut</normaloff>:/symbols/FadeOut</iconset>
+   </property>
+   <property name="text">
+    <string>EditFadeOut</string>
+   </property>
+   <property name="toolTip">
+    <string>EditFadeOut</string>
+   </property>
+  </action>
+  <action name="actionLastFadeIn">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/FadeIn</normaloff>:/symbols/FadeIn</iconset>
+   </property>
+   <property name="text">
+    <string>LastFadeIn</string>
+   </property>
+   <property name="toolTip">
+    <string>LastFadeIn</string>
+   </property>
+  </action>
+  <action name="actionLastFadeOut">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/FadeOut</normaloff>:/symbols/FadeOut</iconset>
+   </property>
+   <property name="text">
+    <string>LastFadeOut</string>
+   </property>
+   <property name="toolTip">
+    <string>LastFadeOut</string>
    </property>
   </action>
  </widget>

@@ -28,6 +28,8 @@
         <file alias="Icon">icons/icon.png</file>
         <file alias="Play">icons/player_play.png</file>
         <file alias="Stop">icons/player_stop.png</file>
+        <file alias="FadeIn">icons/fadeIn.png</file>
+        <file alias="FadeOut">icons/fadeOut.png</file>
     </qresource>
     <qresource prefix="/buttonstateicons">
         <file alias="MP3">buttonstyleicons/notecompress24.png</file>

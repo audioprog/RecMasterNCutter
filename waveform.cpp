@@ -156,6 +156,10 @@ void WaveForm::paintEvent(QPaintEvent * /* event */)
                     case Marks::EndSilence:
                         painter.setBrush(QBrush(Qt::green));
                         break;
+                    case Marks::FadeIn:
+                    case Marks::FadeOut:
+                        painter.setBrush(QBrush(QColor(255, 96, 00)));
+                        break;
                     default:
                         painter.setBrush(QBrush(Qt::black));
                         break;
@@ -174,6 +178,18 @@ void WaveForm::paintEvent(QPaintEvent * /* event */)
                     points[1] = QPoint(x + rulerHalfHeight, rulerHalfHeight);
                     points[2] = QPoint(x, rulerHeight);
                     mtrack2 += 5;
+                }
+                else if (lastFlags == Marks::FadeIn) {
+                    points[0] = QPoint(x - 10, rulerHeight);
+                    points[1] = QPoint(x, 1);
+                    points[2] = QPoint(x, rulerHeight);
+                    mtrack1 -= 10;
+                }
+                else if (lastFlags == Marks::FadeOut) {
+                    points[0] = QPoint(x, 1);
+                    points[1] = QPoint(x + 10, rulerHeight);
+                    points[2] = QPoint(x, rulerHeight);
+                    mtrack2 += 10;
                 }
                 else {
                     points[0] = QPoint(x, 0);
@@ -242,6 +258,16 @@ void WaveForm::paintEvent(QPaintEvent * /* event */)
                 points[1] = QPoint(x + rulerHalfHeight, rulerHalfHeight);
                 points[2] = QPoint(x, rulerHeight);
             }
+            else if (mrkMoveType == Marks::FadeIn) {
+                points[0] = QPoint(x - rulerHeight, rulerHeight);
+                points[1] = QPoint(x, 1);
+                points[2] = QPoint(x, rulerHeight);
+            }
+            else if (mrkMoveType == Marks::FadeOut) {
+                points[0] = QPoint(x, 1);
+                points[1] = QPoint(x + 10, rulerHeight);
+                points[2] = QPoint(x, rulerHeight);
+            }
             else {
                 points[0] = QPoint(x, 0);
                 points[1] = QPoint(x - rulerHalfHeight, rulerHalfHeight);
@@ -260,6 +286,10 @@ void WaveForm::paintEvent(QPaintEvent * /* event */)
                 case Marks::StartSilence:
                 case Marks::EndSilence:
                     painter.setBrush(QBrush(Qt::green));
+                    break;
+                case Marks::FadeIn:
+                case Marks::FadeOut:
+                    painter.setBrush(QBrush(QColor(255, 96, 00)));
                     break;
                 default:
                     painter.setBrush(QBrush(Qt::black));
@@ -360,7 +390,8 @@ void WaveForm::mousePressEvent(QMouseEvent *event)
 {
     if (event->y() <= rulerHeight) {
         if (data.Count()) {
-            QList<int> lst = marks->Range(data.Pos() * data.DotWidth(), width() * data.DotWidth());
+            qint64 start = data.Pos() < rulerHeight ? 0 : (data.Pos() - rulerHeight) * data.DotWidth();
+            QList<int> lst = marks->Range(start, (width() + rulerHeight) * data.DotWidth());
             int hoverMark = event->x();
             foreach (int itm, lst) {
                 int x = marks->Pos(itm) / data.DotWidth() - data.Pos();
@@ -372,6 +403,12 @@ void WaveForm::mousePressEvent(QMouseEvent *event)
                 }
                 else if (lastFlags == Marks::StartTrack || lastFlags == Marks::StartSilence) {
                     mtrack2 += 5;
+                }
+                else if (lastFlags == Marks::FadeIn) {
+                    mtrack1 -= 10;
+                }
+                else if (lastFlags == Marks::FadeOut) {
+                    mtrack2 += 10;
                 }
                 else {
                     mtrack1 -= 5;

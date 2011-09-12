@@ -18,7 +18,9 @@ public:
         EndTrack = 2,
         StartSilence = 3,
         EndSilence = 4,
-        noFlag = 5
+        FadeIn = 5,
+        FadeOut = 6,
+        noFlag = 7
     };
 
     Marks();

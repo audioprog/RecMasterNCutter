@@ -85,7 +85,9 @@ OTHER_FILES += \
     buttonstyleicons/notecompressGear24.png \
     buttonstyleicons/notecompress24.png \
     buttonstyleicons/fileopen_proc.png \
-    buttonstyleicons/fileopen.png
+    buttonstyleicons/fileopen.png \
+    icons/fadeIn.png \
+    icons/fadeOut.png
 
 RESOURCES += \
     icons.qrc

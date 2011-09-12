@@ -80,7 +80,7 @@ MainWindow::MainWindow(QWidget *parent) :
     contextmenuNr = -1;
     contextmenuX = -1;
     contextmenu = new QMenu(this);
-    contextmenu->addActions(QList<QAction*>() << ui->actionDelete << ui->actionStart_Track << ui->actionEnd_Track << ui->actionStart_Silence << ui->actionEnd_Silence);
+    contextmenu->addActions(QList<QAction*>() << ui->actionDelete << ui->actionStart_Track << ui->actionEnd_Track << ui->actionStart_Silence << ui->actionEnd_Silence << ui->actionFaddIn << ui->actionFaddOut);
 
     ui->FollowWaveEnd->SetDebugNr(0);
     ui->widget->SetDebugNr(1);
@@ -764,3 +764,41 @@ void MainWindow::on_actionOptions_triggered()
         QProcess::startDetached(waveprog, QStringList(path + QString::number(pos) + ".wav"));
     }
 }*/
+
+void MainWindow::on_actionFadeIn_triggered()
+{
+    if (contextmenuNr > -1)
+        ui->widget->getMarks()->setMark(contextmenuNr, Marks::FadeIn);
+    else
+        ui->widget->AddMark(contextmenuX, Marks::FadeIn);
+}
+
+void MainWindow::on_actionFadeOut_triggered()
+{
+    if (contextmenuNr > -1)
+        ui->widget->getMarks()->setMark(contextmenuNr, Marks::FadeOut);
+    else
+        ui->widget->AddMark(contextmenuX, Marks::FadeOut);
+}
+
+void MainWindow::on_actionEditFadeIn_triggered()
+{
+    if (ui->widget->Selected() > -1)
+        marks->setMark(ui->widget->Selected(), Marks::FadeIn);
+}
+
+void MainWindow::on_actionEditFadeOut_triggered()
+{
+    if (ui->widget->Selected() > -1)
+        marks->setMark(ui->widget->Selected(), Marks::FadeOut);
+}
+
+void MainWindow::on_actionLastFadeIn_triggered()
+{
+    ui->widget->getMarks()->setMark(Marks::FadeIn);
+}
+
+void MainWindow::on_actionLastFadeOut_triggered()
+{
+    ui->widget->getMarks()->setMark(Marks::FadeOut);
+}

@@ -131,6 +131,18 @@ private slots:
 
     //void on_tableTracks_doubleClicked(const QModelIndex &index);
 
+    void on_actionFadeIn_triggered();
+
+    void on_actionFadeOut_triggered();
+
+    void on_actionEditFadeIn_triggered();
+
+    void on_actionEditFadeOut_triggered();
+
+    void on_actionLastFadeIn_triggered();
+
+    void on_actionLastFadeOut_triggered();
+
 private:
     Ui::MainWindow *ui;
     AudioOutput* audio;
