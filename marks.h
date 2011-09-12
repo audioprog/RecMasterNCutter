@@ -40,12 +40,16 @@ public:
     void Save(QFile *file);
     void Read(QFile *file);
 
+    void setS24(bool newS24) { s24 = newS24; }
+    bool S24() { return s24; }
+
 signals:
     void MarksChanged();
 
 private:
     QList<qint64> _pos;
     QList<MarkTypes> _marks;
+    bool s24;
 };
 
 #endif // MARKS_H

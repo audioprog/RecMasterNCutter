@@ -113,10 +113,10 @@ void SaveTracks::Save(int startmark, int faddin, int faddout, int endmark)
                 << QString::number(marks->Pos(endmark) - marks->Pos(faddout)) + "s";
     else if (faddin > -1 && faddout == -1)
         strlist << "fade" << QString::number(marks->Pos(faddin) - marks->Pos(startmark)) + "s";
-    else
+    else if (faddout > -1)
         strlist << "fade" << "0" << QString::number(marks->Pos(endmark) - marks->Pos(startmark)) + "s"
                 << QString::number(marks->Pos(endmark) - marks->Pos(faddout)) + "s";
-    //Prüfen und erstellen Dir
+    //Profen und erstellen Dir
     proc.start(soxpath + "sox", strlist);
     //qDebug() << strlist;
 }
@@ -173,12 +173,17 @@ void SaveTracks::SaveMerged(int startmark, int fadein, int fadeout, int endmark)
             parts << "fade " + QString::number(fadeinlen) + "s " + QString::number(fillen) + "s " + QString::number(fadeoutlen) + "s";
         else if (fadein > -1)
             parts << "fade " + QString::number(fadeinlen) + "s";
-        else
+        else if (fadeout > -1)
             parts << "fade 0 " + QString::number(fillen) + "s " + QString::number(fadeoutlen) + "s";
         for (int i = 1; i <= nr; i++)
             parts << "& del \"" + file->fileName().replace('/', '\\') + "." + QString::number(i) + ".wav\"";
 
+#ifdef Q_OS_WIN32
         emit Debug("cmd /c " + parts.join(" "));
         proc.start("cmd /c " + parts.join(" "));
+#else
+        emit Debug(parts.join(" "));
+        proc.start(parts.join(" "));
+#endif
     }
 }

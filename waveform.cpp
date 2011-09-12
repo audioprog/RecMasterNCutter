@@ -98,6 +98,7 @@ void WaveForm::paintEvent(QPaintEvent * /* event */)
     //qDebug() << onesecund << data.DotWidth();
     if (onesecund == 0) {
         onesecund = painter.device()->logicalDpiX() * 1.2;
+        data.setSamplesize(marks->S24() ? 3 : 2);
         data.SetDotWidth(44100 / onesecund);
     }
 
@@ -318,15 +319,15 @@ void WaveForm::paintEvent(QPaintEvent * /* event */)
             }
         }
         else if (actPlayPos > -1) {
-            qint64 np = actPlayPos / 6 / data.DotWidth() - data.Pos();
+            qint64 np = actPlayPos / (marks->S24() ? 6 : 4) / data.DotWidth() - data.Pos();
             if (np <= width() && np > -1) {
                 painter.setPen(Qt::blue);
                 painter.drawLine((int)np, rulerHeight + 1, (int)np, height());
                 if (np > width() / 5 * 4)
-                    emit PosChanged(actPlayPos / 6 / data.DotWidth(), true);
+                    emit PosChanged(actPlayPos / (marks->S24() ? 6 : 4) / data.DotWidth(), true);
             }
             else {
-                emit PosChanged(actPlayPos / 6 / data.DotWidth(), true);
+                emit PosChanged(actPlayPos / (marks->S24() ? 6 : 4) / data.DotWidth(), true);
             }
         }
 
@@ -467,7 +468,7 @@ void WaveForm::mouseReleaseEvent(QMouseEvent *event)
 
 void WaveForm::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    emit Play((data.Pos() + event->x()) * (qint64)data.DotWidth() * 6);
+    emit Play((data.Pos() + event->x()) * (qint64)data.DotWidth() * (marks->S24() ? 6 : 4));
 }
 
 void WaveForm::leaveEvent(QEvent *)

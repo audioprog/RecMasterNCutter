@@ -29,6 +29,9 @@ public:
     void setDebugNr(int nr) { debugnr = nr; }
     void Clear() { if (isworking) { breakWork = true; } else { lastdata.clear(); } }
 
+    void setSamplesize(int newSamplesize) { samplesize = newSamplesize; }
+    bool Samplesize() { return samplesize; }
+
     void run();
 
 signals:

@@ -89,11 +89,21 @@ void WaveData::run()
         for(int i = 0; retnr < ret.count() && (i + channel) * samplesize < ba.count() && !breakWork; i+=channel) {
             for (uint j = 0; j < channel; j++) {
                 int iba = (i + j) * samplesize;
-                if ((qint8)ba.at(iba + 2) < 0) {
-                    act = 0xff000000 | ((quint8)ba.at(iba + 2)) << 16 | ((quint8)ba.at(iba + 1)) << 8 | (quint8)ba.at(iba);
+                if (samplesize == 3)  {
+                    if ((qint8)ba.at(iba + 2) < 0) {
+                        act = 0xff000000 | ((quint8)ba.at(iba + 2)) << 16 | ((quint8)ba.at(iba + 1)) << 8 | (quint8)ba.at(iba);
+                    }
+                    else {
+                        act = ((quint8)ba.at(iba + 2)) << 16 | ((quint8)ba.at(iba + 1)) << 8 | (quint8)ba.at(iba);
+                    }
                 }
                 else {
-                    act = ((quint8)ba.at(iba + 2)) << 16 | ((quint8)ba.at(iba + 1)) << 8 | (quint8)ba.at(iba);
+                    if ((qint8)ba.at(iba + 1) < 0) {
+                        act = 0xffff0000 | ((quint8)ba.at(iba + 1)) << 8 | (quint8)ba.at(iba);
+                    }
+                    else {
+                        act = ((quint8)ba.at(iba + 1)) << 8 | (quint8)ba.at(iba);
+                    }
                 }
                 if (cnt == 0) {
                     max1[j] = act;

@@ -106,16 +106,21 @@ MainWindow::MainWindow(QWidget *parent) :
 
     tracks = new SaveTracks();
     tracks->SetMarks(marks);
+#ifdef Q_OS_LINUX
+    ui->comboDevices->setEditable(true);
+#endif
     QObject::connect(tracks, SIGNAL(Debug(QString)), ui->pteDebug, SLOT(appendPlainText(QString)));
 
     QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(on_btnListDevices_clicked()));
     timer.singleShot(1000, this, SLOT(on_btnListDevices_clicked()));
 
 #ifdef Q_OS_WIN32
+    ui->ckbS24->setVisible(false);
     waveprog = settings.value("WaveProc", "C:/Program Files/Acon Digital Media/Acoustica 4/Acoustica.exe").toString();
     lameprog = settings.value("Lame", "C:/Program Files/lame/lame.exe").toString();
     mp3path = settings.value("MP3Path", "D:/MP3/Gottesdienste 2011 MP3/").toString();
 #else
+    ui->ckbS24->setChecked(settings.value("24bit", true).toBool());
     waveprog = settings.value("WaveProc", "audacity").toString();
     lameprog = settings.value("Lame", "lame").toString();
     mp3path = settings.value("MP3Path", QDir::homePath()).toString();
@@ -152,6 +157,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
          pathlist << ui->cboxPath->currentText();
      }
      settings.setValue("PathList", pathlist);
+#ifdef Q_OS_LINUX
+     settings.setValue("24bit", ui->ckbS24->checkState() == Qt::Checked);
+#endif
      event->accept();
 }
 
@@ -619,13 +627,23 @@ void MainWindow::on_btnListDevices_clicked()
 #else
             if (line.contains(':') && !line.startsWith(" ")) {
                 QString txt = line.section(' ', 1, -1).replace(QRegExp(" Ger..?t"), "").replace(QRegExp("[:] [^:\\[]+ \\["), ": ").replace("]", "").replace(" Analog", "").replace(" Audio", "");
-                txt = txt.section(':', 0, 0).simplified() + ":" + txt.section(':', 1, 1).section(',', -1, -1).simplified()
+                txt = txt.section(':', 0, 0).simplified() + "," + txt.section(':', 1, 1).section(',', -1, -1).simplified()
                         + "=" + txt.section(':', 1, 1).section(',', 0, -2).simplified() + " " + txt.section(':', -1, -1);
                 ui->comboDevices->addItem(txt);
                 emit mDebug(line);
             }
 #endif
         }
+#ifdef Q_OS_LINUX
+        devlist.start("arecord -L");
+        if (devlist.waitForFinished()) {
+            lines = ((QString)devlist.readAll()).split('\n');
+            foreach (QString line, lines) {
+                if (!line.startsWith(" ") && line != "null")
+                    ui->comboDevices->addItem(line);
+            }
+        }
+#endif
 
         QSettings settings;
         int lastnr = settings.value("LastRecChannel", qVariantFromValue((int)0)).toInt();
@@ -645,8 +663,9 @@ void MainWindow::on_btnListDevices_clicked()
 
 void MainWindow::on_btnStartRec_clicked()
 {
-    if (ui->comboDevices->currentText().contains('=')) {
+    marks->setS24(ui->ckbS24->checkState() == Qt::Checked);
 #ifdef Q_OS_WIN32
+    if (ui->comboDevices->currentText().contains('=')) {
         bool ok;
         int nr = ui->comboDevices->currentText().section('=', 0, 0).toInt(&ok);
         if (ok) {
@@ -657,23 +676,35 @@ void MainWindow::on_btnStartRec_clicked()
             if (QProcess::startDetached("parec " + QString::number(nr) + " \"" + path + "full.raw\""))
                 on_btnOpen_clicked();
         }
+    }
 #else
-        bool ok;
-        QString hwid = ui->comboDevices->currentText().section('=', 0, 0);
-        int nr = hwid.section(':', 0, 0).toInt(&ok);
+    bool ok;
+    QString hwid = ui->comboDevices->currentText();
+    if (hwid.contains("=") && !hwid.contains(":")) {
+        hwid = hwid.section('=', 0, 0);
+        hwid.section(',', 0, 0).toInt(&ok);
         if (ok) {
-            int nr2 = hwid.section(':', -1, -1).toInt(&ok);
+            hwid.section(',', -1, -1).toInt(&ok);
             if (ok) {
-                QSettings settings;
-                settings.setValue("LastRecChannel", qVariantFromValue(hwid));
-                QString path = getPath();
-                QDir(path).mkpath(path);
-                if (QProcess::startDetached("arecord " + hwid + " \"" + path + "full.raw\""))
-                    on_btnOpen_clicked();
+                hwid = "hw:" + hwid;
             }
         }
-#endif
     }
+    else if (ui->comboDevices->currentText() != "") {
+        ok = true;
+    }
+    if (ok) {
+        QSettings settings;
+        settings.setValue("LastRecChannel", qVariantFromValue(hwid));
+        QString path = getPath();
+        QDir(path).mkpath(path);
+        QString bitformat = marks->S24() ? "24" : "16";
+        QString cmd = "konsole -e arecord -f S" + bitformat + "_LE -r 44100 -c 2 -D " + hwid + " \"" + path + "full.raw\"";
+        mDebug(cmd);
+        if (QProcess::startDetached(cmd))
+            on_btnOpen_clicked();
+    }
+#endif
 }
 
 QString MainWindow::getPath()
@@ -694,7 +725,9 @@ void MainWindow::open(QString fileName)
 {
     if (fileName.count() > 0) {
         QFile *file = new QFile(fileName);
+        marks->setS24(ui->ckbS24->checkState() == Qt::Checked);
         marks->Read(new QFile(fileName + ".rmrk"));
+        ui->ckbS24->setChecked(marks->S24());
         ui->widget->SetFile(file); //
         ui->widget->setMarks(marks);
         tracks->SetMarks(marks);
@@ -741,29 +774,6 @@ void MainWindow::on_actionOptions_triggered()
     QObject::connect(optins, SIGNAL(OptionsUpdate()), this, SLOT(OptionsUpdate()));
     optins->show();
 }
-
-/*void MainWindow::on_tableTracks_doubleClicked(const QModelIndex &index)
-{
-    if (index.column() > 0 && index.column() < 3) {
-        int row = index.row();
-        int idx = qVariantValue<int>(ui->tableTracks->item(row, 1)->data(Qt::UserRole));
-        qint64 pos = marks->Pos(idx);
-        QString path = getPath();
-        if (QFile(path + QString::number(pos) + ".wav").exists()) {
-            QProcess::startDetached(waveprog, QStringList(path + QString::number(pos) + ".wav"));
-        }
-    }
-}*/
-
-/*void MainWindow::on_tableTracks_cellDoubleClicked(int row, int column)
-{
-    int idx = qVariantValue<int>(ui->tableTracks->item(row, 1)->data(Qt::UserRole));
-    qint64 pos = marks->Pos(idx);
-    QString path = getPath();
-    if (QFile(path + QString::number(pos) + ".wav").exists()) {
-        QProcess::startDetached(waveprog, QStringList(path + QString::number(pos) + ".wav"));
-    }
-}*/
 
 void MainWindow::on_actionFadeIn_triggered()
 {

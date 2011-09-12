@@ -248,7 +248,7 @@ void AudioOutput::startPlaying(qint64 newpos)
         // Set up the format, eg.
         format.setFrequency(44100);
         format.setChannels(2);
-        format.setSampleSize(24);
+        format.setSampleSize(marks->S24() ? 24 : 16);
         format.setCodec("audio/pcm");
         format.setByteOrder(QAudioFormat::LittleEndian);
         format.setSampleType(QAudioFormat::SignedInt);
@@ -262,19 +262,33 @@ void AudioOutput::startPlaying(qint64 newpos)
         else {
             audio = new QAudioOutput(format, this);
         }
-        connect(audio,SIGNAL(stateChanged(QAudio::State)),SLOT(finishedPlaying(QAudio::State)));
+        connect(audio, SIGNAL(stateChanged(QAudio::State)),SLOT(finishedPlaying(QAudio::State)));
         connect(audio, SIGNAL(notify()), this, SLOT(notify()));
         firstrun = false;
     }
     //delete out;
     out = 0;
-    out = new WaveOutIODevice(&inputFile, this);
-    startpos = newpos;
-    out->setPos(startpos);
-    out->start();
+    if (convert) {
+        out = new WaveOutIODevice(&inputFile, this);
+        startpos = newpos;
+        out->setPos(startpos);
+        out->start();
 
-    audio->setNotifyInterval(100);
-    audio->start(out);
+        audio->setNotifyInterval(100);
+        audio->start(out);
+    }
+    else {
+        QFile *outfile = &inputFile;
+        if (inputFile.fileName().section('.', -1, -1).toLower() == "wav") {
+            WavFile wf(inputFile.fileName());
+            outfile->seek(wf.headerLength() + startpos);
+        }
+        else
+            outfile->seek(startpos);
+
+        audio->setNotifyInterval(100);
+        audio->start(outfile);
+    }
 }
 
 void AudioOutput::setFilePos(qint64 newpos)
