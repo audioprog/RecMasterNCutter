@@ -237,8 +237,22 @@ AudioOutput::AudioOutput(QObject *parent) :
     firstrun = true;
 }
 
+qint64 AudioOutput::Pos() const
+{
+    qint64 samplesize = marks->S24() ? 3 : 2;
+    qint64 bytesInBuffer = audio->bufferSize() - audio->bytesFree();
+    qint64 byProcc = audio->processedUSecs() * 2 * samplesize * 44100 / (qint64)(1000000);
+    qint64 byPlayed;
+    if (marks->S24())
+        byPlayed = startpos + byProcc - (bytesInBuffer / 2 * 3);
+    else
+        byPlayed = startpos + byProcc - bytesInBuffer;
+    return byPlayed;
+}
+
 void AudioOutput::startPlaying(qint64 newpos)
 {
+    convert = false;
     if (!firstrun) {
         if (audio->state() != QAudio::StoppedState)
             stop();
@@ -278,7 +292,8 @@ void AudioOutput::startPlaying(qint64 newpos)
         audio->start(out);
     }
     else {
-        QFile *outfile = &inputFile;
+        outfile = &inputFile;
+        outfile->open(QFile::ReadOnly);
         if (inputFile.fileName().section('.', -1, -1).toLower() == "wav") {
             WavFile wf(inputFile.fileName());
             outfile->seek(wf.headerLength() + startpos);
@@ -323,8 +338,16 @@ void AudioOutput::finishedPlaying(QAudio::State state)
 void AudioOutput::notify()
 {
     qint64 actpos = Pos();
-    if (actpos >= out->len())
-        stop();
-    else
-        emit PosChanged(Pos());
+    if (convert) {
+        if (actpos >= out->len())
+            stop();
+        else
+            emit PosChanged(Pos());
+    }
+    else {
+        if (actpos >= outfile->size())
+            stop();
+        else
+            emit PosChanged(Pos());
+    }
 }

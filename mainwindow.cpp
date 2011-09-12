@@ -325,6 +325,7 @@ void MainWindow::PlayNotify(qint64 pos)
 void MainWindow::PlayStart(qint64 pos)
 {
     //qbbug() << "PlayStart" << pos;
+    //audio->st
     if (audio->isPlaying())
         audio->stop();
     else {
@@ -738,6 +739,7 @@ void MainWindow::open(QString fileName)
         ui->Overview->OverviewMarkChanged((int)((qint64)ui->PosScrollBar->pageStep() * (qint64)ui->widget->DotWidth() / (qint64)ui->Overview->DotWidth()), 0);
         tracks->SetFile(file);
         audio->setFile(fileName);
+        audio->setMarks(marks);
     }
 }
 

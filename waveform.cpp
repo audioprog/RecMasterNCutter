@@ -468,7 +468,8 @@ void WaveForm::mouseReleaseEvent(QMouseEvent *event)
 
 void WaveForm::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    emit Play((data.Pos() + event->x()) * (qint64)data.DotWidth() * (marks->S24() ? 6 : 4));
+    int samplesize = marks->S24() ? 6 : 4;
+    emit Play((data.Pos() + event->x()) * (qint64)data.DotWidth() * samplesize);
 }
 
 void WaveForm::leaveEvent(QEvent *)

@@ -20,7 +20,7 @@ public:
     void SetFile(QFile *file);
     void SetFollowEnd(bool newValue) { followend = newValue; }
     bool followEnd() { return followend; }
-    void setMarks(Marks *newFlags) { marks = newFlags; }
+    void setMarks(Marks *newFlags) { marks = newFlags; data.setSamplesize(marks->S24() ? 3 : 2); }
     Marks* getMarks() { return marks; }
     void AddInsertPos( float newpos ) { if (newpos >= 0.0 && newpos <= 1.0) { insPosList.append(newpos); } }
     int InsertPosCount() { return insPosList.count(); }

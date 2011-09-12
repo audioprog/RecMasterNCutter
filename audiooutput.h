@@ -74,8 +74,7 @@ class AudioOutput : public QObject
     Q_OBJECT
 public:
     explicit AudioOutput(QObject *parent = 0);
-    qint64 Pos() const { qint64 bytesInBuffer = audio->bufferSize() - audio->bytesFree(); qint64 byProcc = audio->processedUSecs() * 6 * 44100 / (qint64)(1000000);
-                   qint64 byPlayed = startpos + byProcc - (bytesInBuffer / 2 * 3); return byPlayed; }
+    qint64 Pos() const;
     bool isPlaying() { return firstrun ? false : audio->state() == QAudio::ActiveState; }
     void setMarks(Marks* newMarks) { marks = newMarks; }
 
@@ -102,6 +101,7 @@ private:
     QAudioOutput* audio;
     bool convert;
     WaveOutIODevice *out;
+    QFile *outfile;
     bool firstrun;
 };
 
