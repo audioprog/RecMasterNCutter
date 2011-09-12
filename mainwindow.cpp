@@ -40,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(marks, SIGNAL(MarksChanged()), ui->widget, SLOT(actualize()));
     QObject::connect(marks, SIGNAL(MarksChanged()), this, SLOT(MarksChanged()));
 
-    QObject::connect(bsiDelegate, SIGNAL(fieldClicked(int,int)), this, SLOT(onTitleFieldClicked(int,int)));
+    //QObject::connect(bsiDelegate, SIGNAL(fieldClicked(int,int)), this, SLOT(onTitleFieldClicked(int,int)));
 
     audio = new AudioOutput();
 
@@ -80,7 +80,7 @@ MainWindow::MainWindow(QWidget *parent) :
     contextmenuNr = -1;
     contextmenuX = -1;
     contextmenu = new QMenu(this);
-    contextmenu->addActions(QList<QAction*>() << ui->actionDelete << ui->actionStart_Track << ui->actionEnd_Track << ui->actionStart_Silence << ui->actionEnd_Silence << ui->actionFaddIn << ui->actionFaddOut);
+    contextmenu->addActions(QList<QAction*>() << ui->actionDelete << ui->actionStart_Track << ui->actionEnd_Track << ui->actionStart_Silence << ui->actionEnd_Silence << ui->actionFadeIn << ui->actionFadeOut);
 
     ui->FollowWaveEnd->SetDebugNr(0);
     ui->widget->SetDebugNr(1);
@@ -502,7 +502,7 @@ void MainWindow::on_actionEnd_triggered()
     ui->PosScrollBar->setValue(ui->PosScrollBar->maximum());
 }
 
-void MainWindow::onTitleFieldClicked(int row, int column)
+/*void MainWindow::onTitleFieldClicked(int row, int column)
 {
     if (initializing)
         return;
@@ -561,7 +561,7 @@ void MainWindow::onTitleFieldClicked(int row, int column)
             //}
         }
     }
-}
+}*/
 
 void MainWindow::on_actionStop_triggered()
 {
@@ -801,4 +801,65 @@ void MainWindow::on_actionLastFadeIn_triggered()
 void MainWindow::on_actionLastFadeOut_triggered()
 {
     ui->widget->getMarks()->setMark(Marks::FadeOut);
+}
+
+void MainWindow::on_tableTracks_cellDoubleClicked(int row, int column)
+{
+    if (initializing)
+        return;
+    if (ui->tableTracks->item(row, column) != NULL) {
+        if (column == 0) {
+            //if (ui->tableTracks->item(row, column)->data(Qt::CheckStateRole) != 0) {
+                QString path = getPath();
+                tracks->SetPath(path);
+
+                tracks->SaveTrack(qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole)));
+                //Save title
+                //sox -r 44100 -e signed -b 24 -c 2 input.raw Track.wav trim [start] [lenght]
+                //sox "|sox input1 -p" "|sox -n -p" Track.wav splice ... : fade 300 0 300
+                //or
+                //and splice input1 input2 Track.wav  [sec].[msec]
+                // fade [type] fade-in-length [stop-time [fade-out-length]]
+            //}
+        }
+        else if (column == 1) {
+            int idx = qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole));
+            qint64 pos = marks->Pos(idx);
+            QString path = getPath();
+            if (QFile(path + QString::number(pos) + ".wav").exists()) {
+                QProcess::startDetached(waveprog, QStringList(path + QString::number(pos) + ".wav"));
+            }
+        }
+        else if (column == indextext) {
+            //if (ui->tableTracks->item(row, 0)->data(Qt::CheckStateRole) != 0) {
+                QString path = getPath();
+                int pnam = marks->Pos(qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole)));
+                QString name = path.replace('/', '\\') + QString::number(pnam) + ".wav";
+                QString pmp3path = mp3path;
+                if (!pmp3path.endsWith("/"))
+                    pmp3path += "/";
+                pmp3path += ui->dateEdit->date().toString("yyyy-MM-dd");
+                if (ui->comboDayTime->currentIndex() < 3)
+                    pmp3path += ui->comboDayTime->currentText().left(1);
+                else
+                    pmp3path += ui->comboDayTime->currentText();
+                pmp3path += "/";
+                pmp3path += ui->dateEdit->date().toString("dd.MM.yyyy") + " ";
+                pmp3path += ui->comboDayTime->currentText();
+                pmp3path += "/";
+
+                QString newname = pmp3path.replace('/', '\\') + QString::number(row + 1);
+                if (ui->tableTracks->item(row, 3)->text() != "")
+                    newname += " " + ui->tableTracks->item(row, 3)->text();
+                newname += ".mp3";
+                QStringList params(lameparams);
+                params << name << newname;
+
+                QDir(pmp3path).mkpath(pmp3path);
+                emit mDebug(lameprog.replace('/', '\\') + " " + params.join(" ").replace('/', '\\'));
+
+                QProcess::startDetached(lameprog, params);
+            //}
+        }
+    }
 }

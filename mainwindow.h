@@ -104,7 +104,7 @@ private slots:
 
     void on_actionEnd_triggered();
 
-    void onTitleFieldClicked(int row, int column);
+    //void onTitleFieldClicked(int row, int column);
 
     void on_actionStop_triggered();
 
@@ -142,6 +142,8 @@ private slots:
     void on_actionLastFadeIn_triggered();
 
     void on_actionLastFadeOut_triggered();
+
+    void on_tableTracks_cellDoubleClicked(int row, int column);
 
 private:
     Ui::MainWindow *ui;
