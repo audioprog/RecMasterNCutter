@@ -292,7 +292,7 @@ void MainWindow::MarksChanged()
                 ui->tableTracks->setItem(idxStartTrack, indexstart, di);
             }
             if (ui->tableTracks->item(idxStartTrack, indextext) == NULL) {
-                ui->tableTracks->setItem(idxStartTrack, indextext, new QTableWidgetItem(QString("")));
+                ui->tableTracks->setItem(idxStartTrack, indextext, new QTableWidgetItem(QString(marks->Text(i))));
             }
             if (ui->tableTracks->item(idxStartTrack, indexmp3) == NULL) {
                 QTableWidgetItem *ti = new QTableWidgetItem();
@@ -873,5 +873,13 @@ void MainWindow::on_tableTracks_cellDoubleClicked(int row, int column)
                 QProcess::startDetached(lameprog, params);
             //}
         }
+    }
+}
+
+void MainWindow::on_tableTracks_cellChanged(int row, int column)
+{
+    if (column == indextext) {
+        int idx = qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole));
+        marks->setText(idx, ui->tableTracks->item(row, column)->text());
     }
 }

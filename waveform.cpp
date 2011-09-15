@@ -23,6 +23,7 @@ WaveForm::WaveForm(QWidget *parent) :
     selected = -1;
     expand = true;
     actPlayPos = -1;
+    QObject::connect(&data, SIGNAL(CanReadNow()), this, SLOT(actualize()));
     QObject::connect(&data, SIGNAL(CanReadNow()), this, SLOT(update()));
 }
 
@@ -61,6 +62,7 @@ void WaveForm::actualize()
     if (mrkMoveSlide != 0 && rulerHeight > 0) {
         emit PosChanged(mrkMoveSlide, false);
     }
+    QTimer::singleShot(100, this, SLOT(update()));
 }
 
 void WaveForm::SaveMarks()

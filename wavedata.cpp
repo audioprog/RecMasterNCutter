@@ -248,6 +248,9 @@ QVector<int> WaveData::Data(uint count, qint64 newpos)
 void WaveData::read(qlonglong pos, int count)
 {
     readpos = pos;
-    readcount = count;
+    if (count > 44100 * 60 / dotwidth)
+        readcount = 44100 * 60 / dotwidth;
+    else
+        readcount = count;
     this->start();
 }

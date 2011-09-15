@@ -145,6 +145,8 @@ private slots:
 
     void on_tableTracks_cellDoubleClicked(int row, int column);
 
+    void on_tableTracks_cellChanged(int row, int column);
+
 private:
     Ui::MainWindow *ui;
     AudioOutput* audio;

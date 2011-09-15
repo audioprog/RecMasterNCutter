@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QList>
 #include <QFile>
+#include <QStringList>
 
 class Marks : public QObject
 {
@@ -33,10 +34,13 @@ public:
     QList<qint64> PosOfMarks(MarkTypes type) const { QList<qint64> ret; for (int i = 0; i < _marks.count(); i++) { if (_marks.at(i) == type) { ret << _pos.at(i); } } return ret; }
     QList<int> AllOfMarks(MarkTypes type) const { QList<int> ret; for (int i = 0; i < _marks.count(); ++i) { if (_marks.at(i) == type) { ret << i; } } return ret; }
     QList<int> Range(qint64 start, qint64 width) const { QList<int> ret; for (int i = 0; i < _pos.count(); i++) { if (_pos.at(i) >= start) { if (_pos.at(i) < start + width) { ret << i; } else { return ret; } } } return ret; }
-    bool Add(qint64 pos, MarkTypes typ) { for (int i = 0; i < _pos.count(); i++) { if (pos < _pos.at(i)) { _pos.insert(i, pos); _marks.insert(i, typ); emit MarksChanged(); return true; } } if (pos < 0) { return false; } _pos.append(pos); _marks.append(typ); emit MarksChanged(); return true; }
+    bool Add(qint64 pos, MarkTypes typ) { for (int i = 0; i < _pos.count(); i++) { if (pos < _pos.at(i)) { _pos.insert(i, pos); _marks.insert(i, typ); _strings.insert(i, ""); emit MarksChanged(); return true; } } if (pos < 0) { return false; } _pos.append(pos); _marks.append(typ); _strings.append(""); emit MarksChanged(); return true; }
+    bool Add(qint64 pos, MarkTypes typ, QString text) { for (int i = 0; i < _pos.count(); i++) { if (pos < _pos.at(i)) { _pos.insert(i, pos); _marks.insert(i, typ); _strings.insert(i, text); emit MarksChanged(); return true; } } if (pos < 0) { return false; } _pos.append(pos); _marks.append(typ); _strings.append(text); emit MarksChanged(); return true; }
     void Remove(int Nr) { if (Nr > -1 && Nr < _pos.count()) { _pos.removeAt(Nr); _marks.removeAt(Nr); emit MarksChanged(); } }
     int Count() const { return _pos.count(); }
     int Count(MarkTypes type) const { int ret = 0; foreach (MarkTypes itm, _marks) { if (itm == type) { ++ret; } } return ret; }
+    QString Text(int nr) { return _strings.at(nr); }
+    void setText(int nr, QString newText) { _strings[nr] = newText; }
     void Save(QFile *file);
     void Read(QFile *file);
 
@@ -49,6 +53,7 @@ signals:
 private:
     QList<qint64> _pos;
     QList<MarkTypes> _marks;
+    QStringList _strings;
     bool s24;
 };
 

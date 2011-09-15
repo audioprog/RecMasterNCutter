@@ -23,7 +23,7 @@ void ButtonStateWidget::paintEvent(QPaintEvent *)
 void ButtonStateWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if (QIcon::Disabled != myButtonState.IconMode()) {
-        myButtonState.setIconMode(QIcon::Disabled);
+        //myButtonState.setIconMode(QIcon::Disabled);
         update();
     }
 }
