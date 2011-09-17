@@ -44,17 +44,18 @@ public:
     void Save(QFile *file);
     void Read(QFile *file);
 
-    void setS24(bool newS24) { s24 = newS24; }
-    bool S24() { return s24; }
+    void setSampleSize(int newSize) { _samplesize = newSize; }
+    int SampleSize() { return _samplesize; }
 
 signals:
     void MarksChanged();
+    void Debug( QString text );
 
 private:
     QList<qint64> _pos;
     QList<MarkTypes> _marks;
     QStringList _strings;
-    bool s24;
+    int _samplesize;
 };
 
 #endif // MARKS_H

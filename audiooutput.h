@@ -53,6 +53,9 @@ public:
     void setPos(const qint64 newPos);
     qint64 len() { return ofile->size() - m_headersize; }
 
+public slots:
+    void VolChange(int newVol) { vol = newVol; }
+
 private slots:
     void readFile();
 
@@ -63,6 +66,7 @@ private:
     qint64 c_pos;
     QByteArray m_buffer;
     int m_sizebuffer;
+    int vol;
 
     RingBuffer ring;
 
@@ -80,6 +84,8 @@ public:
 
 signals:
     void PosChanged(qint64 pos);
+    void VolChanged(int newVol);
+    void Debug( QString text );
 
 public slots:
     void startPlaying(qint64 newpos);
@@ -90,6 +96,7 @@ public slots:
     void setFile(QString Filename) { inputFile.setFileName(Filename); }
     void setFilePos(qint64 newpos);
     void stop() { audio->stop(); }
+    void VolChange(int newVol) { emit VolChanged(newVol); }
 
 private slots:
     void notify();

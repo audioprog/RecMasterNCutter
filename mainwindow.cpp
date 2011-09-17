@@ -11,6 +11,7 @@
 #include "optionsdialog.h"
 #include "buttonstateitemdelegate.h"
 #include "buttonstate.h"
+#include "wavfile.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -22,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(this, SIGNAL(mDebug(QString)), ui->pteDebug, SLOT(appendPlainText(QString)));
 
     marks = new Marks();
+    QObject::connect(marks, SIGNAL(Debug(QString)), this, SLOT(Debug(QString)));
 
     ButtonStateItemDelegate *bsiDelegate = new ButtonStateItemDelegate();
 
@@ -47,6 +49,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->widget, SIGNAL(Play(qint64)), this, SLOT(PlayStart(qint64)));
     QObject::connect(audio, SIGNAL(PosChanged(qint64)), this, SLOT(PlayNotify(qint64)));
     QObject::connect(audio, SIGNAL(PosChanged(qint64)), ui->widget, SLOT(PlayPos(qint64)));
+    QObject::connect(ui->vslVol, SIGNAL(valueChanged(int)), audio, SLOT(VolChange(int)));
+    QObject::connect(audio, SIGNAL(Debug(QString)), this, SLOT(Debug(QString)));
 
     ui->actionStandard->setIcon(mimages.icon(0));
     ui->actionStart_Track->setIcon(mimages.icon(1));
@@ -114,13 +118,12 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(on_btnListDevices_clicked()));
     timer.singleShot(1000, this, SLOT(on_btnListDevices_clicked()));
 
+    ui->cboxSampleSize->setCurrentIndex(settings.value("SampleSize", 1).toInt());
 #ifdef Q_OS_WIN32
-    ui->ckbS24->setVisible(false);
     waveprog = settings.value("WaveProc", "C:/Program Files/Acon Digital Media/Acoustica 4/Acoustica.exe").toString();
     lameprog = settings.value("Lame", "C:/Program Files/lame/lame.exe").toString();
     mp3path = settings.value("MP3Path", "D:/MP3/Gottesdienste 2011 MP3/").toString();
 #else
-    ui->ckbS24->setChecked(settings.value("24bit", true).toBool());
     waveprog = settings.value("WaveProc", "audacity").toString();
     lameprog = settings.value("Lame", "lame").toString();
     mp3path = settings.value("MP3Path", QDir::homePath()).toString();
@@ -158,7 +161,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
      }
      settings.setValue("PathList", pathlist);
 #ifdef Q_OS_LINUX
-     settings.setValue("24bit", ui->ckbS24->checkState() == Qt::Checked);
+     settings.setValue("SampleSize", ui->cboxSampleSize->currentIndex());
 #endif
      event->accept();
 }
@@ -664,7 +667,7 @@ void MainWindow::on_btnListDevices_clicked()
 
 void MainWindow::on_btnStartRec_clicked()
 {
-    marks->setS24(ui->ckbS24->checkState() == Qt::Checked);
+    marks->setSampleSize(SampleSize());
 #ifdef Q_OS_WIN32
     if (ui->comboDevices->currentText().contains('=')) {
         bool ok;
@@ -699,8 +702,13 @@ void MainWindow::on_btnStartRec_clicked()
         settings.setValue("LastRecChannel", qVariantFromValue(hwid));
         QString path = getPath();
         QDir(path).mkpath(path);
-        QString bitformat = marks->S24() ? "24" : "16";
-        QString cmd = "konsole -e arecord -f S" + bitformat + "_LE -r 44100 -c 2 -D " + hwid + " \"" + path + "full.raw\"";
+        QString bitformat;
+        mDebug(QString::number(marks->SampleSize()));
+        if (marks->SampleSize() < 0)
+            bitformat = "FLOAT_LE";
+        else
+            bitformat = "S" + QString::number(marks->SampleSize() * 8) + "_LE";
+        QString cmd = "konsole -e arecord -f " + bitformat + " -r 44100 -c 2 -D " + hwid + " \"" + path + "full.raw\"";
         mDebug(cmd);
         if (QProcess::startDetached(cmd))
             on_btnOpen_clicked();
@@ -726,9 +734,25 @@ void MainWindow::open(QString fileName)
 {
     if (fileName.count() > 0) {
         QFile *file = new QFile(fileName);
-        marks->setS24(ui->ckbS24->checkState() == Qt::Checked);
+        marks->setSampleSize(SampleSize());
         marks->Read(new QFile(fileName + ".rmrk"));
-        ui->ckbS24->setChecked(marks->S24());
+        if (fileName.section('.', -1, -1).toLower() == "wav") {
+            WavFile wf(fileName);
+            int ssiz = wf.fileFormat().sampleSize() / 8;
+            marks->setSampleSize(ssiz);
+            mDebug(QString::number(ssiz) + "\n");
+            if (ssiz == 4 && wf.fileFormat().sampleType() == QAudioFormat::Float)
+                ui->cboxSampleSize->setCurrentIndex(3);
+            else
+                ui->cboxSampleSize->setCurrentIndex(ssiz - 2);
+        }
+        else
+        {
+            if (marks->SampleSize() < 0)
+                ui->cboxSampleSize->setCurrentIndex(3);
+            else
+                ui->cboxSampleSize->setCurrentIndex(marks->SampleSize() - 2);
+        }
         ui->widget->SetFile(file); //
         ui->widget->setMarks(marks);
         tracks->SetMarks(marks);
@@ -741,6 +765,16 @@ void MainWindow::open(QString fileName)
         audio->setFile(fileName);
         audio->setMarks(marks);
     }
+}
+
+int MainWindow::SampleSize()
+{
+    if (ui->cboxSampleSize->currentIndex() == -1)
+        return 3;
+    if (ui->cboxSampleSize->currentIndex() == 3)
+        return -4;
+    else
+        return ui->cboxSampleSize->currentIndex() + 2;
 }
 
 void MainWindow::on_btnOpen_clicked()
@@ -842,7 +876,7 @@ void MainWindow::on_tableTracks_cellDoubleClicked(int row, int column)
                 QProcess::startDetached(waveprog, QStringList(path + QString::number(pos) + ".wav"));
             }
         }
-        else if (column == indextext) {
+        else if (column == indexmp3) {
             //if (ui->tableTracks->item(row, 0)->data(Qt::CheckStateRole) != 0) {
                 QString path = getPath();
                 int pnam = marks->Pos(qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole)));
@@ -861,8 +895,8 @@ void MainWindow::on_tableTracks_cellDoubleClicked(int row, int column)
                 pmp3path += "/";
 
                 QString newname = pmp3path.replace('/', '\\') + QString::number(row + 1);
-                if (ui->tableTracks->item(row, 3)->text() != "")
-                    newname += " " + ui->tableTracks->item(row, 3)->text();
+                if (ui->tableTracks->item(row, indextext)->text().simplified() != "")
+                    newname += " " + ui->tableTracks->item(row, indextext)->text().simplified();
                 newname += ".mp3";
                 QStringList params(lameparams);
                 params << name << newname;

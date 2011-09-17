@@ -154,6 +154,7 @@ private:
 
     QString getPath();
     void open(QString fileName);
+    int SampleSize();
 
     MarkImages mimages;
     int contextmenuNr;

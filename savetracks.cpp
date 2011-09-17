@@ -105,8 +105,7 @@ void SaveTracks::Save(int startmark, int faddin, int faddout, int endmark)
     isworking = true;
     QStringList strlist;
     strlist << "-V3" << "-r" << "44100" << "-s" << "-3" << "-c" << "2" << file->fileName() << "-t" << "wavpcm" << path + QString::number(marks->Pos(startmark)) + ".wav"
-                              << "trim" << QString::number(marks->Pos(startmark)) + "s" << QString::number(marks->Pos(endmark) - marks->Pos(startmark)) + "s"
-                              << "gain" << "-n";
+                              << "trim" << QString::number(marks->Pos(startmark)) + "s" << QString::number(marks->Pos(endmark) - marks->Pos(startmark)) + "s";
     if (faddin > -1 && faddout > -1)
         strlist << "fade" << QString::number(marks->Pos(faddin) - marks->Pos(startmark)) + "s"
                 << QString::number(marks->Pos(endmark) - marks->Pos(startmark)) + "s"
@@ -116,6 +115,7 @@ void SaveTracks::Save(int startmark, int faddin, int faddout, int endmark)
     else if (faddout > -1)
         strlist << "fade" << "0" << QString::number(marks->Pos(endmark) - marks->Pos(startmark)) + "s"
                 << QString::number(marks->Pos(endmark) - marks->Pos(faddout)) + "s";
+    strlist << "gain" << "-n";
     //Profen und erstellen Dir
     proc.start(soxpath + "sox", strlist);
     //qDebug() << strlist;

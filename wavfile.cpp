@@ -119,7 +119,8 @@ bool WavFile::readHeader()
             || memcmp(&header.riff.descriptor.id, "RIFX", 4) == 0)
             && memcmp(&header.riff.type, "WAVE", 4) == 0
             && memcmp(&header.wave.descriptor.id, "fmt ", 4) == 0
-            && (header.wave.audioFormat == 1 || header.wave.audioFormat == 0)) {
+            && (header.wave.audioFormat == 1 || header.wave.audioFormat == 0
+                || header.wave.audioFormat == 3)) {
 
             // Read off remaining header information
             DATAHeader dataHeader;
@@ -151,7 +152,10 @@ bool WavFile::readHeader()
             m_fileFormat.setCodec("audio/pcm");
             m_fileFormat.setFrequency(qFromLittleEndian<quint32>(header.wave.sampleRate));
             m_fileFormat.setSampleSize(qFromLittleEndian<quint16>(header.wave.bitsPerSample));
-            m_fileFormat.setSampleType(bps == 8 ? QAudioFormat::UnSignedInt : QAudioFormat::SignedInt);
+            if (header.wave.audioFormat == 3)
+                m_fileFormat.setSampleType(QAudioFormat::Float);
+            else
+                m_fileFormat.setSampleType(bps == 8 ? QAudioFormat::UnSignedInt : QAudioFormat::SignedInt);
         } else {
             result = false;
         }

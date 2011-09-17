@@ -5,13 +5,14 @@ Marks::Marks()
 {
     _pos = QList<qint64>();
     _marks = QList<MarkTypes>();
+    _samplesize = 3;
 }
 
 void Marks::Save(QFile *file)
 {
     file->open(QFile::WriteOnly);
     QTextStream ts(file);
-    ts << (s24 ? "24" : "16") << "\n";
+    ts << (_samplesize * 8) << "\n";
     for (int i = 0; i < _pos.count(); i++) {
         if (_strings.at(i) != "")
             ts << _pos.at(i) << "," << _marks.at(i) << "," << _strings.at(i) << "\n";
@@ -31,10 +32,14 @@ void Marks::Read(QFile *file)
             QString line = file->readLine();
             if (firstline) {
                 if (!line.contains(',')) {
-                    if (line.startsWith("16"))
-                        s24 = false;
+                    bool ok;
+                    _samplesize = line.toInt(&ok);
+                    if (!ok) {
+                        _samplesize = 3;
+                        emit Debug("Mark read first line Error:" + line);
+                    }
                     else
-                        s24 = true;
+                        _samplesize /= 8;
                 }
                 else
                     firstline = false;
@@ -45,7 +50,7 @@ void Marks::Read(QFile *file)
                 if (ipos > -1) {
                     if (typ > -1 && typ < noFlag) {
                         if (line.count(',') > 1)
-                            Add(ipos, static_cast<MarkTypes>(typ), line.section(',', 2, -1));
+                            Add(ipos, static_cast<MarkTypes>(typ), line.section(',', 2, -1).simplified());
                         else
                             Add(ipos, static_cast<MarkTypes>(typ));
                     }

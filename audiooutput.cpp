@@ -145,6 +145,8 @@ WaveOutIODevice::WaveOutIODevice(QFile *file, QObject *parent)
 
     QObject::connect(&readTimer, SIGNAL(timeout()), this, SLOT(readFile()));
     readTimer.setInterval(100);
+
+    vol = 0;
 }
 
 WaveOutIODevice::~WaveOutIODevice()
@@ -207,7 +209,7 @@ void WaveOutIODevice::readFile()
     if (len > 0) {
         //qint64 anfang = m_pos;
         qint64 filebytesavail = (ofile->size() - ofile->pos()) / 3 * 2;
-        if (len > filebytesavail)
+        if (len > filebytesavail) {
             if (filebytesavail == 0) {
                 for (int i = 0; i < m_sizebuffer; i++)
                     m_buffer[i] = 0;
@@ -217,13 +219,20 @@ void WaveOutIODevice::readFile()
             } else {
                 len = (int)filebytesavail;
             }
+        }
 
         QByteArray bf = ofile->read(len / 2 * 3);
         len = bf.count() / 3 * 2;
-        for (int i = 0, j = 1; j < bf.count(); i+=2, j+=3) {
-            m_buffer[i] = bf.at(j);
-            m_buffer[i+1] = bf.at(j+1);
-        }
+        if (vol == 0)
+            for (int i = 0, j = 1; j < bf.count(); i+=2, j+=3) {
+                m_buffer[i] = bf.at(j);
+                m_buffer[i+1] = bf.at(j+1);
+            }
+        else
+            for (int i = 0, j = 1; j < bf.count(); i+=2, j+=3) {
+                m_buffer[i] = (char)(bf.at(j) << vol | bf.at(j) >> (8 - vol));
+                m_buffer[i+1] = (char)(bf.at(j+1) << vol | bf.at(j) >> (8 - vol));
+            }
         m_pos += ring.In(m_buffer, len) / 2 * 3;
         //qDebug() << "readFile" << m_pos << ofile->pos() << m_pos - anfang - bf.count();
     }
@@ -239,11 +248,11 @@ AudioOutput::AudioOutput(QObject *parent) :
 
 qint64 AudioOutput::Pos() const
 {
-    qint64 samplesize = marks->S24() ? 3 : 2;
+    qint64 samplesize = abs(marks->SampleSize());
     qint64 bytesInBuffer = audio->bufferSize() - audio->bytesFree();
     qint64 byProcc = audio->processedUSecs() * 2 * samplesize * 44100 / (qint64)(1000000);
     qint64 byPlayed;
-    if (marks->S24())
+    if (marks->SampleSize() == 3)
         byPlayed = startpos + byProcc - (bytesInBuffer / 2 * 3);
     else
         byPlayed = startpos + byProcc - bytesInBuffer;
@@ -252,22 +261,26 @@ qint64 AudioOutput::Pos() const
 
 void AudioOutput::startPlaying(qint64 newpos)
 {
-    convert = false;
     if (!firstrun) {
         if (audio->state() != QAudio::StoppedState)
             stop();
     }
     else {
+        convert = false;
         QAudioFormat format;
         // Set up the format, eg.
         format.setFrequency(44100);
         format.setChannels(2);
-        format.setSampleSize(marks->S24() ? 24 : 16);
+        format.setSampleSize(abs(marks->SampleSize()) * 8);
         format.setCodec("audio/pcm");
         format.setByteOrder(QAudioFormat::LittleEndian);
-        format.setSampleType(QAudioFormat::SignedInt);
+        if (marks->SampleSize() < 0)
+            format.setSampleType(QAudioFormat::Float);
+        else
+            format.setSampleType(QAudioFormat::SignedInt);
 
         QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
+        emit Debug(info.deviceName());
         if (!info.isFormatSupported(format)) {
             convert = true;
             format.setSampleSize(16);
@@ -284,6 +297,7 @@ void AudioOutput::startPlaying(qint64 newpos)
     out = 0;
     if (convert) {
         out = new WaveOutIODevice(&inputFile, this);
+        QObject::connect(this, SIGNAL(VolChanged(int)), out, SLOT(VolChange(int)));
         startpos = newpos;
         out->setPos(startpos);
         out->start();

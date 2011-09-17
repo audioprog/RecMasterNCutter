@@ -2,7 +2,7 @@
 #include <QFileInfo>
 #include "wavfile.h"
 
-//#include <QtDebug>
+#include <QtDebug>
 
 WaveData::WaveData()
 {
@@ -84,44 +84,144 @@ void WaveData::run()
 
         uint cnt = 0;
         int retnr = 0;
-        int max1[channel], max2[channel];
-        int act;
-        for(int i = 0; retnr < ret.count() && (i + channel) * samplesize < ba.count() && !breakWork; i+=channel) {
-            for (uint j = 0; j < channel; j++) {
-                int iba = (i + j) * samplesize;
-                if (samplesize == 3)  {
+        if (samplesize == 3) {
+            maxclip = 0x7fffff;
+            qint32 max1[channel], max2[channel];
+            qint32 act;
+            for(int i = 0; retnr < ret.count() && (i + channel) * samplesize < ba.count() && !breakWork; i+=channel) {
+                for (uint j = 0; j < channel; j++) {
+                    int iba = (i + j) * samplesize;
                     if ((qint8)ba.at(iba + 2) < 0) {
                         act = 0xff000000 | ((quint8)ba.at(iba + 2)) << 16 | ((quint8)ba.at(iba + 1)) << 8 | (quint8)ba.at(iba);
                     }
                     else {
                         act = ((quint8)ba.at(iba + 2)) << 16 | ((quint8)ba.at(iba + 1)) << 8 | (quint8)ba.at(iba);
                     }
-                }
-                else {
-                    if ((qint8)ba.at(iba + 1) < 0) {
-                        act = 0xffff0000 | ((quint8)ba.at(iba + 1)) << 8 | (quint8)ba.at(iba);
+                    if (cnt == 0) {
+                        max1[j] = act;
+                        max2[j] = act;
                     }
-                    else {
-                        act = ((quint8)ba.at(iba + 1)) << 8 | (quint8)ba.at(iba);
+                    else if (act < max1[j])
+                        max1[j] = act;
+                    else if (act > max2[j])
+                        max2[j] = act;
+                }
+                cnt++;
+                if (cnt >= dotwidth) {
+                    for (uint j = 0; j < channel; j++) {
+                        ret[retnr++] = max2[j];
+                        ret[retnr++] = max1[j];
                     }
+                    cnt = 0;
                 }
-                if (cnt == 0) {
-                    max1[j] = act;
-                    max2[j] = act;
-                }
-                else if (act < max1[j])
-                    max1[j] = act;
-                else if (act > max2[j])
-                    max2[j] = act;
             }
-            cnt++;
-            if (cnt >= dotwidth) {
+            if (retnr + 4 <= ret.count())
                 for (uint j = 0; j < channel; j++) {
                     ret[retnr++] = max2[j];
                     ret[retnr++] = max1[j];
                 }
-                cnt = 0;
+            //qDebug() << retnr << count;
+        }
+        else if (samplesize == 2) {
+            maxclip = 0x7fff;
+            qint16 max1[channel], max2[channel];
+            qint16 act;
+
+            for(int i = 0; retnr < ret.count() && (i + channel) * samplesize < ba.count() && !breakWork; i+=channel) {
+                for (uint j = 0; j < channel; j++) {
+                    int iba = (i + j) * samplesize;
+                    act = ba.at(iba + 1) << 8 & 0xFF00 | (qint8)ba.at(iba);
+                    if (cnt == 0) {
+                        max1[j] = act;
+                        max2[j] = act;
+                    }
+                    else if (act < max1[j])
+                        max1[j] = act;
+                    else if (act > max2[j])
+                        max2[j] = act;
+                }
+                cnt++;
+                if (cnt >= dotwidth) {
+                    for (uint j = 0; j < channel; j++) {
+                        ret[retnr++] = max2[j];
+                        ret[retnr++] = max1[j];
+                    }
+                    cnt = 0;
+                }
             }
+            if (retnr + 4 <= ret.count())
+                for (uint j = 0; j < channel; j++) {
+                    ret[retnr++] = max2[j];
+                    ret[retnr++] = max1[j];
+                }
+        }
+        else if (samplesize == 4) {
+            maxclip = 0x7fffffff;
+            qint32 max1[channel], max2[channel];
+            qint32 act;
+
+            for(int i = 0; retnr < ret.count() && (i + channel) * samplesize < ba.count() && !breakWork; i+=channel) {
+                for (uint j = 0; j < channel; j++) {
+                    int iba = (i + j) * samplesize;
+                    act = ba.at(iba + 3) << 24 & 0xFF000000 | (quint8)ba.at(iba + 2) << 16 | (quint8)ba.at(iba + 1) << 8 | (quint8)ba.at(iba);
+                    if (cnt == 0) {
+                        max1[j] = act;
+                        max2[j] = act;
+                    }
+                    else if (act < max1[j])
+                        max1[j] = act;
+                    else if (act > max2[j])
+                        max2[j] = act;
+                }
+                cnt++;
+                if (cnt >= dotwidth) {
+                    for (uint j = 0; j < channel; j++) {
+                        ret[retnr++] = max2[j];
+                        ret[retnr++] = max1[j];
+                    }
+                    cnt = 0;
+                }
+            }
+            if (retnr + 4 <= ret.count())
+                for (uint j = 0; j < channel; j++) {
+                    ret[retnr++] = max2[j];
+                    ret[retnr++] = max1[j];
+                }
+        }
+        else if (samplesize == 4) {
+            maxclip = 0x7fff;
+            float forintmax = maxclip;
+            float max1[channel], max2[channel];
+            float act;
+            float *actdata = reinterpret_cast<float*>(ba.data());
+
+            for(int i = 0; retnr < ret.count() && (i + channel) * -samplesize < ba.count() && !breakWork; i+=channel) {
+                for (uint j = 0; j < channel; j++) {
+                    int iba = (i + j) * -samplesize;
+                    act = (*(actdata + iba)) * forintmax;
+                    if (cnt == 0) {
+                        max1[j] = act;
+                        max2[j] = act;
+                    }
+                    else if (act < max1[j])
+                        max1[j] = act;
+                    else if (act > max2[j])
+                        max2[j] = act;
+                }
+                cnt++;
+                if (cnt >= dotwidth) {
+                    for (uint j = 0; j < channel; j++) {
+                        ret[retnr++] = max2[j];
+                        ret[retnr++] = max1[j];
+                    }
+                    cnt = 0;
+                }
+            }
+            if (retnr + 4 <= ret.count())
+                for (uint j = 0; j < channel; j++) {
+                    ret[retnr++] = max2[j];
+                    ret[retnr++] = max1[j];
+                }
         }
         if (breakWork) {
             breakWork = false;
@@ -132,10 +232,13 @@ void WaveData::run()
         else {
             if (retnr < ret.count() && retnr < ret.count() + samplesize + channel) {
                 for (uint j = 0; j < channel; j++) {
-                    ret[retnr++] = max2[j];
-                    ret[retnr++] = max1[j];
+                    //ret[retnr++] = max2[j];
+                    ret[retnr++] = 0;
+                    //ret[retnr++] = max1[j];
+                    ret[retnr++] = 0;
                 }
             }
+
             if (lastpos == -1 || lastwidth != dotwidth) {
                 lock.lockForWrite();
                 lastdata = ret;
