@@ -62,7 +62,7 @@ MarkImages::MarkImages()
     //pix5->save("End_Silence.png", "PNG");
     pixlist.append(*pix5);
     icolist.append(QIcon(*pix5));
-    for (int i = 1; i < 4; ++i) {
+    for (int i = 1; i < 5; ++i) {
         pix1 = new QPixmap(psiz);
         painter1 = new QPainter(pix1);
         painter1->fillRect(0,0,psiz.width(), psiz.height(), color);
@@ -75,7 +75,7 @@ MarkImages::MarkImages()
         //pix1->save("Add_" + QString::number(i) + ".png", "PNG");
         nrPixs.append(*pix1);
     }
-    pix1 = new QPixmap(psiz);
+    /*pix1 = new QPixmap(psiz);
     painter1 = new QPainter(pix1);
     painter1->fillRect(0,0,psiz.width(), psiz.height(), color);
     painter1->setBrush(Qt::red);
@@ -86,7 +86,7 @@ MarkImages::MarkImages()
     painter1->end();
     pix1->setMask(pix1->createMaskFromColor(color.rgb(), Qt::MaskInColor));
     //pix1->save("Add_Actual.png", "PNG");
-    nrPixs.append(*pix1);
+    nrPixs.append(*pix1);*/
 
     //QColor color(Qt::white);
     QPoint FaddIn[] = {QPoint(0, dsiz.height()-1), QPoint(dsiz.width()-1, 0), QPoint(dsiz.width() / 2, dsiz.height()-1)};

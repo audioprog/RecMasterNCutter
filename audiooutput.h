@@ -81,6 +81,7 @@ public:
     qint64 Pos() const;
     bool isPlaying() { return firstrun ? false : audio->state() == QAudio::ActiveState; }
     void setMarks(Marks* newMarks) { marks = newMarks; }
+    QStringList DeviceList();
 
 signals:
     void PosChanged(qint64 pos);
@@ -97,6 +98,7 @@ public slots:
     void setFilePos(qint64 newpos);
     void stop() { audio->stop(); }
     void VolChange(int newVol) { emit VolChanged(newVol); }
+    void setHardware( int newHardware ) { oldhardware = hardware; hardware = newHardware; }
 
 private slots:
     void notify();
@@ -110,6 +112,7 @@ private:
     WaveOutIODevice *out;
     QFile *outfile;
     bool firstrun;
+    int hardware, oldhardware;
 };
 
 #endif // AUDIOOUTPUT_H

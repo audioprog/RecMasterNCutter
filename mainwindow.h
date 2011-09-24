@@ -147,6 +147,10 @@ private slots:
 
     void on_tableTracks_cellChanged(int row, int column);
 
+    void on_actionStandard_4_triggered();
+
+    void on_btbRereadOutput_clicked();
+
 private:
     Ui::MainWindow *ui;
     AudioOutput* audio;
@@ -155,6 +159,7 @@ private:
     QString getPath();
     void open(QString fileName);
     int SampleSize();
+    QString MP3File(int title);
 
     MarkImages mimages;
     int contextmenuNr;

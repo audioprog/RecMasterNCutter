@@ -2,6 +2,7 @@
 
 //#include <QtDebug>
 #include <QStringList>
+#include <QSettings>
 
 SaveTracks::SaveTracks(QObject *parent) :
     QObject(parent)
@@ -10,6 +11,7 @@ SaveTracks::SaveTracks(QObject *parent) :
     QObject::connect(&proc, SIGNAL(finished(int)), this, SLOT(finished()));
     proc.setProcessChannelMode(QProcess::MergedChannels);
     isworking = false;
+    ReadSettings();
 }
 
 void SaveTracks::canread()
@@ -25,6 +27,12 @@ void SaveTracks::SaveTrack(int TrackNr)
     list.append(TrackNr);
     if (!isworking)
         Start();
+}
+
+void SaveTracks::ReadSettings()
+{
+    QSettings settings;
+    soxpath = settings.value("soxpath", "").toString();
 }
 
 void SaveTracks::finished()
@@ -107,14 +115,17 @@ void SaveTracks::Save(int startmark, int faddin, int faddout, int endmark)
     strlist << "-V3" << "-r" << "44100" << "-s" << "-3" << "-c" << "2" << file->fileName() << "-t" << "wavpcm" << path + QString::number(marks->Pos(startmark)) + ".wav"
                               << "trim" << QString::number(marks->Pos(startmark)) + "s" << QString::number(marks->Pos(endmark) - marks->Pos(startmark)) + "s";
     if (faddin > -1 && faddout > -1)
-        strlist << "fade" << QString::number(marks->Pos(faddin) - marks->Pos(startmark)) + "s"
-                << QString::number(marks->Pos(endmark) - marks->Pos(startmark)) + "s"
+        strlist << "fade" << "t" << QString::number(marks->Pos(faddin) - marks->Pos(startmark)) + "s" << "0"
                 << QString::number(marks->Pos(endmark) - marks->Pos(faddout)) + "s";
+                //<< QString::number(marks->Pos(endmark) - marks->Pos(startmark)) + "s"
+                //<< QString::number(marks->Pos(endmark) - marks->Pos(faddout)) + "s";
     else if (faddin > -1 && faddout == -1)
-        strlist << "fade" << QString::number(marks->Pos(faddin) - marks->Pos(startmark)) + "s";
-    else if (faddout > -1)
-        strlist << "fade" << "0" << QString::number(marks->Pos(endmark) - marks->Pos(startmark)) + "s"
+        strlist << "fade" << "t" << QString::number(marks->Pos(faddin) - marks->Pos(startmark)) + "s";
+    else if (faddout > -1) {
+        //strlist << "fade" << "t" << "0" << QString::number(marks->Pos(endmark) - marks->Pos(startmark)) + "s"
+        strlist << "fade" << "t" << "0" << "0"
                 << QString::number(marks->Pos(endmark) - marks->Pos(faddout)) + "s";
+    }
     strlist << "gain" << "-n";
     //Profen und erstellen Dir
     proc.start(soxpath + "sox", strlist);
@@ -168,13 +179,23 @@ void SaveTracks::SaveMerged(int startmark, int fadein, int fadeout, int endmark)
         parts << soxpath + "sox";
         for (int i = 1; i <= nr; i++)
             parts << "\"" + file->fileName() + "." + QString::number(i) + ".wav\"";
-        parts << "-t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".wav\" splice 0.1 gain -n";
-        if (fadein > -1 && fadeout > -1)
-            parts << "fade " + QString::number(fadeinlen) + "s " + QString::number(fillen) + "s " + QString::number(fadeoutlen) + "s";
+        /*if (fadein > -1 || fadeout > -1) {
+            parts << "\"" + path + QString::number(marks->Pos(startmark)) + ".raw\" splice 0.1 gain -n";
+            parts << "&& " + soxpath + "sox -r 44100 -s -3 -c 2 \"" + path + QString::number(marks->Pos(startmark)) + ".raw\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".wav\"";
+        }
+        else*/
+            parts << "-t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".wav\" splice 4410s gain -n";
+        if (fadein > -1 && fadeout > -1) {
+            parts << "fade t " + QString::number(fadeinlen) + "s " + QString::number(fillen) + "s " + QString::number(fadeoutlen) + "s";
+            //parts << "fade t " + QString::number(fadeinlen) + "s 0 " + QString::number(fadeoutlen) + "s";
+        }
         else if (fadein > -1)
-            parts << "fade " + QString::number(fadeinlen) + "s";
+            parts << "fade t " + QString::number(fadeinlen) + "s";
         else if (fadeout > -1)
-            parts << "fade 0 " + QString::number(fillen) + "s " + QString::number(fadeoutlen) + "s";
+            parts << "fade t 0 " + QString::number(fillen) + "s " + QString::number(fadeoutlen) + "s";
+            //parts << "fade t 0 0 " + QString::number(fadeoutlen) + "s";
+        //if (fadein > -1 || fadeout > -1)
+        //    parts << "& del \"" + path + QString::number(marks->Pos(startmark)).replace('/', '\\') + ".bf.wav\"";
         for (int i = 1; i <= nr; i++)
             parts << "& del \"" + file->fileName().replace('/', '\\') + "." + QString::number(i) + ".wav\"";
 

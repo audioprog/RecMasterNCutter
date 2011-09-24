@@ -51,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(audio, SIGNAL(PosChanged(qint64)), ui->widget, SLOT(PlayPos(qint64)));
     QObject::connect(ui->vslVol, SIGNAL(valueChanged(int)), audio, SLOT(VolChange(int)));
     QObject::connect(audio, SIGNAL(Debug(QString)), this, SLOT(Debug(QString)));
+    ui->cbxOutput->addItems(audio->DeviceList());
 
     ui->actionStandard->setIcon(mimages.icon(0));
     ui->actionStart_Track->setIcon(mimages.icon(1));
@@ -60,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->actionStandard_1->setIcon(mimages.nricon(0));
     ui->actionStandard_2->setIcon(mimages.nricon(1));
     ui->actionStandard_3->setIcon(mimages.nricon(2));
-    ui->actionAktuell->setIcon(mimages.nricon(3));
+    ui->actionStandard_4->setIcon(mimages.nricon(3));
     ui->actionLastMarkStandard->setIcon(mimages.icon(0));
     ui->actionLastMarkStart_Track->setIcon(mimages.icon(1));
     ui->actionLastMarkEnd_Track->setIcon(mimages.icon(2));
@@ -270,9 +271,9 @@ void MainWindow::MarksChanged()
             if (ui->tableTracks->item(idxStartTrack, 0) == NULL) {
                 QTableWidgetItem *ti = new QTableWidgetItem();
                 if (QFile(path + QString::number(marks->Pos(i)) + ".wav").exists()) {
-                    ti->setData(0, qVariantFromValue(ButtonState("Save")));
-                    ButtonState state = qVariantValue<ButtonState>(ti->data(0));
+                    ButtonState state("Save");
                     state.setIconMode(QIcon::Selected);
+                    ti->setData(0, qVariantFromValue(state));
                 }
                 else {
                     ti->setData(0, qVariantFromValue(ButtonState("Save")));
@@ -298,8 +299,11 @@ void MainWindow::MarksChanged()
                 ui->tableTracks->setItem(idxStartTrack, indextext, new QTableWidgetItem(QString(marks->Text(i))));
             }
             if (ui->tableTracks->item(idxStartTrack, indexmp3) == NULL) {
+                ButtonState mp3state("MP3");
+                if (QFile(MP3File(idxStartTrack)).exists())
+                    mp3state.setIconMode(QIcon::Selected);
                 QTableWidgetItem *ti = new QTableWidgetItem();
-                ti->setData(0, qVariantFromValue(ButtonState("MP3")));
+                ti->setData(0, qVariantFromValue(mp3state));
                 ui->tableTracks->setItem(idxStartTrack, indexmp3, ti);
             }
         }
@@ -328,7 +332,7 @@ void MainWindow::PlayNotify(qint64 pos)
 void MainWindow::PlayStart(qint64 pos)
 {
     //qbbug() << "PlayStart" << pos;
-    //audio->st
+    audio->setHardware(ui->cbxOutput->currentIndex());
     if (audio->isPlaying())
         audio->stop();
     else {
@@ -343,6 +347,7 @@ void MainWindow::OptionsUpdate()
         ui->cboxPath->removeItem(0);
     QSettings settings;
     ui->cboxPath->insertItems(0, settings.value("PathList", QStringList()).toStringList());
+    tracks->ReadSettings();
 }
 
 void MainWindow::on_action_Open_triggered()
@@ -513,67 +518,6 @@ void MainWindow::on_actionEnd_triggered()
 {
     ui->PosScrollBar->setValue(ui->PosScrollBar->maximum());
 }
-
-/*void MainWindow::onTitleFieldClicked(int row, int column)
-{
-    if (initializing)
-        return;
-    if (ui->tableTracks->item(row, column) != NULL) {
-        if (column == 0) {
-            //if (ui->tableTracks->item(row, column)->data(Qt::CheckStateRole) != 0) {
-                QString path = getPath();
-                tracks->SetPath(path);
-
-                tracks->SaveTrack(qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole)));
-                //Save title
-                //sox -r 44100 -e signed -b 24 -c 2 input.raw Track.wav trim [start] [lenght]
-                //sox "|sox input1 -p" "|sox -n -p" Track.wav splice ... : fade 300 0 300
-                //or
-                //and splice input1 input2 Track.wav  [sec].[msec]
-                // fade [type] fade-in-length [stop-time [fade-out-length]]
-            //}
-        }
-        else if (column == 1) {
-            int idx = qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole));
-            qint64 pos = marks->Pos(idx);
-            QString path = getPath();
-            if (QFile(path + QString::number(pos) + ".wav").exists()) {
-                QProcess::startDetached(waveprog, QStringList(path + QString::number(pos) + ".wav"));
-            }
-        }
-        else if (column == indextext) {
-            //if (ui->tableTracks->item(row, 0)->data(Qt::CheckStateRole) != 0) {
-                QString path = getPath();
-                int pnam = marks->Pos(qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole)));
-                QString name = path.replace('/', '\\') + QString::number(pnam) + ".wav";
-                QString pmp3path = mp3path;
-                if (!pmp3path.endsWith("/"))
-                    pmp3path += "/";
-                pmp3path += ui->dateEdit->date().toString("yyyy-MM-dd");
-                if (ui->comboDayTime->currentIndex() < 3)
-                    pmp3path += ui->comboDayTime->currentText().left(1);
-                else
-                    pmp3path += ui->comboDayTime->currentText();
-                pmp3path += "/";
-                pmp3path += ui->dateEdit->date().toString("dd.MM.yyyy") + " ";
-                pmp3path += ui->comboDayTime->currentText();
-                pmp3path += "/";
-
-                QString newname = pmp3path.replace('/', '\\') + QString::number(row + 1);
-                if (ui->tableTracks->item(row, 3)->text() != "")
-                    newname += " " + ui->tableTracks->item(row, 3)->text();
-                newname += ".mp3";
-                QStringList params(lameparams);
-                params << name << newname;
-
-                QDir(pmp3path).mkpath(pmp3path);
-                emit mDebug(lameprog.replace('/', '\\') + " " + params.join(" ").replace('/', '\\'));
-
-                QProcess::startDetached(lameprog, params);
-            //}
-        }
-    }
-}*/
 
 void MainWindow::on_actionStop_triggered()
 {
@@ -777,6 +721,31 @@ int MainWindow::SampleSize()
         return ui->cboxSampleSize->currentIndex() + 2;
 }
 
+QString MainWindow::MP3File(int title)
+{
+    QString pmp3path = mp3path;
+    if (!pmp3path.endsWith("/"))
+        pmp3path += "/";
+    pmp3path += ui->dateEdit->date().toString("yyyy-MM-dd");
+    if (ui->comboDayTime->currentIndex() < 3)
+        pmp3path += ui->comboDayTime->currentText().left(1);
+    else
+        pmp3path += ui->comboDayTime->currentText();
+    pmp3path += "/";
+    pmp3path += ui->dateEdit->date().toString("dd.MM.yyyy") + " ";
+    pmp3path += ui->comboDayTime->currentText();
+    pmp3path += "/";
+
+    QString newname = pmp3path.replace('/', '\\');
+    if (title < 9)
+        newname += "0";
+    newname += QString::number(title + 1);
+    if (ui->tableTracks->item(title, indextext)->text().simplified() != "")
+        newname += " " + ui->tableTracks->item(title, indextext)->text().simplified();
+    newname += ".mp3";
+    return newname;
+}
+
 void MainWindow::on_btnOpen_clicked()
 {
     QString path = getPath();
@@ -860,6 +829,11 @@ void MainWindow::on_tableTracks_cellDoubleClicked(int row, int column)
                 tracks->SetPath(path);
 
                 tracks->SaveTrack(qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole)));
+
+                ButtonState st = qVariantValue<ButtonState>(ui->tableTracks->item(row, 0)->data(0));
+                st.setIconMode(QIcon::Disabled);
+                ui->tableTracks->item(row, 0)->setData(0, qVariantFromValue(st));
+                //ui->tableTracks->i;
                 //Save title
                 //sox -r 44100 -e signed -b 24 -c 2 input.raw Track.wav trim [start] [lenght]
                 //sox "|sox input1 -p" "|sox -n -p" Track.wav splice ... : fade 300 0 300
@@ -874,37 +848,52 @@ void MainWindow::on_tableTracks_cellDoubleClicked(int row, int column)
             QString path = getPath();
             if (QFile(path + QString::number(pos) + ".wav").exists()) {
                 QProcess::startDetached(waveprog, QStringList(path + QString::number(pos) + ".wav"));
+                ButtonState st = qVariantValue<ButtonState>(ui->tableTracks->item(row, 1)->data(0));
+                st.setIconMode(QIcon::Disabled);
+                ui->tableTracks->item(row, 1)->setData(0, qVariantFromValue(st));
             }
+        }
+        else if (column == indexstart) {
+            int idx = qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole));
+            ui->markTable->selectRow(idx);
         }
         else if (column == indexmp3) {
             //if (ui->tableTracks->item(row, 0)->data(Qt::CheckStateRole) != 0) {
                 QString path = getPath();
                 int pnam = marks->Pos(qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole)));
                 QString name = path.replace('/', '\\') + QString::number(pnam) + ".wav";
-                QString pmp3path = mp3path;
-                if (!pmp3path.endsWith("/"))
+                if (QFile(name).exists()) {
+                    QString pmp3path = mp3path;
+                    if (!pmp3path.endsWith("/"))
+                        pmp3path += "/";
+                    pmp3path += ui->dateEdit->date().toString("yyyy-MM-dd");
+                    if (ui->comboDayTime->currentIndex() < 3)
+                        pmp3path += ui->comboDayTime->currentText().left(1);
+                    else
+                        pmp3path += ui->comboDayTime->currentText();
                     pmp3path += "/";
-                pmp3path += ui->dateEdit->date().toString("yyyy-MM-dd");
-                if (ui->comboDayTime->currentIndex() < 3)
-                    pmp3path += ui->comboDayTime->currentText().left(1);
-                else
+                    pmp3path += ui->dateEdit->date().toString("dd.MM.yyyy") + " ";
                     pmp3path += ui->comboDayTime->currentText();
-                pmp3path += "/";
-                pmp3path += ui->dateEdit->date().toString("dd.MM.yyyy") + " ";
-                pmp3path += ui->comboDayTime->currentText();
-                pmp3path += "/";
+                    pmp3path += "/";
 
-                QString newname = pmp3path.replace('/', '\\') + QString::number(row + 1);
-                if (ui->tableTracks->item(row, indextext)->text().simplified() != "")
-                    newname += " " + ui->tableTracks->item(row, indextext)->text().simplified();
-                newname += ".mp3";
-                QStringList params(lameparams);
-                params << name << newname;
+                    QString newname = pmp3path.replace('/', '\\');
+                    if (row < 9)
+                        newname += "0";
+                    newname += QString::number(row + 1);
+                    if (ui->tableTracks->item(row, indextext)->text().simplified() != "")
+                        newname += " " + ui->tableTracks->item(row, indextext)->text().simplified();
+                    newname += ".mp3";
+                    QStringList params(lameparams);
+                    params << name << newname;
 
-                QDir(pmp3path).mkpath(pmp3path);
-                emit mDebug(lameprog.replace('/', '\\') + " " + params.join(" ").replace('/', '\\'));
+                    QDir(pmp3path).mkpath(pmp3path);
+                    emit mDebug(lameprog.replace('/', '\\') + " " + params.join(" ").replace('/', '\\'));
 
-                QProcess::startDetached(lameprog, params);
+                    QProcess::startDetached(lameprog, params);
+                    ButtonState st = qVariantValue<ButtonState>(ui->tableTracks->item(row, indexmp3)->data(0));
+                    st.setIconMode(QIcon::Selected);
+                    ui->tableTracks->item(row, indexmp3)->setData(0, qVariantFromValue(st));
+                }
             //}
         }
     }
@@ -916,4 +905,15 @@ void MainWindow::on_tableTracks_cellChanged(int row, int column)
         int idx = qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole));
         marks->setText(idx, ui->tableTracks->item(row, column)->text());
     }
+}
+
+void MainWindow::on_actionStandard_4_triggered()
+{
+    ui->FollowWaveEnd->AddMarkAtInsertPos(3, Marks::Standard);
+}
+
+void MainWindow::on_btbRereadOutput_clicked()
+{
+    ui->cbxOutput->clear();
+    ui->cbxOutput->addItems(audio->DeviceList());
 }

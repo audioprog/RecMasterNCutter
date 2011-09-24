@@ -17,12 +17,130 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>Tab 1</string>
+       <string>Main</string>
       </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QLabel" name="lblmp3path">
+           <property name="text">
+            <string>MP3 Path:</string>
+           </property>
+           <property name="buddy">
+            <cstring>ledMp3Path</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="ledMp3Path"/>
+         </item>
+         <item>
+          <widget class="QToolButton" name="tbtMp3Path">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QLabel" name="lblAudioProc">
+           <property name="text">
+            <string>Audio Program:</string>
+           </property>
+           <property name="buddy">
+            <cstring>ledAudioProc</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="ledAudioProc"/>
+         </item>
+         <item>
+          <widget class="QToolButton" name="tbtAudioProc">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>147</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="lblNextForWin">
+         <property name="text">
+          <string>Options normally only for windows:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLabel" name="lblSoxPath">
+           <property name="text">
+            <string>sox Path:</string>
+           </property>
+           <property name="buddy">
+            <cstring>ledSoxPath</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="ledSoxPath"/>
+         </item>
+         <item>
+          <widget class="QToolButton" name="tbtSoxPath">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLabel" name="lblLamePath">
+           <property name="text">
+            <string>lame:</string>
+           </property>
+           <property name="buddy">
+            <cstring>ledLamePath</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="ledLamePath"/>
+         </item>
+         <item>
+          <widget class="QToolButton" name="tbtLamePath">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
@@ -59,6 +177,20 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>ledMp3Path</tabstop>
+  <tabstop>tbtMp3Path</tabstop>
+  <tabstop>ledAudioProc</tabstop>
+  <tabstop>tbtAudioProc</tabstop>
+  <tabstop>ledSoxPath</tabstop>
+  <tabstop>tbtSoxPath</tabstop>
+  <tabstop>ledLamePath</tabstop>
+  <tabstop>tbtLamePath</tabstop>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>tbtnPathsDel</tabstop>
+  <tabstop>lstwPath</tabstop>
+ </tabstops>
  <resources>
   <include location="icons.qrc"/>
  </resources>

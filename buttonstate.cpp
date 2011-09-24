@@ -1,5 +1,6 @@
 #include "buttonstate.h"
 #include <QtGui>
+//#include <QtDebug>
 
 ButtonState::ButtonState():
     icomode(QIcon::Normal), oldmode(QIcon::Normal)
@@ -47,6 +48,7 @@ void ButtonState::paint(QPainter *painter, const QRect &rect,
 
     painter->setRenderHint(QPainter::Antialiasing, true);
     ico.paint(painter, rect, Qt::AlignCenter, icomode);
+    //qDebug() << icomode;
 
     painter->restore();
 }

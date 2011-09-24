@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1024</width>
-    <height>666</height>
+    <height>693</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -75,7 +75,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -94,7 +94,7 @@
     <addaction name="actionStandard_1"/>
     <addaction name="actionStandard_2"/>
     <addaction name="actionStandard_3"/>
-    <addaction name="actionAktuell"/>
+    <addaction name="actionStandard_4"/>
    </widget>
    <widget class="QMenu" name="menuLastMark">
     <property name="title">
@@ -154,7 +154,7 @@
   </widget>
   <widget class="QToolBar" name="tbarMain">
    <property name="windowTitle">
-    <string>toolBar_4</string>
+    <string>Open and Save</string>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -166,8 +166,11 @@
    <addaction name="actionSaveMarks"/>
   </widget>
   <widget class="QToolBar" name="tbarEditMark">
+   <property name="windowTitle">
+    <string>Edit selected Mark</string>
+   </property>
    <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
+    <enum>LeftToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
     <bool>false</bool>
@@ -248,7 +251,6 @@
    <addaction name="actionStandard_2"/>
    <addaction name="actionStandard_3"/>
    <addaction name="actionStandard_4"/>
-   <addaction name="actionAktuell"/>
    <addaction name="actionZoomIn"/>
    <addaction name="actionZoomOut"/>
   </widget>
@@ -387,7 +389,7 @@
     <string>Goto</string>
    </property>
    <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
+    <enum>LeftToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
     <bool>false</bool>
@@ -428,7 +430,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Pfad:</string>
+             <string>Path:</string>
             </property>
            </widget>
           </item>
@@ -497,6 +499,13 @@
             </item>
            </widget>
           </item>
+          <item>
+           <widget class="QToolButton" name="btnOpen">
+            <property name="text">
+             <string>o</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
         <item>
@@ -521,19 +530,6 @@
             </property>
             <property name="maxVisibleItems">
              <number>20</number>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="btnStartRec">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>&gt;</string>
             </property>
            </widget>
           </item>
@@ -565,11 +561,31 @@
            </widget>
           </item>
           <item>
-           <widget class="QToolButton" name="btnOpen">
+           <widget class="QToolButton" name="btnStartRec">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
-             <string>o</string>
+             <string>&gt;</string>
             </property>
            </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QToolButton" name="btbRereadOutput">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="cbxOutput"/>
           </item>
          </layout>
         </item>
@@ -618,7 +634,7 @@
   </widget>
   <widget class="QToolBar" name="tbarView">
    <property name="windowTitle">
-    <string>toolBar</string>
+    <string>ViewOptions</string>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -646,10 +662,10 @@
   </widget>
   <widget class="QToolBar" name="tbarPlayer">
    <property name="windowTitle">
-    <string>toolBar</string>
+    <string>Player</string>
    </property>
    <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
+    <enum>LeftToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
     <bool>false</bool>
@@ -796,18 +812,6 @@
    </property>
    <property name="shortcut">
     <string>F3</string>
-   </property>
-  </action>
-  <action name="actionAktuell">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/symbols/AddAct</normaloff>:/symbols/AddAct</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Aktuell</string>
-   </property>
-   <property name="shortcut">
-    <string>F4</string>
    </property>
   </action>
   <action name="actionLastMarkStandard">
@@ -1050,7 +1054,10 @@
      <normaloff>:/symbols/Add4</normaloff>:/symbols/Add4</iconset>
    </property>
    <property name="text">
-    <string>Standard 4</string>
+    <string>4</string>
+   </property>
+   <property name="shortcut">
+    <string>F4</string>
    </property>
   </action>
   <action name="actionRefresh">
@@ -1100,7 +1107,7 @@
      <normaloff>:/symbols/FadeOut</normaloff>:/symbols/FadeOut</iconset>
    </property>
    <property name="text">
-    <string>FaedOut</string>
+    <string>FadeOut</string>
    </property>
    <property name="toolTip">
     <string>FadeOut</string>

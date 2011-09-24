@@ -94,5 +94,5 @@ RESOURCES += \
     icons.qrc
 RC_FILE = myapp.rc
 
-TRANSLATIONS = remoteRecMaster.ts
+TRANSLATIONS = remoteRecMaster_de.ts
 

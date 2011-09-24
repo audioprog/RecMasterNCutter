@@ -25,6 +25,7 @@ signals:
 
 public slots:
     void SaveTrack(int TrackNr);
+    void ReadSettings();
 
 private slots:
     void canread();

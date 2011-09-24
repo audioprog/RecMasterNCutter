@@ -35,12 +35,15 @@
         <file alias="MP3">buttonstyleicons/notecompress24.png</file>
         <file alias="MP3gear">buttonstyleicons/notecompressGear24.png</file>
         <file alias="MP3shaddow">buttonstyleicons/notecompressGearShaddow24.png</file>
-        <file alias="MP3tick">buttonstyleicons/notecompressTick24.png</file>
+        <file alias="MP3Tick">buttonstyleicons/notecompressTick24.png</file>
         <file alias="SaveGear">buttonstyleicons/WaveDiscGear24.png</file>
         <file alias="SaveShaddow">buttonstyleicons/WaveDiscGearShaddow24.png</file>
         <file alias="SaveTick">buttonstyleicons/WaveDiscTick24.png</file>
         <file alias="Save">buttonstyleicons/WaveDiskette.png</file>
         <file alias="Open">buttonstyleicons/fileopen.png</file>
         <file alias="OpenShaddow">buttonstyleicons/fileopen_proc.png</file>
+    </qresource>
+    <qresource prefix="/translations">
+        <file>remoteRecMaster_de.qm</file>
     </qresource>
 </RCC>

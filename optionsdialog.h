@@ -25,6 +25,14 @@ private slots:
 
     void on_tbtnPathsDel_clicked();
 
+    void on_tbtMp3Path_clicked();
+
+    void on_tbtSoxPath_clicked();
+
+    void on_tbtLamePath_clicked();
+
+    void on_tbtAudioProc_clicked();
+
 private:
     Ui::OptionsDialog *ui;
 };

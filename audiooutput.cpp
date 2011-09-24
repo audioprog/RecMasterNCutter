@@ -244,6 +244,7 @@ AudioOutput::AudioOutput(QObject *parent) :
 {
     convert = false;
     firstrun = true;
+    hardware = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput).count() - 1;
 }
 
 qint64 AudioOutput::Pos() const
@@ -259,13 +260,29 @@ qint64 AudioOutput::Pos() const
     return byPlayed;
 }
 
+QStringList AudioOutput::DeviceList()
+{
+    QList<QAudioDeviceInfo> list = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
+    QStringList ret;
+    foreach(QAudioDeviceInfo item, list) {
+        ret << item.deviceName();
+    }
+    return ret;
+}
+
 void AudioOutput::startPlaying(qint64 newpos)
 {
-    if (!firstrun) {
+    if (!firstrun && oldhardware == hardware) {
         if (audio->state() != QAudio::StoppedState)
             stop();
     }
     else {
+        oldhardware = hardware;
+        if (!firstrun) {
+            disconnect(this, SLOT(finishedPlaying(QAudio::State)));
+            disconnect(this, SLOT(notify()));
+            delete audio;
+        }
         convert = false;
         QAudioFormat format;
         // Set up the format, eg.
@@ -279,7 +296,9 @@ void AudioOutput::startPlaying(qint64 newpos)
         else
             format.setSampleType(QAudioFormat::SignedInt);
 
-        QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
+        QList<QAudioDeviceInfo> outlist = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
+        QAudioDeviceInfo info = outlist.at(hardware);
+        //QAudioDeviceFactory::
         emit Debug(info.deviceName());
         if (!info.isFormatSupported(format)) {
             convert = true;
@@ -289,7 +308,7 @@ void AudioOutput::startPlaying(qint64 newpos)
         else {
             audio = new QAudioOutput(format, this);
         }
-        connect(audio, SIGNAL(stateChanged(QAudio::State)),SLOT(finishedPlaying(QAudio::State)));
+        connect(audio, SIGNAL(stateChanged(QAudio::State)), this,SLOT(finishedPlaying(QAudio::State)));
         connect(audio, SIGNAL(notify()), this, SLOT(notify()));
         firstrun = false;
     }
