@@ -16,7 +16,7 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    indexstart(2), indextext(4), indexmp3(5)
+    indexstart(2), indextext(4), indexmp3(5), DoNotNotify(false)
 {
     ui->setupUi(this);
 
@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->PosScrollBar, SIGNAL(valueChanged(int)), ui->widget, SLOT(NewPos(int)));
     QObject::connect(ui->PosScrollBar, SIGNAL(valueChanged(int)), this, SLOT(MainPosChanged(int)));
     QObject::connect(ui->widget, SIGNAL(PosChanged(int,bool)), this, SLOT(PosChanged(int,bool)));
-    QObject::connect(ui->actionSaveMarks, SIGNAL(triggered()), ui->widget, SLOT(SaveMarks()));
+    //QObject::connect(ui->actionSaveMarks, SIGNAL(triggered()), ui->widget, SLOT(SaveMarks()));
     QObject::connect(ui->widget, SIGNAL(ContextMenuWanted(QPoint,int,int)), this, SLOT(ShowContextMenu(QPoint,int,int)));
     QObject::connect(ui->Overview, SIGNAL(LenghtChanged(int,int)), this, SLOT(OverviewLength(int,int)));
     QObject::connect(ui->Overview, SIGNAL(PosChanged(int,bool)), this, SLOT(OverviewPosChanged(int,bool)));
@@ -69,8 +69,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->actionLastMarkEnd_Silence->setIcon(mimages.icon(4));
     ui->FollowWaveEnd->SetFollowEnd(true);
     ui->FollowWaveEnd->AddInsertPos(0.0);
-    ui->FollowWaveEnd->AddInsertPos(0.4);
-    ui->FollowWaveEnd->AddInsertPos(0.7);
+    ui->FollowWaveEnd->AddInsertPos(0.6);
+    ui->FollowWaveEnd->AddInsertPos(0.9);
     ui->FollowWaveEnd->AddInsertPos(1.0);
     ui->Overview->SetRulerHeight(0);
     ui->Overview->SetDotWidthSecs(1);
@@ -110,6 +110,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setWindowTitle(QCoreApplication::organizationName() + " " + QCoreApplication::applicationName());
 
     tracks = new SaveTracks();
+    QObject::connect(tracks, SIGNAL(Finished(int)), this, SLOT(SaveTrackFinished(int)));
     tracks->SetMarks(marks);
 #ifdef Q_OS_LINUX
     ui->comboDevices->setEditable(true);
@@ -226,8 +227,23 @@ void MainWindow::OverviewMarkChanged(int newPos)
     ui->PosScrollBar->setValue(pos);
 }
 
+void MainWindow::SaveTrackFinished(int startmark)
+{
+    for (int i = 0; i < ui->tableTracks->rowCount(); i++) {
+        int row = qVariantValue<int>(ui->tableTracks->item(i, indexstart)->data(Qt::UserRole));
+        if (row == startmark) {
+            ButtonState bst = qVariantValue<ButtonState>(ui->tableTracks->item(i, 0)->data(0));
+            bst.setIconMode(QIcon::Selected);
+            ui->tableTracks->item(i, 0)->setData(0, qVariantFromValue(bst));
+            break;
+        }
+    }
+}
+
 void MainWindow::MarksChanged()
 {
+    if (DoNotNotify)
+        return;
     initializing = true;
     QString path = getPath();
 
@@ -679,7 +695,9 @@ void MainWindow::open(QString fileName)
     if (fileName.count() > 0) {
         QFile *file = new QFile(fileName);
         marks->setSampleSize(SampleSize());
+        DoNotNotify = true;
         marks->Read(new QFile(fileName + ".rmrk"));
+        DoNotNotify = false;
         if (fileName.section('.', -1, -1).toLower() == "wav") {
             WavFile wf(fileName);
             int ssiz = wf.fileFormat().sampleSize() / 8;
@@ -697,6 +715,7 @@ void MainWindow::open(QString fileName)
             else
                 ui->cboxSampleSize->setCurrentIndex(marks->SampleSize() - 2);
         }
+        ui->sbxStartNr->setValue(marks->StartNr());
         ui->widget->SetFile(file); //
         ui->widget->setMarks(marks);
         tracks->SetMarks(marks);
@@ -708,6 +727,7 @@ void MainWindow::open(QString fileName)
         tracks->SetFile(file);
         audio->setFile(fileName);
         audio->setMarks(marks);
+        MarksChanged();
     }
 }
 
@@ -737,9 +757,10 @@ QString MainWindow::MP3File(int title)
     pmp3path += "/";
 
     QString newname = pmp3path.replace('/', '\\');
-    if (title < 9)
+    int realtitle = title + ui->sbxStartNr->value();
+    if (realtitle < 10)
         newname += "0";
-    newname += QString::number(title + 1);
+    newname += QString::number(realtitle);
     if (ui->tableTracks->item(title, indextext)->text().simplified() != "")
         newname += " " + ui->tableTracks->item(title, indextext)->text().simplified();
     newname += ".mp3";
@@ -824,15 +845,18 @@ void MainWindow::on_tableTracks_cellDoubleClicked(int row, int column)
         return;
     if (ui->tableTracks->item(row, column) != NULL) {
         if (column == 0) {
-            //if (ui->tableTracks->item(row, column)->data(Qt::CheckStateRole) != 0) {
-                QString path = getPath();
-                tracks->SetPath(path);
+            if (ui->tableTracks->item(row, indexstart + 1)->text() != "") {
+                int start = qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole));
+                if (marks->Count(Marks::EndTrack, start) > 0) {
+                    QString path = getPath();
+                    tracks->SetPath(path);
 
-                tracks->SaveTrack(qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole)));
+                    tracks->SaveTrack(start);
 
-                ButtonState st = qVariantValue<ButtonState>(ui->tableTracks->item(row, 0)->data(0));
-                st.setIconMode(QIcon::Disabled);
-                ui->tableTracks->item(row, 0)->setData(0, qVariantFromValue(st));
+                    ButtonState st = qVariantValue<ButtonState>(ui->tableTracks->item(row, 0)->data(0));
+                    st.setIconMode(QIcon::Disabled);
+                    ui->tableTracks->item(row, 0)->setData(0, qVariantFromValue(st));
+                }
                 //ui->tableTracks->i;
                 //Save title
                 //sox -r 44100 -e signed -b 24 -c 2 input.raw Track.wav trim [start] [lenght]
@@ -840,7 +864,7 @@ void MainWindow::on_tableTracks_cellDoubleClicked(int row, int column)
                 //or
                 //and splice input1 input2 Track.wav  [sec].[msec]
                 // fade [type] fade-in-length [stop-time [fade-out-length]]
-            //}
+            }
         }
         else if (column == 1) {
             int idx = qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole));
@@ -877,9 +901,10 @@ void MainWindow::on_tableTracks_cellDoubleClicked(int row, int column)
                     pmp3path += "/";
 
                     QString newname = pmp3path.replace('/', '\\');
-                    if (row < 9)
+                    int outnr = row + ui->sbxStartNr->value();
+                    if (outnr < 10)
                         newname += "0";
-                    newname += QString::number(row + 1);
+                    newname += QString::number(outnr);
                     if (ui->tableTracks->item(row, indextext)->text().simplified() != "")
                         newname += " " + ui->tableTracks->item(row, indextext)->text().simplified();
                     newname += ".mp3";
@@ -916,4 +941,9 @@ void MainWindow::on_btbRereadOutput_clicked()
 {
     ui->cbxOutput->clear();
     ui->cbxOutput->addItems(audio->DeviceList());
+}
+
+void MainWindow::on_actionSaveMarks_triggered()
+{
+    ui->widget->SaveMarks(ui->sbxStartNr->value());
 }

@@ -12,7 +12,7 @@ void Marks::Save(QFile *file)
 {
     file->open(QFile::WriteOnly);
     QTextStream ts(file);
-    ts << (_samplesize * 8) << "\n";
+    ts << (_samplesize * 8) << ";" << _startnr << "\n";
     for (int i = 0; i < _pos.count(); i++) {
         if (_strings.at(i) != "")
             ts << _pos.at(i) << "," << _marks.at(i) << "," << _strings.at(i) << "\n";
@@ -33,13 +33,21 @@ void Marks::Read(QFile *file)
             if (firstline) {
                 if (!line.contains(',')) {
                     bool ok;
-                    _samplesize = line.toInt(&ok);
+                    _samplesize = line.section(';', 0, 0).toInt(&ok);
                     if (!ok) {
                         _samplesize = 3;
                         emit Debug("Mark read first line Error:" + line);
                     }
-                    else
+                    else {
                         _samplesize /= 8;
+                        if (line.contains(';')) {
+                            _startnr = line.section(';', -1, -1).toInt(&ok);
+                            if (!ok) {
+                                _startnr = 1;
+                                emit Debug("Mark read first line Error:" + line);
+                            }
+                        }
+                    }
                 }
                 else
                     firstline = false;

@@ -39,6 +39,7 @@ public:
     void Remove(int Nr) { if (Nr > -1 && Nr < _pos.count()) { _pos.removeAt(Nr); _marks.removeAt(Nr); emit MarksChanged(); } }
     int Count() const { return _pos.count(); }
     int Count(MarkTypes type) const { int ret = 0; foreach (MarkTypes itm, _marks) { if (itm == type) { ++ret; } } return ret; }
+    int Count(MarkTypes type, int startnr) const { int ret = 0; for (int i = startnr; i < _pos.count(); i++) { if (_marks.at(i) == type) { ++ret; } } return ret; }
     QString Text(int nr) { return _strings.at(nr); }
     void setText(int nr, QString newText) { _strings[nr] = newText; }
     void Save(QFile *file);
@@ -46,6 +47,8 @@ public:
 
     void setSampleSize(int newSize) { _samplesize = newSize; }
     int SampleSize() { return _samplesize; }
+    void setStartNr(int newNr) { _startnr = newNr; }
+    int StartNr() { return _startnr; }
 
 signals:
     void MarksChanged();
@@ -56,6 +59,7 @@ private:
     QList<MarkTypes> _marks;
     QStringList _strings;
     int _samplesize;
+    int _startnr;
 };
 
 #endif // MARKS_H

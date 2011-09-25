@@ -37,6 +37,7 @@ public slots:
     void OverviewLength(int newLen, int windowlength);
     void OverviewPosChanged(int diff, bool absolut = false);
     void OverviewMarkChanged(int newPos);
+    void SaveTrackFinished(int startmark);
 
     void Debug(QString text) { emit mDebug(text); }
 
@@ -151,6 +152,8 @@ private slots:
 
     void on_btbRereadOutput_clicked();
 
+    void on_actionSaveMarks_triggered();
+
 private:
     Ui::MainWindow *ui;
     AudioOutput* audio;
@@ -176,6 +179,8 @@ private:
     int indexstart;
     int indextext;
     int indexmp3;
+
+    bool DoNotNotify;
 };
 
 #endif // MAINWINDOW_H

@@ -42,7 +42,7 @@ signals:
 public slots:
     void NewPos(int newPos);
     void actualize();
-    void SaveMarks();
+    void SaveMarks(int startNr);
     void AddMark(int x, Marks::MarkTypes Mark);
     void SelectNext() { if (selected < marks->Count() - 1) { selected++; MoveToSelection(); } }
     void SelectPrevious() { if (selected > 0) { selected--; MoveToSelection(); } }
