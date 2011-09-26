@@ -88,11 +88,14 @@ OTHER_FILES += \
     buttonstyleicons/fileopen.png \
     icons/fadeIn.png \
     icons/fadeOut.png \
-    lgpl-3.0.txt
+    lgpl-3.0.txt \
+    icons/rec.png \
+    icons/openrec.png
 
 RESOURCES += \
     icons.qrc
 RC_FILE = myapp.rc
 
 TRANSLATIONS = remoteRecMaster_de.ts
+
 

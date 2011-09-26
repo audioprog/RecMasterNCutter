@@ -230,8 +230,26 @@ void WaveOutIODevice::readFile()
             }
         else
             for (int i = 0, j = 1; j < bf.count(); i+=2, j+=3) {
-                m_buffer[i] = (char)(bf.at(j) << vol | bf.at(j) >> (8 - vol));
-                m_buffer[i+1] = (char)(bf.at(j+1) << vol | bf.at(j) >> (8 - vol));
+                if (bf.at(j+1) < 0) {
+                    if ((((qint16)bf.at(j+1) << vol) & 0xff00) < -1) {
+                        m_buffer[i+1] = -1;
+                        m_buffer[i] = -1;
+                    }
+                    else {
+                        m_buffer[i] = (char)(bf.at(j) << vol | (uchar)bf.at(j-1) >> (8 - vol));
+                        m_buffer[i+1] = (char)(bf.at(j+1) << vol | (uchar)bf.at(j) >> (8 - vol));
+                    }
+                }
+                else {
+                    if ((((quint16)bf.at(j+1) << vol) & 0xff00) > 0) {
+                        m_buffer[i+1] = 127;
+                        m_buffer[i] = -1;
+                    }
+                    else {
+                        m_buffer[i] = (char)(bf.at(j) << vol | (uchar)bf.at(j-1) >> (8 - vol));
+                        m_buffer[i+1] = (char)(bf.at(j+1) << vol | (uchar)bf.at(j) >> (8 - vol));
+                    }
+                }
             }
         m_pos += ring.In(m_buffer, len) / 2 * 3;
         //qDebug() << "readFile" << m_pos << ofile->pos() << m_pos - anfang - bf.count();
