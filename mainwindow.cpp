@@ -107,7 +107,7 @@ MainWindow::MainWindow(QWidget *parent) :
     else
         ui->comboDayTime->setCurrentIndex(2);
 
-    this->setWindowTitle(QCoreApplication::organizationName() + " " + QCoreApplication::applicationName());
+    this->setWindowTitle(QCoreApplication::organizationName() + " " + QCoreApplication::applicationName() + " " + QCoreApplication::applicationVersion());
 
     tracks = new SaveTracks();
     QObject::connect(tracks, SIGNAL(Finished(int)), this, SLOT(SaveTrackFinished(int)));

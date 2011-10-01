@@ -16,11 +16,12 @@ int main(int argc, char *argv[])
     //qDebug() << locale;
 
     QTranslator translator;
-    translator.load("remoteRecMaster_" + locale, ":/translations/");
+    translator.load("RecMasterNCutter_" + locale, ":/translations/");
     a.installTranslator(&translator);
 
     QCoreApplication::setOrganizationName("BGak");
-    QCoreApplication::setApplicationName("remoteRecMaster");
+    QCoreApplication::setApplicationName("RecMaster'n'Cutter");
+    QCoreApplication::setApplicationVersion("0.9");
 
 #ifdef Q_OS_WIN32
     QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, QDir::homePath());
