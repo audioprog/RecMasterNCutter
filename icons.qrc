@@ -32,6 +32,7 @@
         <file alias="FadeOut">icons/fadeOut.png</file>
         <file alias="OpenRec">icons/openrec.png</file>
         <file alias="Rec">icons/rec.png</file>
+        <file alias="PlayFromMark">icons/player_play_atline.png</file>
     </qresource>
     <qresource prefix="/buttonstateicons">
         <file alias="MP3">buttonstyleicons/notecompress24.png</file>

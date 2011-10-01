@@ -90,12 +90,14 @@ OTHER_FILES += \
     icons/fadeOut.png \
     lgpl-3.0.txt \
     icons/rec.png \
-    icons/openrec.png
+    icons/openrec.png \
+    icons/player_play_atline.png
 
 RESOURCES += \
     icons.qrc
 RC_FILE = myapp.rc
 
 TRANSLATIONS = remoteRecMaster_de.ts
+
 
 

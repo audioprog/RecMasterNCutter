@@ -67,7 +67,7 @@ private slots:
 
     void on_actionStandard_3_triggered();
 
-    void on_actionAktuell_triggered();
+    //void on_actionAktuell_triggered();
 
     void on_actionLastMarkStandard_triggered();
 
@@ -153,6 +153,8 @@ private slots:
     void on_btbRereadOutput_clicked();
 
     void on_actionSaveMarks_triggered();
+
+    void on_actionPlay_From_Mark_triggered();
 
 private:
     Ui::MainWindow *ui;

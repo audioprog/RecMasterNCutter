@@ -30,7 +30,7 @@ public:
     void Clear() { if (isworking) { breakWork = true; } else { lastdata.clear(); } }
 
     void setSamplesize(int newSamplesize) { samplesize = newSamplesize; }
-    bool Samplesize() { return samplesize; }
+    bool SampleSize() { return samplesize; }
 
     void run();
 

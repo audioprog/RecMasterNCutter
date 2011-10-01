@@ -49,7 +49,8 @@ public slots:
     void Select(int Nr) { if (Nr > -1 && Nr < marks->Count()) { selected = Nr; MoveToSelection(); } }
     void MoveToSelection() { if (selected > -1 && selected < marks->Count()) { int np = marks->Pos(selected) / data.DotWidth() - width() / 2; emit PosChanged(np, true); } }
     void OverviewMarkChanged(int count, int pos) { mrkMovePos = pos; mrkMoveSlide = count; emit PosChanged(pos - width() / 2, true); actualize(); update(); }
-    void Play() { emit Play(data.Pos() * data.DotWidth() * 6); }
+    void Play() { emit Play(data.Pos() * data.DotWidth() * data.SampleSize() * 2); }
+    void PlayFromPos(qint64 pos) { emit Play(pos * data.SampleSize() * 2); }
     void Clear() { data.Clear(); update(); }
     void setExpand( bool newVal ) { expand = newVal; update(); }
     void PlayPos(qint64 pPos);

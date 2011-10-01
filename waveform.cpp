@@ -437,6 +437,9 @@ void WaveForm::mousePressEvent(QMouseEvent *event)
             mrkMoveNr = 0;
         }
     }
+    else if (event->buttons() == Qt::LeftButton && rulerHeight > 0 && followend) {
+        AddMark(event->x(), Marks::Standard);
+    }
 }
 
 void WaveForm::mouseReleaseEvent(QMouseEvent *event)

@@ -709,6 +709,7 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionPlay_From_Mark"/>
    <addaction name="actionPlay"/>
    <addaction name="actionStop"/>
   </widget>
@@ -1198,6 +1199,15 @@
    </property>
    <property name="toolTip">
     <string>LastFadeOut</string>
+   </property>
+  </action>
+  <action name="actionPlay_From_Mark">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/PlayFromMark</normaloff>:/symbols/PlayFromMark</iconset>
+   </property>
+   <property name="text">
+    <string>Play From Mark</string>
    </property>
   </action>
  </widget>

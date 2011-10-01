@@ -18,6 +18,7 @@ public:
     void SetPath(QString newPath) { path = newPath; QDir(path).mkpath(path); }
     void SetSoxPath(QString newPath) { soxpath = newPath; }
     void SetMarks(Marks *newMarks) { marks = newMarks; }
+    QList<int> allMarks() { return list; }
 
 signals:
     void Finished(int TrackNr);

@@ -250,6 +250,7 @@ void MainWindow::MarksChanged()
     ui->markTable->setRowCount(marks->Count());
     ui->tableTracks->setRowCount(marks->Count(Marks::StartTrack));
     int idxStartTrack = -1, idxEndTrack = -1;
+    QList<int> inProcList = tracks->allMarks();
     for (int i = 0; i < marks->Count(); ++i) {
         Marks::MarkTypes typ;
         if (ui->markTable->item(i, 0) != NULL) {
@@ -288,13 +289,50 @@ void MainWindow::MarksChanged()
                 QTableWidgetItem *ti = new QTableWidgetItem();
                 if (QFile(path + QString::number(marks->Pos(i)) + ".wav").exists()) {
                     ButtonState state("Save");
-                    state.setIconMode(QIcon::Selected);
+                    if (inProcList.contains(i))
+                        state.setIconMode(QIcon::Selected);
+                    else
+                        state.setIconMode(QIcon::Active);
                     ti->setData(0, qVariantFromValue(state));
                 }
                 else {
-                    ti->setData(0, qVariantFromValue(ButtonState("Save")));
+                    if (inProcList.contains(i)) {
+                        ButtonState state("Save");
+                        state.setIconMode(QIcon::Active);
+                        ti->setData(0, qVariantFromValue(state));
+                    }
+                    else
+                        ti->setData(0, qVariantFromValue(ButtonState("Save")));
                 }
                 ui->tableTracks->setItem(idxStartTrack, 0, ti);
+            }
+            else {
+                if (QFile(path + QString::number(marks->Pos(i)) + ".wav").exists()) {
+                    if (inProcList.contains(i)) {
+                        if (((ButtonState)qVariantValue<ButtonState>(ui->tableTracks->item(idxStartTrack, 0)->data(0))).IconMode() != QIcon::Active) {
+                            ButtonState bst = qVariantValue<ButtonState>(ui->tableTracks->item(idxStartTrack, 0)->data(0));
+                            bst.setIconMode(QIcon::Active);
+                            ui->tableTracks->item(idxStartTrack, 0)->setData(0, qVariantFromValue(bst));
+                        }
+                    }
+                    else if (((ButtonState)qVariantValue<ButtonState>(ui->tableTracks->item(idxStartTrack, 0)->data(0))).IconMode() != QIcon::Selected) {
+                        ButtonState bst = qVariantValue<ButtonState>(ui->tableTracks->item(idxStartTrack, 0)->data(0));
+                        bst.setIconMode(QIcon::Selected);
+                        ui->tableTracks->item(idxStartTrack, 0)->setData(0, qVariantFromValue(bst));
+                    }
+                }
+                else if (inProcList.contains(i)) {
+                    if (((ButtonState)qVariantValue<ButtonState>(ui->tableTracks->item(idxStartTrack, 0)->data(0))).IconMode() != QIcon::Active) {
+                        ButtonState bst = qVariantValue<ButtonState>(ui->tableTracks->item(idxStartTrack, 0)->data(0));
+                        bst.setIconMode(QIcon::Active);
+                        ui->tableTracks->item(idxStartTrack, 0)->setData(0, qVariantFromValue(bst));
+                    }
+                }
+                else if (((ButtonState)qVariantValue<ButtonState>(ui->tableTracks->item(idxStartTrack, 0)->data(0))).IconMode() != QIcon::Normal) {
+                    ButtonState bst = qVariantValue<ButtonState>(ui->tableTracks->item(idxStartTrack, 0)->data(0));
+                    bst.setIconMode(QIcon::Normal);
+                    ui->tableTracks->item(idxStartTrack, 0)->setData(0, qVariantFromValue(bst));
+                }
             }
             if (ui->tableTracks->item(idxStartTrack, 1) == NULL) {
                 QTableWidgetItem *di = new QTableWidgetItem();
@@ -434,10 +472,10 @@ void MainWindow::on_actionStandard_3_triggered()
     ui->FollowWaveEnd->AddMarkAtInsertPos(2, Marks::Standard);
 }
 
-void MainWindow::on_actionAktuell_triggered()
+/*void MainWindow::on_actionAktuell_triggered()
 {
     ui->FollowWaveEnd->AddMarkAtInsertPos(3, Marks::Standard);
-}
+}*/
 
 void MainWindow::on_actionLastMarkStandard_triggered()
 {
@@ -946,4 +984,12 @@ void MainWindow::on_btbRereadOutput_clicked()
 void MainWindow::on_actionSaveMarks_triggered()
 {
     ui->widget->SaveMarks(ui->sbxStartNr->value());
+}
+
+void MainWindow::on_actionPlay_From_Mark_triggered()
+{
+    if (ui->widget->Selected() > -1) {
+        qint64 newpos = marks->Pos(ui->widget->Selected());
+        audio->startPlaying(newpos * marks->SampleSize() * 2);
+    }
 }
