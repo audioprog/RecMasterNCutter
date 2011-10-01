@@ -47,6 +47,6 @@
         <file alias="OpenShaddow">buttonstyleicons/fileopen_proc.png</file>
     </qresource>
     <qresource prefix="/translations">
-        <file>remoteRecMaster_de.qm</file>
+        <file>RecMasterNCutter_de.qm</file>
     </qresource>
 </RCC>
