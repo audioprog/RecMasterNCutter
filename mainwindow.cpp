@@ -106,6 +106,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->comboDayTime->setCurrentIndex(1);
     else
         ui->comboDayTime->setCurrentIndex(2);
+    ui->vslVol->setValue(settings.value("Volume", 0).toInt());
 
     this->setWindowTitle(QCoreApplication::organizationName() + " " + QCoreApplication::applicationName() + " " + QCoreApplication::applicationVersion());
 
@@ -162,6 +163,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
          pathlist << ui->cboxPath->currentText();
      }
      settings.setValue("PathList", pathlist);
+     settings.setValue("Volume", ui->vslVol->value());
 #ifdef Q_OS_LINUX
      settings.setValue("SampleSize", ui->cboxSampleSize->currentIndex());
 #endif
@@ -387,6 +389,7 @@ void MainWindow::PlayStart(qint64 pos)
 {
     //qbbug() << "PlayStart" << pos;
     audio->setHardware(ui->cbxOutput->currentIndex());
+    audio->VolChange(ui->vslVol->value());
     if (audio->isPlaying())
         audio->stop();
     else {
@@ -675,7 +678,14 @@ void MainWindow::on_btnStartRec_clicked()
             settings.setValue("LastRecChannel", qVariantFromValue(nr));
             QString path = getPath();
             QDir(path).mkpath(path);
-            if (QProcess::startDetached("parec " + QString::number(nr) + " \"" + path + "full.raw\""))
+            if (QFile(path + "full.raw").exists()) {
+                int i;
+                for (i = 1; QFile(path + "full" + QString::number(i) + ".raw").exists(); ++i) {}
+                path += "full" + QString::number(i) + ".raw";
+            }
+            else
+                path += "full.raw";
+            if (QProcess::startDetached("parec " + QString::number(nr) + " \"" + path + "\""))
                 on_btnOpen_clicked();
         }
     }

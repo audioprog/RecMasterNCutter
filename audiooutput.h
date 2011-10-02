@@ -97,7 +97,7 @@ public slots:
     void setFile(QString Filename) { inputFile.setFileName(Filename); }
     void setFilePos(qint64 newpos);
     void stop() { audio->stop(); }
-    void VolChange(int newVol) { emit VolChanged(newVol); }
+    void VolChange(int newVol) { emit VolChanged(newVol); startvol = newVol; }
     void setHardware( int newHardware ) { oldhardware = hardware; hardware = newHardware; }
 
 private slots:
@@ -113,6 +113,7 @@ private:
     QFile *outfile;
     bool firstrun;
     int hardware, oldhardware;
+    int startvol;
 };
 
 #endif // AUDIOOUTPUT_H

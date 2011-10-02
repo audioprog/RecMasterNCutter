@@ -262,6 +262,7 @@ AudioOutput::AudioOutput(QObject *parent) :
 {
     convert = false;
     firstrun = true;
+    startvol = 0;
     hardware = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput).count() - 1;
 }
 
@@ -335,6 +336,7 @@ void AudioOutput::startPlaying(qint64 newpos)
     if (convert) {
         out = new WaveOutIODevice(&inputFile, this);
         QObject::connect(this, SIGNAL(VolChanged(int)), out, SLOT(VolChange(int)));
+        out->VolChange(startvol);
         startpos = newpos;
         out->setPos(startpos);
         out->start();
