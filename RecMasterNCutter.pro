@@ -11,6 +11,10 @@ QT += multimedia
 TARGET = RecMasterNCutter
 TEMPLATE = app
 
+INCLUDEPATH += $$PWD/quazip
+DEPENDPATH += $$PWD/quazip
+
+DEFINES += QUAZIP_STATIC
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -61,7 +65,9 @@ HEADERS  += mainwindow.h \
     quazip/quaadler32.h \
     quazip/JlCompress.h \
     quazip/ioapi.h \
-    quazip/crypt.h
+    quazip/crypt.h \
+    quazip/zconf.h \
+    quazip/zlib.h
 
 FORMS    += mainwindow.ui \
     optionsdialog.ui
@@ -113,12 +119,26 @@ OTHER_FILES += \
     icons/rec.png \
     icons/openrec.png \
     icons/player_play_atline.png \
-    RecMasterNCutter_de.ts
+    RecMasterNCutter_de.ts \
+    quazip/zlibstat.lib \
+    RecMasterNCutter_de.qm \
+    RecMasterNCutter_de.qm
 
 RESOURCES += \
     icons.qrc
 RC_FILE = myapp.rc
 
 TRANSLATIONS = RecMasterNCutter_de.ts
+
+unix:!symbian {
+    LIBS += -lz
+}
+win32 {
+    win32: LIBS += -L$$PWD/quazip/ -lzlibstat
+    PRE_TARGETDEPS += $$PWD/quazip/zlibstat.lib
+}
+
+
+
 
 

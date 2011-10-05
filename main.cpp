@@ -1,4 +1,4 @@
-#define QUAZIP_STATIC
+//#define QUAZIP_STATIC
 
 #include <QtGui/QApplication>
 #include <QSettings>
