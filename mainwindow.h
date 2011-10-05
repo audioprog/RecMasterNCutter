@@ -156,6 +156,8 @@ private slots:
 
     void on_actionPlay_From_Mark_triggered();
 
+    void on_tbtCopy_clicked();
+
 private:
     Ui::MainWindow *ui;
     AudioOutput* audio;

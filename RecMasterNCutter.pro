@@ -25,7 +25,16 @@ SOURCES += main.cpp\
     optionsdialog.cpp \
     buttonstateitemdelegate.cpp \
     buttonstate.cpp \
-    buttonstatewidget.cpp
+    buttonstatewidget.cpp \
+    quazip/zip.c \
+    quazip/unzip.c \
+    quazip/quazipnewinfo.cpp \
+    quazip/quazipfile.cpp \
+    quazip/quazip.cpp \
+    quazip/quacrc32.cpp \
+    quazip/quaadler32.cpp \
+    quazip/qioapi.cpp \
+    quazip/JlCompress.cpp
 
 HEADERS  += mainwindow.h \
     waveform.h \
@@ -39,7 +48,20 @@ HEADERS  += mainwindow.h \
     optionsdialog.h \
     buttonstateitemdelegate.h \
     buttonstate.h \
-    buttonstatewidget.h
+    buttonstatewidget.h \
+    quazip/zip.h \
+    quazip/unzip.h \
+    quazip/quazipnewinfo.h \
+    quazip/quazipfileinfo.h \
+    quazip/quazipfile.h \
+    quazip/quazip_global.h \
+    quazip/quazip.h \
+    quazip/quacrc32.h \
+    quazip/quachecksum32.h \
+    quazip/quaadler32.h \
+    quazip/JlCompress.h \
+    quazip/ioapi.h \
+    quazip/crypt.h
 
 FORMS    += mainwindow.ui \
     optionsdialog.ui
@@ -98,3 +120,5 @@ RESOURCES += \
 RC_FILE = myapp.rc
 
 TRANSLATIONS = RecMasterNCutter_de.ts
+
+

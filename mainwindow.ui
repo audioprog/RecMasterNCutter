@@ -600,6 +600,13 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_6">
           <item>
+           <widget class="QToolButton" name="tbtCopy">
+            <property name="text">
+             <string>Copy</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <spacer name="horizontalSpacer">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>

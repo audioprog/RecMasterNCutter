@@ -3,6 +3,7 @@
 #include <QTime>
 #include <QCloseEvent>
 #include <QProcess>
+#include <QClipboard>
 //#include <QtDebug>
 
 #include "icondelegate.h"
@@ -1002,4 +1003,13 @@ void MainWindow::on_actionPlay_From_Mark_triggered()
         qint64 newpos = marks->Pos(ui->widget->Selected());
         audio->startPlaying(newpos * marks->SampleSize() * 2);
     }
+}
+
+void MainWindow::on_tbtCopy_clicked()
+{
+    QString txt = ui->dateEdit->text() + ui->comboDayTime->currentText();
+    for (int i = 0; i < ui->tableTracks->rowCount(); i++) {
+        txt += "\n" + QString::number(i + 1) + " " + ui->tableTracks->item(i, indextext)->text();
+    }
+    QApplication::clipboard()->setText(txt, QClipboard::Clipboard);
 }

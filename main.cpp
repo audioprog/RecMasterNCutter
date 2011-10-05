@@ -1,3 +1,5 @@
+#define QUAZIP_STATIC
+
 #include <QtGui/QApplication>
 #include <QSettings>
 #include <QXmlStreamReader>
