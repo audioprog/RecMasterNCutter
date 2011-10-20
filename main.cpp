@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     a.installTranslator(&translator);
 
     QCoreApplication::setOrganizationName("BGak");
-    QCoreApplication::setApplicationName("RecMaster'n'Cutter");
+    QCoreApplication::setApplicationName("RecMasterNCutter");
     QCoreApplication::setApplicationVersion("0.9");
 
 #ifdef Q_OS_WIN32

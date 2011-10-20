@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1024</width>
-    <height>701</height>
+    <height>765</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -75,7 +75,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -164,6 +164,10 @@
    </attribute>
    <addaction name="action_Open"/>
    <addaction name="actionSaveMarks"/>
+   <addaction name="actionSaveTexts"/>
+   <addaction name="actionCreateCDLabel"/>
+   <addaction name="actionOpenRec"/>
+   <addaction name="actionRec"/>
   </widget>
   <widget class="QToolBar" name="tbarEditMark">
    <property name="windowTitle">
@@ -675,6 +679,22 @@
        </column>
       </widget>
      </item>
+     <item>
+      <widget class="QLabel" name="lblFullSize">
+       <property name="frameShape">
+        <enum>QFrame::Panel</enum>
+       </property>
+       <property name="text">
+        <string>0:00</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::PlainText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
   </widget>
@@ -719,6 +739,81 @@
    <addaction name="actionPlay_From_Mark"/>
    <addaction name="actionPlay"/>
    <addaction name="actionStop"/>
+  </widget>
+  <widget class="QDockWidget" name="dwdCDLabel">
+   <property name="windowTitle">
+    <string>CD Label</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_6">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_7">
+       <item>
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Title</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="ledCDTitle"/>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_8">
+       <item>
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Option 1</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="ledCDOpt1"/>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_9">
+       <item>
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Option 2</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="ledCDOpt2"/>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_10">
+       <item>
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Source</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="cbxCDsource"/>
+       </item>
+       <item>
+        <widget class="QToolButton" name="tbtCDsource">
+         <property name="text">
+          <string>...</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
   </widget>
   <action name="action_Open">
    <property name="icon">
@@ -1215,6 +1310,42 @@
    </property>
    <property name="text">
     <string>Play From Mark</string>
+   </property>
+  </action>
+  <action name="actionCreateCDLabel">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/CDlabel</normaloff>:/symbols/CDlabel</iconset>
+   </property>
+   <property name="text">
+    <string>CreateCDLabel</string>
+   </property>
+  </action>
+  <action name="actionRec">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/Rec</normaloff>:/symbols/Rec</iconset>
+   </property>
+   <property name="text">
+    <string>Rec</string>
+   </property>
+  </action>
+  <action name="actionOpenRec">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/OpenRec</normaloff>:/symbols/OpenRec</iconset>
+   </property>
+   <property name="text">
+    <string>OpenRec</string>
+   </property>
+  </action>
+  <action name="actionSaveTexts">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/SaveTxt</normaloff>:/symbols/SaveTxt</iconset>
+   </property>
+   <property name="text">
+    <string>SaveTexts</string>
    </property>
   </action>
  </widget>

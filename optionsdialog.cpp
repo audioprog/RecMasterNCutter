@@ -28,6 +28,9 @@ OptionsDialog::OptionsDialog(QWidget *parent) :
     ui->ledSoxPath->setText(settings.value("soxpath", "").toString());
     ui->ledLamePath->setText(lameprog);
     ui->ledAudioProc->setText(waveprog);
+    ui->ledTextfilespath->setText(settings.value("Textfilespath", QDir::homePath()).toString());
+    ui->ledCDsrc->setText(settings.value("CDsource", QDir::homePath()).toString());
+    ui->ledCDdest->setText(settings.value("CDdest", QDir::homePath()).toString());
 }
 
 OptionsDialog::~OptionsDialog()
@@ -48,6 +51,9 @@ void OptionsDialog::on_buttonBox_accepted()
     settings.setValue("soxpath", ui->ledSoxPath->text());
     settings.setValue("Lame", ui->ledLamePath->text());
     settings.setValue("WaveProc", ui->ledAudioProc->text());
+    settings.setValue("Textfilespath", ui->ledTextfilespath->text());
+    settings.setValue("CDsource", ui->ledCDsrc->text());
+    settings.setValue("CDdest", ui->ledCDdest->text());
     emit OptionsUpdate();
     this->close();
 }
@@ -108,4 +114,25 @@ void OptionsDialog::on_tbtAudioProc_clicked()
     if (file != "") {
         ui->ledAudioProc->setText(file);
     }
+}
+
+void OptionsDialog::on_btnTextfilepath_clicked()
+{
+    QString path = QFileDialog::getExistingDirectory(this, tr("Textfiles Directory"), ui->ledTextfilespath->text());
+    if (path != "")
+        ui->ledTextfilespath->setText(path);
+}
+
+void OptionsDialog::on_btnCDsrc_clicked()
+{
+    QString path = QFileDialog::getExistingDirectory(this, tr("CD Label source directory"), ui->ledTextfilespath->text());
+    if (path != "")
+        ui->ledCDsrc->setText(path);
+}
+
+void OptionsDialog::on_btnCDdest_clicked()
+{
+    QString path = QFileDialog::getExistingDirectory(this, tr("CD Label dest directory"), ui->ledTextfilespath->text());
+    if (path != "")
+        ui->ledCDdest->setText(path);
 }

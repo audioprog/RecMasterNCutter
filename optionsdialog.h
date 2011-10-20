@@ -33,6 +33,12 @@ private slots:
 
     void on_tbtAudioProc_clicked();
 
+    void on_btnTextfilepath_clicked();
+
+    void on_btnCDsrc_clicked();
+
+    void on_btnCDdest_clicked();
+
 private:
     Ui::OptionsDialog *ui;
 };

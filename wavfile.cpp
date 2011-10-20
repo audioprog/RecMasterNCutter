@@ -109,6 +109,13 @@ qint64 WavFile::headerLength() const
 return m_headerLength;
 }
 
+int WavFile::SampleCount() const
+{
+    int ret = size() - m_headerLength;
+    ret /= (m_fileFormat.channels() * (m_fileFormat.sampleSize() / 8));
+    return ret;
+}
+
 bool WavFile::readHeader()
 {
     seek(0);

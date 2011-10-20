@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>307</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,6 +24,30 @@
        <string>Main</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QLabel" name="lblAudioProc">
+           <property name="text">
+            <string>Audio Program:</string>
+           </property>
+           <property name="buddy">
+            <cstring>ledAudioProc</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="ledAudioProc"/>
+         </item>
+         <item>
+          <widget class="QToolButton" name="tbtAudioProc">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
@@ -49,22 +73,61 @@
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
          <item>
-          <widget class="QLabel" name="lblAudioProc">
+          <widget class="QLabel" name="label">
            <property name="text">
-            <string>Audio Program:</string>
-           </property>
-           <property name="buddy">
-            <cstring>ledAudioProc</cstring>
+            <string>Textfilespath:</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="ledAudioProc"/>
+          <widget class="QLineEdit" name="ledTextfilespath"/>
          </item>
          <item>
-          <widget class="QToolButton" name="tbtAudioProc">
+          <widget class="QToolButton" name="btnTextfilepath">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>CD Label source:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="ledCDsrc"/>
+         </item>
+         <item>
+          <widget class="QToolButton" name="btnCDsrc">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
+         <item>
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>CD Label dest:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="ledCDdest"/>
+         </item>
+         <item>
+          <widget class="QToolButton" name="btnCDdest">
            <property name="text">
             <string>...</string>
            </property>
@@ -178,17 +241,23 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>ledMp3Path</tabstop>
-  <tabstop>tbtMp3Path</tabstop>
   <tabstop>ledAudioProc</tabstop>
   <tabstop>tbtAudioProc</tabstop>
+  <tabstop>ledMp3Path</tabstop>
+  <tabstop>tbtMp3Path</tabstop>
+  <tabstop>ledTextfilespath</tabstop>
+  <tabstop>btnTextfilepath</tabstop>
+  <tabstop>ledCDsrc</tabstop>
+  <tabstop>btnCDsrc</tabstop>
+  <tabstop>ledCDdest</tabstop>
+  <tabstop>btnCDdest</tabstop>
   <tabstop>ledSoxPath</tabstop>
   <tabstop>tbtSoxPath</tabstop>
   <tabstop>ledLamePath</tabstop>
   <tabstop>tbtLamePath</tabstop>
-  <tabstop>buttonBox</tabstop>
   <tabstop>tabWidget</tabstop>
   <tabstop>tbtnPathsDel</tabstop>
+  <tabstop>buttonBox</tabstop>
   <tabstop>lstwPath</tabstop>
  </tabstops>
  <resources>

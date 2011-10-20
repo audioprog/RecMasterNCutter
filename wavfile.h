@@ -55,6 +55,7 @@ public:
     bool open(const QString &fileName);
     const QAudioFormat &fileFormat() const;
     qint64 headerLength() const;
+    int SampleCount() const;
 
 private:
     bool readHeader();

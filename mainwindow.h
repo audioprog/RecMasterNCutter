@@ -158,6 +158,16 @@ private slots:
 
     void on_tbtCopy_clicked();
 
+    //void on_toolButton_clicked();
+
+    void on_tbtCDsource_clicked();
+
+    void on_actionCreateCDLabel_triggered();
+
+    void on_actionRec_triggered();
+
+    void on_actionOpenRec_triggered();
+
 private:
     Ui::MainWindow *ui;
     AudioOutput* audio;
@@ -167,6 +177,8 @@ private:
     void open(QString fileName);
     int SampleSize();
     QString MP3File(int title);
+    void readCDsources();
+    QString waveFile(int Nr, int MarkNr = -1);
 
     MarkImages mimages;
     int contextmenuNr;

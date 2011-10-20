@@ -38,7 +38,8 @@ SOURCES += main.cpp\
     quazip/quacrc32.cpp \
     quazip/quaadler32.cpp \
     quazip/qioapi.cpp \
-    quazip/JlCompress.cpp
+    quazip/JlCompress.cpp \
+    ziprw.cpp
 
 HEADERS  += mainwindow.h \
     waveform.h \
@@ -67,7 +68,8 @@ HEADERS  += mainwindow.h \
     quazip/ioapi.h \
     quazip/crypt.h \
     quazip/zconf.h \
-    quazip/zlib.h
+    quazip/zlib.h \
+    ziprw.h
 
 FORMS    += mainwindow.ui \
     optionsdialog.ui
@@ -122,7 +124,9 @@ OTHER_FILES += \
     RecMasterNCutter_de.ts \
     quazip/zlibstat.lib \
     RecMasterNCutter_de.qm \
-    RecMasterNCutter_de.qm
+    RecMasterNCutter_de.qm \
+    icons/Cd-Edit-32.png \
+    icons/saveTxt.png
 
 RESOURCES += \
     icons.qrc
@@ -137,8 +141,5 @@ win32 {
     win32: LIBS += -L$$PWD/quazip/ -lzlibstat
     PRE_TARGETDEPS += $$PWD/quazip/zlibstat.lib
 }
-
-
-
 
 
