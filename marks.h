@@ -42,8 +42,8 @@ public:
     int Count(MarkTypes type, int startnr) const { int ret = 0; for (int i = startnr; i < _pos.count(); i++) { if (_marks.at(i) == type) { ++ret; } } return ret; }
     QString Text(int nr) { return _strings.at(nr); }
     void setText(int nr, QString newText) { _strings[nr] = newText; }
-    void Save(QFile *file);
-    void Read(QFile *file);
+    void Save(QFile *file, QStringList label);
+    QStringList Read(QFile *file);
 
     void setSampleSize(int newSize) { _samplesize = newSize; }
     int SampleSize() { return _samplesize; }
@@ -55,6 +55,7 @@ signals:
     void Debug( QString text );
 
 private:
+    void validate();
     QList<qint64> _pos;
     QList<MarkTypes> _marks;
     QStringList _strings;

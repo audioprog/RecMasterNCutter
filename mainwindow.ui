@@ -75,7 +75,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -759,7 +759,17 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="ledCDTitle"/>
+        <widget class="QComboBox" name="ledCDTitle">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
@@ -773,7 +783,17 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="ledCDOpt1"/>
+        <widget class="QComboBox" name="ledCDOpt1">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
@@ -787,7 +807,17 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="ledCDOpt2"/>
+        <widget class="QComboBox" name="ledCDOpt2">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>

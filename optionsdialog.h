@@ -39,6 +39,12 @@ private slots:
 
     void on_btnCDdest_clicked();
 
+    void on_tbtnTitleDel_clicked();
+
+    void on_tbtnOpts1Del_clicked();
+
+    void on_tbtnOpts2Del_clicked();
+
 private:
     Ui::OptionsDialog *ui;
 };

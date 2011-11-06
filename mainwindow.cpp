@@ -135,6 +135,15 @@ MainWindow::MainWindow(QWidget *parent) :
     mp3path = settings.value("MP3Path", QDir::homePath()).toString();
 #endif
     lameparams = settings.value("Lame Parameters", QStringList() << "-b" << "192" << "--cbr" << "-h" << "--tg" << "12").toStringList();
+    QStringList lst = settings.value("TitleList", QStringList()).toStringList();
+    lst.sort();
+    ui->ledCDTitle->addItems(lst);
+    lst = settings.value("Option1List", QStringList()).toStringList();
+    lst.sort();
+    ui->ledCDOpt1->addItems(lst);
+    lst = settings.value("Option2List", QStringList()).toStringList();
+    lst.sort();
+    ui->ledCDOpt2->addItems(lst);
 
     readCDsources();
 
@@ -307,13 +316,13 @@ void MainWindow::MarksChanged()
             QString wavefile = waveFile(idxStartTrack, i);
             if (ui->tableTracks->item(idxStartTrack, 0) == NULL) {
                 QTableWidgetItem *ti = new QTableWidgetItem();
-                if (QFile(wavefile).exists()) {
+                if (QFile(path + "/" + wavefile).exists()) {
                     ButtonState state("Save");
                     if (inProcList.contains(i))
                         state.setIconMode(QIcon::Selected);
                     else {
                         state.setIconMode(QIcon::Active);
-                        fullsize += WavFile(wavefile).SampleCount();
+                        fullsize += WavFile(path + "/" + wavefile).SampleCount();
                     }
                     ti->setData(0, qVariantFromValue(state));
                 }
@@ -329,7 +338,7 @@ void MainWindow::MarksChanged()
                 ui->tableTracks->setItem(idxStartTrack, 0, ti);
             }
             else {
-                if (QFile(wavefile).exists()) {
+                if (QFile(path + "/" + wavefile).exists()) {
                     if (inProcList.contains(i)) {
                         if (((ButtonState)qVariantValue<ButtonState>(ui->tableTracks->item(idxStartTrack, 0)->data(0))).IconMode() != QIcon::Active) {
                             ButtonState bst = qVariantValue<ButtonState>(ui->tableTracks->item(idxStartTrack, 0)->data(0));
@@ -715,8 +724,9 @@ void MainWindow::on_btnStartRec_clicked()
             }
             else
                 path += "full.raw";
-            if (QProcess::startDetached("parec " + QString::number(nr) + " \"" + path + "\""))
-                on_btnOpen_clicked();
+            if (QProcess::startDetached("parec " + QString::number(nr) + " \"" + path + "\"")) {
+                QTimer::singleShot(1000, this, SLOT(on_btnOpen_clicked()));
+            }
         }
     }
 #else
@@ -774,7 +784,13 @@ void MainWindow::open(QString fileName)
         QFile *file = new QFile(fileName);
         marks->setSampleSize(SampleSize());
         DoNotNotify = true;
-        marks->Read(new QFile(fileName + ".rmrk"));
+        QStringList lst = marks->Read(new QFile(fileName + ".rmrk"));
+        if (lst.count() > 0)
+            ComboBoxSetText(ui->ledCDTitle, lst.at(0));
+        if (lst.count() > 1)
+            ComboBoxSetText(ui->ledCDOpt1, lst.at(1));
+        if (lst.count() > 2)
+            ComboBoxSetText(ui->ledCDOpt2, lst.at(2));
         DoNotNotify = false;
         if (fileName.section('.', -1, -1).toLower() == "wav") {
             WavFile wf(fileName);
@@ -1018,7 +1034,9 @@ void MainWindow::on_btbRereadOutput_clicked()
 
 void MainWindow::on_actionSaveMarks_triggered()
 {
-    ui->widget->SaveMarks(ui->sbxStartNr->value());
+    QStringList lst;
+    lst << ui->ledCDTitle->currentText() << ui->ledCDOpt1->currentText() << ui->ledCDOpt2->currentText();
+    ui->widget->SaveMarks(ui->sbxStartNr->value(), lst);
 }
 
 void MainWindow::on_actionPlay_From_Mark_triggered()
@@ -1042,6 +1060,10 @@ void MainWindow::on_tbtCDsource_clicked()
 {
     QSettings settings;
 
+    QString title = ComboBoxText(ui->ledCDTitle, "TitleList");
+    QString opt1 = ComboBoxText(ui->ledCDOpt1, "Option1List");
+    QString opt2 = ComboBoxText(ui->ledCDOpt2, "Option2List");
+
     QString path = settings.value("CDdest", "").toString();
     if (path == "") {
         QString npath = QFileDialog::getExistingDirectory(this, tr("CD dest"), QDir::homePath());
@@ -1054,12 +1076,12 @@ void MainWindow::on_tbtCDsource_clicked()
         QString src = settings.value("CDsource", QDir::homePath()).toString();
         QString txt = ZipRW::FileText(src + "/" + ui->cbxCDsource->currentText(), "content.xml");
 
-        txt = txt.replace(">title<", ">" + ui->ledCDTitle->text() + "<");
-        txt = txt.replace(">option 1<", ">" + ui->ledCDOpt1->text() + "<");
-        txt = txt.replace(">option 2<", ">" + ui->ledCDOpt2->text() + "<");
+        txt = txt.replace(">title<", ">" + title.replace('<', "&lt;").replace('>', "&gt;").replace('&',"&amp;").replace('\'', "&apos") + "<");
+        txt = txt.replace(">option 1<", ">" + opt1.replace('<', "&lt;").replace('>', "&gt;").replace('&',"&amp;").replace('\'', "&apos") + "<");
+        txt = txt.replace(">option 2<", ">" + opt2.replace('<', "&lt;").replace('>', "&gt;").replace('&',"&amp;").replace('\'', "&apos") + "<");
         txt = txt.replace(">date<", ">" + ui->dateEdit->date().toString("dd.MM.yyyy") + " " + ui->comboDayTime->currentText() + "<");
 
-        QString dst = path + "/" + ui->dateEdit->date().toString("yyyy-MM-dd") + " " + ui->comboDayTime->currentText();
+        QString dst = path + "/" + ui->dateEdit->date().toString("yyyy-MM-dd") + " " + ui->comboDayTime->currentText() + "." + src.section('.', -1, -1);
         ZipRW::CpFileText(src + "/" + ui->cbxCDsource->currentText(), dst, "content.xml", txt);
     }
 }
@@ -1093,7 +1115,7 @@ QString MainWindow::waveFile(int Nr, int MarkNr)
         if (ui->tableTracks->item(Nr, indextext)->text().simplified() != "")
             newname += " " + ui->tableTracks->item(Nr, indextext)->text().simplified();
         QFile(path + filename).rename(path + newname + ".wav");
-        return path + newname + ".wav";
+        return newname + ".wav";
     }
     if (!QFile(path + filename).exists()) {
         QString newname = QString::number(outnr);
@@ -1108,30 +1130,7 @@ QString MainWindow::waveFile(int Nr, int MarkNr)
 
 void MainWindow::on_actionCreateCDLabel_triggered()
 {
-    QString txt = ui->dateEdit->text() + ui->comboDayTime->currentText();
-    if (ui->ledCDTitle->text() != "")
-        txt += "\n" + ui->ledCDTitle->text();
-    if (ui->ledCDOpt1->text() != "")
-        txt += "\n" + ui->ledCDOpt1->text();
-    if (ui->ledCDOpt2->text() != "")
-        txt += "\n" + ui->ledCDOpt2->text();
-    for (int i = 0; i < ui->tableTracks->rowCount(); i++) {
-        txt += "\n" + QString::number(i + 1) + " " + ui->tableTracks->item(i, indextext)->text();
-    }
-    QSettings settings;
-    QString path = settings.value("Textfilespath", QDir::homePath()).toString();
-    QString filename = path + "/" + ui->dateEdit->date().toString("yyyy-MM-dd") + " " + ui->comboDayTime->currentText() + ".txt";
-    emit Debug(filename);
-    QFile fil(filename);
-    fil.open(QFile::WriteOnly);
-    QByteArray ba1(3, (char)0xEF);
-    ba1[1] = (char)0xBB;
-    ba1[2] = (char)0xBF;
-    fil.write(ba1);
-    QByteArray ba = txt.toUtf8();
-    fil.write(ba);
-    fil.flush();
-    fil.close();
+    on_tbtCDsource_clicked();
 }
 
 void MainWindow::on_actionRec_triggered()
@@ -1152,4 +1151,67 @@ void MainWindow::on_actionOpenRec_triggered()
                                                         getPath() + "full.raw", tr("Audio Files (*.raw *.wav)"));
         open(fileName);
     }
+}
+
+void MainWindow::on_actionSaveTexts_triggered()
+{
+    QString txt = ui->dateEdit->text() + " " + ui->comboDayTime->currentText();
+    if (ui->ledCDTitle->currentText() != "")
+        txt += "\r\n" + ComboBoxText(ui->ledCDTitle, "TitleList");
+    if (ui->ledCDOpt1->currentText() != "")
+        txt += "\r\n" + ComboBoxText(ui->ledCDOpt1, "Option1List");
+    if (ui->ledCDOpt2->currentText() != "")
+        txt += "\r\n" + ComboBoxText(ui->ledCDOpt2, "Option2List");
+    for (int i = 0; i < ui->tableTracks->rowCount(); i++) {
+        txt += "\r\n" + QString::number(i + ui->sbxStartNr->value()) + " " + ui->tableTracks->item(i, indextext)->text();
+    }
+    QSettings settings;
+    QString path = settings.value("Textfilespath", QDir::homePath()).toString();
+    QString filename = path + "/" + ui->dateEdit->date().toString("yyyy-MM-dd") + " " + ui->comboDayTime->currentText() + " " + ui->sbxStartNr->text() + ".txt";
+    emit Debug(filename);
+    QFile fil(filename);
+    fil.open(QFile::WriteOnly);
+    QByteArray ba1(3, (char)0xEF);
+    ba1[1] = (char)0xBB;
+    ba1[2] = (char)0xBF;
+    fil.write(ba1);
+    QByteArray ba = txt.toUtf8();
+    fil.write(ba);
+    fil.flush();
+    fil.close();
+}
+
+void MainWindow::ComboBoxSetText(QComboBox *cBox, QString text)
+{
+    int idx = cBox->findText(text);
+    if (idx > -1) {
+        cBox->setCurrentIndex(idx);
+    }
+    else {
+        int i;
+        for (i = 0; i < cBox->count() && QString::compare(text, cBox->itemText(i)) < 0; i++) {}
+        if (i == cBox->count())
+            cBox->addItem(text);
+        else if (i == 0)
+            cBox->insertItem(0, text);
+        else
+            cBox->insertItem(i - 1, text);
+    }
+}
+
+QString MainWindow::ComboBoxText(QComboBox *cBox, QString setting)
+{
+    QSettings settings;
+    QString text = cBox->currentText();
+    QStringList lst = settings.value(setting, QStringList()).toStringList();
+    lst.sort();
+    if (!lst.contains(text)) {
+        lst << text;
+        lst.sort();
+        cBox->clear();
+        cBox->addItems(lst);
+        cBox->setCurrentIndex(lst.indexOf(text));
+        settings.setValue(setting, lst);
+    }
+    return text;
 }

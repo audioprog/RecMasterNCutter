@@ -65,11 +65,11 @@ void WaveForm::actualize()
     QTimer::singleShot(100, this, SLOT(update()));
 }
 
-void WaveForm::SaveMarks(int startNr)
+void WaveForm::SaveMarks(int startNr, QStringList label)
 {
     if (data.FileName().count() > 0) {
         marks->setStartNr(startNr);
-        marks->Save(new QFile(data.FileName() + ".rmrk"));
+        marks->Save(new QFile(data.FileName() + ".rmrk"), label);
     }
 }
 

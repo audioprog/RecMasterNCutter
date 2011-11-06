@@ -5,6 +5,7 @@
 #include <QSettings>
 #include <QTimer>
 #include <QModelIndex>
+#include <QComboBox>
 #include "marks.h"
 #include "markimages.h"
 #include "savetracks.h"
@@ -168,7 +169,11 @@ private slots:
 
     void on_actionOpenRec_triggered();
 
+    void on_actionSaveTexts_triggered();
+
 private:
+    void ComboBoxSetText(QComboBox *cBox, QString text);
+    QString ComboBoxText(QComboBox *cBox, QString setting);
     Ui::MainWindow *ui;
     AudioOutput* audio;
     OptionsDialog* optins;

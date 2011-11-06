@@ -8,11 +8,12 @@ Marks::Marks()
     _samplesize = 3;
 }
 
-void Marks::Save(QFile *file)
+void Marks::Save(QFile *file, QStringList label)
 {
+    validate();
     file->open(QFile::WriteOnly);
     QTextStream ts(file);
-    ts << (_samplesize * 8) << ";" << _startnr << "\n";
+    ts << (_samplesize * 8) << ";" << _startnr << ";" << label.join("\\") << "\n";
     for (int i = 0; i < _pos.count(); i++) {
         if (_strings.at(i) != "")
             ts << _pos.at(i) << "," << _marks.at(i) << "," << _strings.at(i) << "\n";
@@ -21,38 +22,38 @@ void Marks::Save(QFile *file)
     }
 }
 
-void Marks::Read(QFile *file)
+QStringList Marks::Read(QFile *file)
 {
     _pos.clear();
     _marks.clear();
+    QStringList ret;
     if (file->exists()) {
         file->open(QFile::ReadOnly);
-        bool firstline = true;
-        while (!file->atEnd()) {
+        if (!file->atEnd()) {
             QString line = file->readLine();
-            if (firstline) {
-                if (!line.contains(',')) {
-                    bool ok;
-                    _samplesize = line.section(';', 0, 0).toInt(&ok);
+            bool ok;
+            _samplesize = line.section(';', 0, 0).toInt(&ok);
+            if (!ok) {
+                _samplesize = 3;
+                emit Debug("Mark read first line Error:" + line);
+            }
+            else {
+                _samplesize /= 8;
+                if (line.contains(';')) {
+                    _startnr = line.section(';', 1, 1).toInt(&ok);
                     if (!ok) {
-                        _samplesize = 3;
+                        _startnr = 1;
                         emit Debug("Mark read first line Error:" + line);
                     }
                     else {
-                        _samplesize /= 8;
-                        if (line.contains(';')) {
-                            _startnr = line.section(';', -1, -1).toInt(&ok);
-                            if (!ok) {
-                                _startnr = 1;
-                                emit Debug("Mark read first line Error:" + line);
-                            }
-                        }
+                        ret = line.section(';', 2, -1).split('\\');
                     }
                 }
-                else
-                    firstline = false;
             }
-            if (!firstline) {
+        }
+        while (!file->atEnd()) {
+            QString line = file->readLine();
+            if (line != "") {
                 qint64 ipos = line.section(',',0,0).toLongLong();
                 int typ = line.section(',', 1, 1).toInt();
                 if (ipos > -1) {
@@ -64,8 +65,33 @@ void Marks::Read(QFile *file)
                     }
                 }
             }
-            else
-                firstline = false;
+        }
+    }
+    validate();
+    return ret;
+}
+
+void Marks::validate()
+{
+    for (int i = 0; i < _strings.length(); i++) {
+        if (_strings.at(i) != "") {
+            if (_marks.at(i) != StartTrack) {
+                QString txt = _strings.at(i);
+                QString old = "";
+                _strings[i] = "";
+                for (int j = i - 1; j >= 0 && txt != ""; j--) {
+                    if (_marks.at(j) == StartTrack) {
+                        if (_strings.at(j) == txt) {
+                            txt = "";
+                        }
+                        else {
+                            old = _strings.at(j);
+                            _strings[j] = txt;
+                            txt = old;
+                        }
+                    }
+                }
+            }
         }
     }
 }

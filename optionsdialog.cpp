@@ -31,6 +31,15 @@ OptionsDialog::OptionsDialog(QWidget *parent) :
     ui->ledTextfilespath->setText(settings.value("Textfilespath", QDir::homePath()).toString());
     ui->ledCDsrc->setText(settings.value("CDsource", QDir::homePath()).toString());
     ui->ledCDdest->setText(settings.value("CDdest", QDir::homePath()).toString());
+    lst = settings.value("TitleList", QStringList()).toStringList();
+    lst.sort();
+    ui->lstwTitle->addItems(lst);
+    lst = settings.value("Option1List", QStringList()).toStringList();
+    lst.sort();
+    ui->lstwOpts1->addItems(lst);
+    lst = settings.value("Option2List", QStringList()).toStringList();
+    lst.sort();
+    ui->lstwOpts2->addItems(lst);
 }
 
 OptionsDialog::~OptionsDialog()
@@ -54,6 +63,25 @@ void OptionsDialog::on_buttonBox_accepted()
     settings.setValue("Textfilespath", ui->ledTextfilespath->text());
     settings.setValue("CDsource", ui->ledCDsrc->text());
     settings.setValue("CDdest", ui->ledCDdest->text());
+    lstw.clear();
+    lst.clear();
+    lstw = ui->lstwTitle->findItems("", Qt::MatchStartsWith);
+    foreach (QListWidgetItem* itm, lstw)
+        if (itm->text().simplified() != "")
+            lst << itm->text();
+    settings.setValue("TitleList", lst);
+    lst.clear();
+    lstw = ui->lstwOpts1->findItems("", Qt::MatchStartsWith);
+    foreach (QListWidgetItem* itm, lstw)
+        if (itm->text().simplified() != "")
+            lst << itm->text();
+    settings.setValue("Option1List", lst);
+    lst.clear();
+    lstw = ui->lstwOpts2->findItems("", Qt::MatchStartsWith);
+    foreach (QListWidgetItem* itm, lstw)
+        if (itm->text().simplified() != "")
+            lst << itm->text();
+    settings.setValue("Option2List", lst);
     emit OptionsUpdate();
     this->close();
 }
@@ -135,4 +163,22 @@ void OptionsDialog::on_btnCDdest_clicked()
     QString path = QFileDialog::getExistingDirectory(this, tr("CD Label dest directory"), ui->ledTextfilespath->text());
     if (path != "")
         ui->ledCDdest->setText(path);
+}
+
+void OptionsDialog::on_tbtnTitleDel_clicked()
+{
+    if (ui->lstwTitle->selectedItems().count() > 0)
+        ui->lstwTitle->takeItem(ui->lstwTitle->currentRow());
+}
+
+void OptionsDialog::on_tbtnOpts1Del_clicked()
+{
+    if (ui->lstwOpts1->selectedItems().count() > 0)
+        ui->lstwOpts1->takeItem(ui->lstwOpts1->currentRow());
+}
+
+void OptionsDialog::on_tbtnOpts2Del_clicked()
+{
+    if (ui->lstwOpts2->selectedItems().count() > 0)
+        ui->lstwOpts2->takeItem(ui->lstwOpts2->currentRow());
 }
