@@ -851,13 +851,13 @@ QString MainWindow::MP3File(int title)
     pmp3path += "/";
 
     QString newname = pmp3path.replace('/', '\\');
-    int realtitle = title + ui->sbxStartNr->value();
-    if (realtitle < 10)
-        newname += "0";
-    newname += QString::number(realtitle);
-    if (ui->tableTracks->item(title, indextext)->text().simplified() != "")
-        newname += " " + ui->tableTracks->item(title, indextext)->text().simplified();
-    newname += ".mp3";
+    if (title < 0) {
+        newname += "AudioCD.axp";
+    }
+    else {
+        newname += getFilename(title) + ".mp3";
+    }
+    emit Debug(newname);
     return newname;
 }
 
@@ -939,8 +939,8 @@ void MainWindow::on_tableTracks_cellDoubleClicked(int row, int column)
         return;
     if (ui->tableTracks->item(row, column) != NULL) {
         if (column == 0) {
-            if (ui->tableTracks->item(row, indexstart + 1)->text() != "") {
-                int start = qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole));
+            int start = qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole));
+            if (marks->NextTrackEnd(start) > -1) {
                 if (marks->Count(Marks::EndTrack, start) > 0) {
                     QString path = getPath();
                     tracks->SetPath(path);
@@ -989,14 +989,7 @@ void MainWindow::on_tableTracks_cellDoubleClicked(int row, int column)
                     pmp3path += ui->comboDayTime->currentText();
                     pmp3path += "/";
 
-                    QString newname = pmp3path.replace('/', '\\');
-                    int outnr = row + ui->sbxStartNr->value();
-                    if (outnr < 10)
-                        newname += "0";
-                    newname += QString::number(outnr);
-                    if (ui->tableTracks->item(row, indextext)->text().simplified() != "")
-                        newname += " " + ui->tableTracks->item(row, indextext)->text().simplified();
-                    newname += ".mp3";
+                    QString newname = MP3File(row);
                     QStringList params(lameparams);
                     params << name << newname;
 
@@ -1099,7 +1092,6 @@ void MainWindow::readCDsources()
 
 QString MainWindow::waveFile(int Nr, int MarkNr)
 {
-    int outnr = Nr + ui->sbxStartNr->value();
     QString path = getPath();
     if (!path.endsWith('/'))
         path += "/";
@@ -1109,23 +1101,26 @@ QString MainWindow::waveFile(int Nr, int MarkNr)
     qint64 pos = marks->Pos(idx);
     QString filename = QString::number(pos) + ".wav";
     if (MarkNr == -1 && QFile(path + filename).exists()) {
-        QString newname = QString::number(outnr);
-        if (newname.count() == 1)
-            newname = "0" + newname;
-        if (ui->tableTracks->item(Nr, indextext)->text().simplified() != "")
-            newname += " " + ui->tableTracks->item(Nr, indextext)->text().simplified();
+        QString newname = getFilename(Nr);
         QFile(path + filename).rename(path + newname + ".wav");
         return newname + ".wav";
     }
     if (!QFile(path + filename).exists()) {
-        QString newname = QString::number(outnr);
-        if (newname.count() == 1)
-            newname = "0" + newname;
+        QString newname = QString("%1").arg(Nr + ui->sbxStartNr->value(), 2, 10, QChar('0'));
         QStringList lst = QDir(path).entryList(QStringList(newname + "*.wav"));
         if (lst.count() > 0)
             filename = lst.at(0);
     }
     return filename;
+}
+
+QString MainWindow::getFilename(int Nr)
+{
+    QString newname = QString("%1").arg(Nr + ui->sbxStartNr->value(), 2, 10, QChar('0'));
+    QString nfilname = ui->tableTracks->item(Nr, indextext)->text().simplified().replace(QRegExp("[/\\\\$\\?~+\\'\\\"&]"), " ").simplified();
+    if (nfilname != "")
+        newname += " " + nfilname;
+    return newname;
 }
 
 void MainWindow::on_actionCreateCDLabel_triggered()
@@ -1214,4 +1209,35 @@ QString MainWindow::ComboBoxText(QComboBox *cBox, QString setting)
         settings.setValue(setting, lst);
     }
     return text;
+}
+
+void MainWindow::on_actionNewAudioCDProject_triggered()
+{
+    QString sect1 = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n";
+    sect1 += "<!DOCTYPE layout PUBLIC \"http://www.cdburnerxp.se/help/audio.dtd\" \"\">\n";
+    sect1 += "<?xml-stylesheet type='text/xsl' href='http://www.cdburnerxp.se/help/compilation.xsl'?>\n";
+    sect1 += "<!--audio compilation created by RecMasterNCutter-->\n";
+    sect1 += "<layout type=\"Audio\" version=\"4.3.9.2783\" date=\"" + QDate::currentDate().toString("dd.MM.yyyy") + "\" time=\"" + QTime::currentTime().toString() + "\">\n";
+    sect1 += "  <compilation name=\"audio-template\" title=\"";
+    QString sect2 = "\" artist=\"\">\n";
+    QString filsect1 = "    <track path=\"";
+    QString filsect2 = "\" title=\"";
+    QString filsect3 = "\" artist=\"\" number=\"";
+    QString filsect4 = "\" />\n";
+    QString sectEnd = "  </compilation>\n</layout>";
+
+    QString txt = sect1 + ui->ledCDTitle->currentText() + sect2;
+    for (int i = 0; i < ui->tableTracks->rowCount(); i++) {
+        txt += filsect1 + QString("%1 ").arg(i + ui->sbxStartNr->value(), 2, 10, QChar('0')) + ui->tableTracks->item(i, indextext)->text() + ".mp3" + filsect2
+                + ui->tableTracks->item(i, indextext)->text() + filsect3
+                + QString::number(i + ui->sbxStartNr->value()) + filsect4;
+    }
+    txt += sectEnd;
+    emit Debug(txt);
+    QFile fil(MP3File(-1));
+    fil.open(QFile::WriteOnly);
+    QByteArray ba = txt.toUtf8();
+    fil.write(ba);
+    fil.flush();
+    fil.close();
 }

@@ -171,6 +171,8 @@ private slots:
 
     void on_actionSaveTexts_triggered();
 
+    void on_actionNewAudioCDProject_triggered();
+
 private:
     void ComboBoxSetText(QComboBox *cBox, QString text);
     QString ComboBoxText(QComboBox *cBox, QString setting);
@@ -184,6 +186,7 @@ private:
     QString MP3File(int title);
     void readCDsources();
     QString waveFile(int Nr, int MarkNr = -1);
+    QString getFilename(int Nr);
 
     MarkImages mimages;
     int contextmenuNr;

@@ -112,7 +112,8 @@ return m_headerLength;
 int WavFile::SampleCount() const
 {
     int ret = size() - m_headerLength;
-    ret /= (m_fileFormat.channels() * (m_fileFormat.sampleSize() / 8));
+    if (m_fileFormat.channels() > 0)
+        ret /= (m_fileFormat.channels() * (m_fileFormat.sampleSize() / 8));
     return ret;
 }
 

@@ -4,7 +4,10 @@
 #include <QtEndian>
 #include "wavfile.h"
 
+/*!
+ \brief
 
+*/
 RingBuffer::RingBuffer() :
 mBuffer(NULL),
 mBStart(0),

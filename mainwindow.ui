@@ -164,6 +164,7 @@
    </attribute>
    <addaction name="action_Open"/>
    <addaction name="actionSaveMarks"/>
+   <addaction name="actionNewAudioCDProject"/>
    <addaction name="actionSaveTexts"/>
    <addaction name="actionCreateCDLabel"/>
    <addaction name="actionOpenRec"/>
@@ -1376,6 +1377,15 @@
    </property>
    <property name="text">
     <string>SaveTexts</string>
+   </property>
+  </action>
+  <action name="actionNewAudioCDProject">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/NewCDProj</normaloff>:/symbols/NewCDProj</iconset>
+   </property>
+   <property name="text">
+    <string>NewAudioCDProject</string>
    </property>
   </action>
  </widget>

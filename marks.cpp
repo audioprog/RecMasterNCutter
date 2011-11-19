@@ -6,6 +6,7 @@ Marks::Marks()
     _pos = QList<qint64>();
     _marks = QList<MarkTypes>();
     _samplesize = 3;
+    _startnr = 1;
 }
 
 void Marks::Save(QFile *file, QStringList label)
@@ -26,6 +27,7 @@ QStringList Marks::Read(QFile *file)
 {
     _pos.clear();
     _marks.clear();
+    _startnr = 1;
     QStringList ret;
     if (file->exists()) {
         file->open(QFile::ReadOnly);
