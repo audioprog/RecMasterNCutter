@@ -163,11 +163,8 @@
     <bool>false</bool>
    </attribute>
    <addaction name="action_Open"/>
-   <addaction name="actionSaveMarks"/>
-   <addaction name="actionNewAudioCDProject"/>
-   <addaction name="actionSaveTexts"/>
-   <addaction name="actionCreateCDLabel"/>
    <addaction name="actionOpenRec"/>
+   <addaction name="actionSaveMarks"/>
    <addaction name="actionRec"/>
   </widget>
   <widget class="QToolBar" name="tbarEditMark">
@@ -665,7 +662,7 @@
        </column>
        <column>
         <property name="text">
-         <string>End</string>
+         <string>Len</string>
         </property>
        </column>
        <column>
@@ -845,6 +842,20 @@
      </item>
     </layout>
    </widget>
+  </widget>
+  <widget class="QToolBar" name="tbarExport">
+   <property name="windowTitle">
+    <string>Export</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionNewAudioCDProject"/>
+   <addaction name="actionSaveTexts"/>
+   <addaction name="actionCreateCDLabel"/>
   </widget>
   <action name="action_Open">
    <property name="icon">

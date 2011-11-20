@@ -274,6 +274,7 @@ void MainWindow::MarksChanged()
     initializing = true;
     QString path = getPath();
     int fullsize = 0;
+    int lastlen = 0;
 
     ui->markTable->setRowCount(marks->Count());
     ui->tableTracks->setRowCount(marks->Count(Marks::StartTrack));
@@ -296,8 +297,8 @@ void MainWindow::MarksChanged()
             wi->setData(Qt::DisplayRole, qVariantFromValue(static_cast<int>(typ)));
             ui->markTable->setItem(i, 0, wi);
         }
-        int secs = marks->Pos(i) / 44100;
-        int msecs = (int)((float)(marks->Pos(i) - (secs * 44100)) / 44.100);
+        int secs = fullsize / 44100;//marks->Pos(i) / 44100;
+        int msecs = (int)((float)(fullsize % 44100) / 44.100); //(marks->Pos(i) - (secs * 44100)) / 44.100);
         QTime time(0,0,0);
         time = time.addSecs(secs);
         time = time.addMSecs(msecs);
@@ -322,7 +323,8 @@ void MainWindow::MarksChanged()
                         state.setIconMode(QIcon::Selected);
                     else {
                         state.setIconMode(QIcon::Active);
-                        fullsize += WavFile(path + "/" + wavefile).SampleCount();
+                        lastlen = WavFile(path + "/" + wavefile).SampleCount();
+                        fullsize += lastlen;
                     }
                     ti->setData(0, qVariantFromValue(state));
                 }
@@ -345,14 +347,16 @@ void MainWindow::MarksChanged()
                             bst.setIconMode(QIcon::Active);
                             ui->tableTracks->item(idxStartTrack, 0)->setData(0, qVariantFromValue(bst));
                         }
-                        else
-                            fullsize += WavFile(wavefile).SampleCount();
+                        //else
+
                     }
                     else if (((ButtonState)qVariantValue<ButtonState>(ui->tableTracks->item(idxStartTrack, 0)->data(0))).IconMode() != QIcon::Selected) {
                         ButtonState bst = qVariantValue<ButtonState>(ui->tableTracks->item(idxStartTrack, 0)->data(0));
                         bst.setIconMode(QIcon::Selected);
                         ui->tableTracks->item(idxStartTrack, 0)->setData(0, qVariantFromValue(bst));
                     }
+                    lastlen = WavFile(path + "/" + wavefile).SampleCount();
+                    fullsize += lastlen;
                 }
                 else if (inProcList.contains(i)) {
                     if (((ButtonState)qVariantValue<ButtonState>(ui->tableTracks->item(idxStartTrack, 0)->data(0))).IconMode() != QIcon::Active) {
@@ -396,6 +400,21 @@ void MainWindow::MarksChanged()
         }
         else if (typ == Marks::EndTrack && idxEndTrack < ui->tableTracks->rowCount() - 1) {
             idxEndTrack++;
+
+            if (lastlen > 0) {
+                int secs = lastlen / 44100;//marks->Pos(i) / 44100;
+                int msecs = (int)((float)(lastlen % 44100) / 44.100); //(marks->Pos(i) - (secs * 44100)) / 44.100);
+                QTime time(0,0,0);
+                time = time.addSecs(secs);
+                time = time.addMSecs(msecs);
+                txt = time.hour() > 0 ? time.toString("HH:mm:ss.zzz") : time.toString("mm:ss.zzz");
+            }
+            else {
+                txt = "*" + txt;
+            }
+            fullsize += 2 * 44100;
+            lastlen = 0;
+
             if (ui->tableTracks->item(idxEndTrack, 3) != NULL) {
                 ui->tableTracks->item(idxEndTrack, 3)->setText(txt);
                 ui->tableTracks->item(idxEndTrack, 3)->setData(Qt::UserRole, qVariantFromValue(i));
@@ -409,7 +428,7 @@ void MainWindow::MarksChanged()
         }
     }
     fullsize = (fullsize + 44099) / 44100;
-    fullsize += (idxStartTrack - 1) * 2;
+    //fullsize += (idxStartTrack - 1) * 2;
     int min = fullsize / 60;
     QString secs = QString::number(fullsize - (min * 60));
     if (secs.count() < 2)
@@ -637,8 +656,9 @@ void MainWindow::on_actionZoomIn_triggered()
 
 void MainWindow::on_actionRefresh_triggered()
 {
-    ui->widget->Clear();
-    ui->Overview->Clear();
+    //ui->widget->Clear();
+    //ui->Overview->Clear();
+    MarksChanged();
 }
 
 void MainWindow::on_actionExpand_WaveForm_toggled(bool arg1)
@@ -852,7 +872,7 @@ QString MainWindow::MP3File(int title)
 
     QString newname = pmp3path.replace('/', '\\');
     if (title < 0) {
-        newname += "AudioCD.axp";
+        newname += "AudioCD";
     }
     else {
         newname += getFilename(title) + ".mp3";
@@ -1074,8 +1094,9 @@ void MainWindow::on_tbtCDsource_clicked()
         txt = txt.replace(">option 2<", ">" + opt2.replace('<', "&lt;").replace('>', "&gt;").replace('&',"&amp;").replace('\'', "&apos") + "<");
         txt = txt.replace(">date<", ">" + ui->dateEdit->date().toString("dd.MM.yyyy") + " " + ui->comboDayTime->currentText() + "<");
 
-        QString dst = path + "/" + ui->dateEdit->date().toString("yyyy-MM-dd") + " " + ui->comboDayTime->currentText() + "." + src.section('.', -1, -1);
+        QString dst = path + "/" + ui->dateEdit->date().toString("yyyy-MM-dd") + " " + ui->comboDayTime->currentText() + "." + ui->cbxCDsource->currentText().section('.', -1, -1);
         ZipRW::CpFileText(src + "/" + ui->cbxCDsource->currentText(), dst, "content.xml", txt);
+        //QProcess::startDetached(dst);
     }
 }
 
@@ -1174,6 +1195,7 @@ void MainWindow::on_actionSaveTexts_triggered()
     fil.write(ba);
     fil.flush();
     fil.close();
+    QMessageBox::information(this, tr("List of Titles"), txt + "\n" + tr("Gespeichert") + "!");
 }
 
 void MainWindow::ComboBoxSetText(QComboBox *cBox, QString text)
@@ -1227,14 +1249,33 @@ void MainWindow::on_actionNewAudioCDProject_triggered()
     QString sectEnd = "  </compilation>\n</layout>";
 
     QString txt = sect1 + ui->ledCDTitle->currentText() + sect2;
+    int samples = 0;
+    int maxsamples = 80 * 60 * 44100;
+    int pause = 2 * 44100;
+    int cdnr = 1;
     for (int i = 0; i < ui->tableTracks->rowCount(); i++) {
+        int actsamples = WavFile(waveFile(i)).SampleCount();
+        samples += actsamples;
+        if (samples > maxsamples) {
+            txt += sectEnd;
+            emit Debug(txt);
+            QFile fil(MP3File(-1) + QString::number(cdnr++) + ".axp");
+            fil.open(QFile::WriteOnly);
+            QByteArray ba = txt.toUtf8();
+            fil.write(ba);
+            fil.flush();
+            fil.close();
+            txt = sect1 + ui->ledCDTitle->currentText() + sect2;
+            samples = actsamples - pause;
+        }
         txt += filsect1 + QString("%1 ").arg(i + ui->sbxStartNr->value(), 2, 10, QChar('0')) + ui->tableTracks->item(i, indextext)->text() + ".mp3" + filsect2
                 + ui->tableTracks->item(i, indextext)->text() + filsect3
                 + QString::number(i + ui->sbxStartNr->value()) + filsect4;
+        samples += pause;
     }
     txt += sectEnd;
     emit Debug(txt);
-    QFile fil(MP3File(-1));
+    QFile fil(MP3File(-1) + QString::number(cdnr++) + ".axp");
     fil.open(QFile::WriteOnly);
     QByteArray ba = txt.toUtf8();
     fil.write(ba);
