@@ -89,7 +89,7 @@ MarkImages::MarkImages()
     nrPixs.append(*pix1);*/
 
     //QColor color(Qt::white);
-    QPoint FaddIn[] = {QPoint(0, dsiz.height()-1), QPoint(dsiz.width()-1, 0), QPoint(dsiz.width() / 2, dsiz.height()-1)};
+    QPoint FaddIn[] = {QPoint(dsiz.width() / 5, dsiz.height() - dsiz.height() / 5), QPoint(dsiz.width() - dsiz.width() / 5, dsiz.height() / 5), QPoint(dsiz.width() - dsiz.width() / 5, dsiz.height() - dsiz.height() / 5)};
     QPixmap *pix6 =new QPixmap(psiz);
     QPainter *painter6 = new QPainter(pix6);
     painter6->fillRect(0, 0, psiz.width(), psiz.height(), color);
@@ -97,11 +97,11 @@ MarkImages::MarkImages()
     painter6->drawPolygon(FaddIn, 3, Qt::OddEvenFill);
     painter6->end();
     pix6->setMask(pix6->createMaskFromColor(color.rgb(), Qt::MaskInColor));
-    pix6->save("F:/ngit/remoteRecMaster/icons/faddIn.png");
+    //pix6->save("I:/fadeIn.png");
     pixlist.append(*pix6);
     icolist.append(QIcon(*pix6));
 
-    QPoint FaddOut[] = {QPoint(1, 1), QPoint(dsiz.width()-1, dsiz.height()-1), QPoint(dsiz.width() / 2, dsiz.height()-1)};
+    QPoint FaddOut[] = {QPoint(dsiz.width() / 5, dsiz.height() / 5), QPoint(dsiz.width() - dsiz.width() / 5, dsiz.height() - dsiz.height() / 5), QPoint(dsiz.width() / 5, dsiz.height() - dsiz.height() / 5)};
     QPixmap *pix7 =new QPixmap(psiz);
     QPainter *painter7 = new QPainter(pix7);
     painter7->fillRect(0, 0, psiz.width(), psiz.height(), color);
@@ -109,7 +109,7 @@ MarkImages::MarkImages()
     painter7->drawPolygon(FaddOut, 3, Qt::OddEvenFill);
     painter7->end();
     pix7->setMask(pix7->createMaskFromColor(color.rgb(), Qt::MaskInColor));
-    pix7->save("F:/ngit/remoteRecMaster/icons/faddOut.png");
+    //pix7->save("I:/fadeOut.png");
     pixlist.append(*pix7);
     icolist.append(QIcon(*pix7));
 }

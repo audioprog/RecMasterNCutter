@@ -7,10 +7,14 @@ Marks::Marks()
     _marks = QList<MarkTypes>();
     _samplesize = 3;
     _startnr = 1;
+
+    timer = new QTimer();
+    connect(timer, SIGNAL(timeout()), this, SLOT(tmpSave()));
 }
 
 void Marks::Save(QFile *file, QStringList label)
 {
+    try {
     validate();
     file->open(QFile::WriteOnly);
     QTextStream ts(file);
@@ -21,6 +25,14 @@ void Marks::Save(QFile *file, QStringList label)
         else
             ts << _pos.at(i) << "," << _marks.at(i) << "\n";
     }
+    } catch (...) {
+        emit Debug("Save " + file->fileName() + " " + label.join(";"));
+    }
+    tmpfilename = file->fileName() + ".save";
+    _label = label;
+
+    if (!timer->isActive())
+        timer->start(10000);
 }
 
 QStringList Marks::Read(QFile *file)
@@ -70,12 +82,50 @@ QStringList Marks::Read(QFile *file)
         }
     }
     validate();
+
+    tmpfilename = file->fileName() + ".save";
+    _label = ret;
+
+    if (!timer->isActive())
+        timer->start(10000);
+
     return ret;
+}
+
+QStringList Marks::ReadAutoSaved(QString filename)
+{
+    QStringList ret = Read(new QFile(filename + ".save"));
+    tmpfilename = filename;
+    return ret;
+}
+
+void Marks::tmpSave()
+{
+    try {
+    validate();
+    QFile *tmpfile = new QFile(tmpfilename);
+    tmpfile->open(QFile::WriteOnly);
+    QTextStream ts(tmpfile);
+    ts << (_samplesize * 8) << ";" << _startnr << ";" << _label.join("\\") << "\n";
+    for (int i = 0; i < _pos.count(); i++) {
+        if (_strings.at(i) != "")
+            ts << _pos.at(i) << "," << _marks.at(i) << "," << _strings.at(i) << "\n";
+        else
+            ts << _pos.at(i) << "," << _marks.at(i) << "\n";
+    }
+    } catch (...) {
+        emit Debug("tmpSave " + tmpfilename + " " + _label.join(";"));
+    }
 }
 
 void Marks::validate()
 {
-    for (int i = 0; i < _strings.length(); i++) {
+    int len = _pos.length();
+    if (_marks.length() < len)
+        len = _marks.length();
+    if (_strings.length() < len)
+        len = _strings.length();
+    for (int i = 0; i < len; i++) {
         if (_strings.at(i) != "") {
             if (_marks.at(i) != StartTrack) {
                 QString txt = _strings.at(i);

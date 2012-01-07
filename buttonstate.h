@@ -25,7 +25,7 @@ public:
     void setIconMode( QIcon::Mode newMode ) { if (newMode == QIcon::Disabled) { oldmode = icomode; } icomode = newMode; }
     void restore() { icomode = oldmode; }
 
-    QSize sizeHint() const { return QSize(24, 24); }
+    QSize sizeHint() const { return QSize(16, 16); }
 
 private:
     QIcon ico;

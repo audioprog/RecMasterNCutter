@@ -5,6 +5,7 @@
 #include <QList>
 #include <QFile>
 #include <QStringList>
+#include <QTimer>
 
 class Marks : public QObject
 {
@@ -35,9 +36,9 @@ public:
     QList<int> AllOfMarks(MarkTypes type) const { QList<int> ret; for (int i = 0; i < _marks.count(); ++i) { if (_marks.at(i) == type) { ret << i; } } return ret; }
     QList<int> Range(qint64 start, qint64 width) const { QList<int> ret; for (int i = 0; i < _pos.count(); i++) { if (_pos.at(i) >= start) { if (_pos.at(i) < start + width) { ret << i; } else { return ret; } } } return ret; }
     int NextTrackEnd(int start) { for (int i = start + 1; i < _marks.count(); i++) { if (_marks.at(i) == Marks::EndTrack) { return i; } } return -1; }
-    bool Add(qint64 pos, MarkTypes typ) { for (int i = 0; i < _pos.count(); i++) { if (pos < _pos.at(i)) { _pos.insert(i, pos); _marks.insert(i, typ); _strings.insert(i, ""); emit MarksChanged(); return true; } } if (pos < 0) { return false; } _pos.append(pos); _marks.append(typ); _strings.append(""); emit MarksChanged(); return true; }
-    bool Add(qint64 pos, MarkTypes typ, QString text) { for (int i = 0; i < _pos.count(); i++) { if (pos < _pos.at(i)) { _pos.insert(i, pos); _marks.insert(i, typ); _strings.insert(i, text); emit MarksChanged(); return true; } } if (pos < 0) { return false; } _pos.append(pos); _marks.append(typ); _strings.append(text); emit MarksChanged(); return true; }
-    void Remove(int Nr) { if (Nr > -1 && Nr < _pos.count()) { _pos.removeAt(Nr); _marks.removeAt(Nr); emit MarksChanged(); } }
+    int Add(qint64 pos, MarkTypes typ) { for (int i = 0; i < _pos.count(); i++) { if (pos < _pos.at(i)) { _pos.insert(i, pos); _marks.insert(i, typ); _strings.insert(i, ""); emit MarksChanged(); return i; } } if (pos < 0) { return -1; } _pos.append(pos); _marks.append(typ); _strings.append(""); emit MarksChanged(); return _marks.count() - 1; }
+    int Add(qint64 pos, MarkTypes typ, QString text) { for (int i = 0; i < _pos.count(); i++) { if (pos < _pos.at(i)) { _pos.insert(i, pos); _marks.insert(i, typ); _strings.insert(i, text); emit MarksChanged(); return i; } } if (pos < 0) { return -1; } _pos.append(pos); _marks.append(typ); _strings.append(text); emit MarksChanged(); return _marks.count() - 1; }
+    void Remove(int Nr) { if (Nr > -1 && Nr < _pos.count()) { _pos.removeAt(Nr); _marks.removeAt(Nr); _strings.removeAt(Nr); emit MarksChanged(); } }
     int Count() const { return _pos.count(); }
     int Count(MarkTypes type) const { int ret = 0; foreach (MarkTypes itm, _marks) { if (itm == type) { ++ret; } } return ret; }
     int Count(MarkTypes type, int startnr) const { int ret = 0; for (int i = startnr; i < _pos.count(); i++) { if (_marks.at(i) == type) { ++ret; } } return ret; }
@@ -45,6 +46,7 @@ public:
     void setText(int nr, QString newText) { _strings[nr] = newText; }
     void Save(QFile *file, QStringList label);
     QStringList Read(QFile *file);
+    QStringList ReadAutoSaved(QString filename);
 
     void setSampleSize(int newSize) { _samplesize = newSize; }
     int SampleSize() { return _samplesize; }
@@ -55,11 +57,19 @@ signals:
     void MarksChanged();
     void Debug( QString text );
 
+private slots:
+    void tmpSave();
+
 private:
     void validate();
+
+    QString tmpfilename;
+
+    QTimer *timer;
     QList<qint64> _pos;
     QList<MarkTypes> _marks;
     QStringList _strings;
+    QStringList _label;
     int _samplesize;
     int _startnr;
 };

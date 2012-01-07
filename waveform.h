@@ -31,6 +31,9 @@ public:
     int DotWidth() { return data.DotWidth(); }
     int Selected() { return selected; }
     void SetDebugNr(int nr) { data.setDebugNr(nr); }
+    qint64 fileLen() { return data.Length(); }
+
+    int AddMark(int x, Marks::MarkTypes Mark);
 
 signals:
     void LenghtChanged(int newLen, int windowlength);
@@ -38,12 +41,12 @@ signals:
     void ContextMenuWanted(QPoint pos, int x, int Mark);
     void OverviewMarkPosChanged(int x);
     void Play(qint64 pos);
+    void debug(QString text);
 
 public slots:
     void NewPos(int newPos);
     void actualize();
     void SaveMarks(int startNr, QStringList label);
-    void AddMark(int x, Marks::MarkTypes Mark);
     void SelectNext() { if (selected < marks->Count() - 1) { selected++; MoveToSelection(); } }
     void SelectPrevious() { if (selected > 0) { selected--; MoveToSelection(); } }
     void Select(int Nr) { if (Nr > -1 && Nr < marks->Count()) { selected = Nr; MoveToSelection(); } }

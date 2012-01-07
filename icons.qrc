@@ -36,6 +36,7 @@
         <file alias="CDlabel">icons/Cd-Edit-32.png</file>
         <file alias="SaveTxt">icons/saveTxt.png</file>
         <file alias="NewCDProj">icons/newAudioCDProj.png</file>
+        <file alias="AutoPlaze">icons/HandautoPlaze.png</file>
     </qresource>
     <qresource prefix="/buttonstateicons">
         <file alias="MP3">buttonstyleicons/notecompress24.png</file>

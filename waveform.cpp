@@ -67,16 +67,21 @@ void WaveForm::actualize()
 
 void WaveForm::SaveMarks(int startNr, QStringList label)
 {
+    try {
     if (data.FileName().count() > 0) {
         marks->setStartNr(startNr);
         marks->Save(new QFile(data.FileName() + ".rmrk"), label);
     }
+    } catch (...) {
+        emit debug("SaveMarks()");
+    }
 }
 
-void WaveForm::AddMark(int x, Marks::MarkTypes Mark)
+int WaveForm::AddMark(int x, Marks::MarkTypes Mark)
 {
-    marks->Add((data.Pos() + x) * data.DotWidth(), Mark);
+    int pos = marks->Add((data.Pos() + x) * data.DotWidth(), Mark);
     update();
+    return pos;
 }
 
 void WaveForm::PlayPos(qint64 pPos)
@@ -438,7 +443,8 @@ void WaveForm::mousePressEvent(QMouseEvent *event)
         }
     }
     else if (event->buttons() == Qt::LeftButton && rulerHeight > 0 && followend) {
-        AddMark(event->x(), Marks::Standard);
+        int pos = AddMark(event->x(), Marks::Standard);
+        emit OverviewMarkPosChanged(pos);
     }
 }
 

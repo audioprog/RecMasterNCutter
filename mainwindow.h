@@ -6,6 +6,7 @@
 #include <QTimer>
 #include <QModelIndex>
 #include <QComboBox>
+#include <QTextStream>
 #include "marks.h"
 #include "markimages.h"
 #include "savetracks.h"
@@ -40,9 +41,10 @@ public slots:
     void OverviewMarkChanged(int newPos);
     void SaveTrackFinished(int startmark);
 
-    void Debug(QString text) { emit mDebug(text); }
+    void Debug(const QString & text);
 
 private slots:
+    void MarkAutoPos(int index);
     void MarksChanged();
     void PlayNotify(qint64 pos);
     void PlayStart(qint64 pos);
@@ -173,6 +175,8 @@ private slots:
 
     void on_actionNewAudioCDProject_triggered();
 
+    void on_actionReadAutoSaved_triggered();
+
 private:
     void ComboBoxSetText(QComboBox *cBox, QString text);
     QString ComboBoxText(QComboBox *cBox, QString setting);
@@ -181,12 +185,17 @@ private:
     OptionsDialog* optins;
 
     QString getPath();
-    void open(QString fileName);
+    void open(QString fileName, bool autoSaved = false);
     int SampleSize();
     QString MP3File(int title);
     void readCDsources();
     QString waveFile(int Nr, int MarkNr = -1);
     QString getFilename(int Nr);
+
+    QString getTime(int samples);
+
+    QFile *debugfile;
+    QTextStream *debugstream;
 
     MarkImages mimages;
     int contextmenuNr;

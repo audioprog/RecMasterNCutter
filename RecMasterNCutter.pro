@@ -127,7 +127,8 @@ OTHER_FILES += \
     RecMasterNCutter_de.qm \
     icons/Cd-Edit-32.png \
     icons/saveTxt.png \
-    icons/newAudioCDProj.png
+    icons/newAudioCDProj.png \
+    icons/HandautoPlaze.png
 
 RESOURCES += \
     icons.qrc
@@ -142,6 +143,7 @@ win32 {
     win32: LIBS += -L$$PWD/quazip/ -lzlibstat
     PRE_TARGETDEPS += $$PWD/quazip/zlibstat.lib
 }
+
 
 
 

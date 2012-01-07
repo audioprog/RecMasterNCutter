@@ -3,6 +3,7 @@
 
 #include <QProcess>
 #include <QList>
+#include <QHash>
 #include <QFile>
 #include <QDir>
 
@@ -18,7 +19,7 @@ public:
     void SetPath(QString newPath) { path = newPath; QDir(path).mkpath(path); }
     void SetSoxPath(QString newPath) { soxpath = newPath; }
     void SetMarks(Marks *newMarks) { marks = newMarks; }
-    QList<int> allMarks() { return list; }
+    QList<int> allMarks() { return proclist.keys(); }
 
 signals:
     void Finished(int TrackNr);
@@ -46,7 +47,9 @@ private:
     QString soxpath;
     bool isworking;
 
-    QList<int> list;
+    //QList<int> list;
+
+    QHash<int, QStringList> proclist;
 };
 
 #endif // SAVETRACKS_H
