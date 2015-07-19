@@ -358,6 +358,8 @@
    <addaction name="actionLastMarkEnd_Track"/>
    <addaction name="actionLastMarkStart_Silence"/>
    <addaction name="actionLastMarkEnd_Silence"/>
+   <addaction name="actionTrackStart_FadeIn"/>
+   <addaction name="actionTrackEnd_FadeIn"/>
    <addaction name="actionLastFadeIn"/>
    <addaction name="actionLastFadeOut"/>
   </widget>
@@ -1498,6 +1500,24 @@
    </property>
    <property name="text">
     <string>AutoPlaze</string>
+   </property>
+  </action>
+  <action name="actionTrackEnd_FadeIn">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/End_FadeOut</normaloff>:/symbols/End_FadeOut</iconset>
+   </property>
+   <property name="text">
+    <string>TrackEnd FadeIn</string>
+   </property>
+  </action>
+  <action name="actionTrackStart_FadeIn">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/Start_FadeIn</normaloff>:/symbols/Start_FadeIn</iconset>
+   </property>
+   <property name="text">
+    <string>TrackStart FadeIn</string>
    </property>
   </action>
  </widget>

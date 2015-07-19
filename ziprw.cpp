@@ -64,7 +64,7 @@ void ZipRW::CpFileText(QString source, QString dest, QString File, QString Text)
 
     QuaZipFile qzf(&qz2);
     qzf.open(QFile::WriteOnly, QuaZipNewInfo(File));
-    qzf.write(Text.toLatin1());
+    qzf.write(Text.toUtf8().data());
     qzf.close();
 
     QuaZip qz(source);

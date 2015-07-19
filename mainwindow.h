@@ -177,6 +177,10 @@ private slots:
 
     void on_actionReadAutoSaved_triggered();
 
+    void on_actionTrackEnd_FadeIn_triggered();
+
+    void on_actionTrackStart_FadeIn_triggered();
+
 private:
     void ComboBoxSetText(QComboBox *cBox, QString text);
     QString ComboBoxText(QComboBox *cBox, QString setting);

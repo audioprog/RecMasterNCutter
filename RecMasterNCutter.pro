@@ -128,7 +128,9 @@ OTHER_FILES += \
     icons/Cd-Edit-32.png \
     icons/saveTxt.png \
     icons/newAudioCDProj.png \
-    icons/HandautoPlaze.png
+    icons/HandautoPlaze.png \
+    icons/End_FadeOut.png \
+    icons/Start_FadeIn.png
 
 RESOURCES += \
     icons.qrc
@@ -143,6 +145,8 @@ win32 {
     win32: LIBS += -L$$PWD/quazip/ -lzlibstat
     PRE_TARGETDEPS += $$PWD/quazip/zlibstat.lib
 }
+
+
 
 
 

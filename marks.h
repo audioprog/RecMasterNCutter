@@ -47,6 +47,7 @@ public:
     void Save(QFile *file, QStringList label);
     QStringList Read(QFile *file);
     QStringList ReadAutoSaved(QString filename);
+    int lastPos() { if (_pos.count() > 0) { return _pos.last(); } }
 
     void setSampleSize(int newSize) { _samplesize = newSize; }
     int SampleSize() { return _samplesize; }

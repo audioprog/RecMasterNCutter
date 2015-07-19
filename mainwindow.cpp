@@ -1339,7 +1339,7 @@ QString MainWindow::ComboBoxText(QComboBox *cBox, QString setting)
 
 void MainWindow::on_actionNewAudioCDProject_triggered()
 {
-    try {
+    /*try {
     QString sect1 = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n";
     sect1 += "<!DOCTYPE layout PUBLIC \"http://www.cdburnerxp.se/help/audio.dtd\" \"\">\n";
     sect1 += "<?xml-stylesheet type='text/xsl' href='http://www.cdburnerxp.se/help/compilation.xsl'?>\n";
@@ -1389,6 +1389,65 @@ void MainWindow::on_actionNewAudioCDProject_triggered()
     } catch (...) {
         emit mDebug("on_actionNewAudioCDProject_triggered()");
     }
+
+    QString path = MP3File(-1);
+    if (!path.endsWith("\\") && !path.endsWith("/"))
+    {
+        path += "/";
+    }
+    QDir dir(path);
+    QStringList mp3List = dir.entryList(QStringList("*.mp3"), QDir::Files, QDir::Name);
+
+    if (mp3List.count() == 0)
+        return;*/
+
+    QString sect1 = "<?wpl version=\"1.0\"?>\r\n";
+    sect1 += "<smil>\r\n";
+    sect1 += "    <head>\r\n";
+    sect1 += "        <meta name=\"Generator\" content=\"Microsoft Windows Media Player -- 12.0.7601.17514\"/>\r\n";
+    sect1 += "        <meta name=\"ItemCount\" content=\"";
+    QString sect2 = "\"/>\r\n";
+    sect2 += "        <title>Brennliste</title>\r\n";
+    sect2 += "    </head>\r\n";
+    sect2 += "    <body>\r\n";
+    sect2 += "        <seq>\r\n";
+    QString endsect = "        </seq>\r\n";
+    endsect += "    </body>\r\n";
+    endsect += "</smil>\r\n";
+
+    QString txt = "";
+    int cdnr = 1;
+    int tocd = 0;
+    int samples = 0;
+    int maxsamples = 80 * 60 * 44100;
+    int pause = 2 * 44100;
+    for (int i = 0; i < ui->tableTracks->rowCount(); i++) {
+        int actsamples = WavFile(waveFile(i)).SampleCount();
+        samples += actsamples;
+        if (samples > maxsamples) {
+            txt = sect1 + QString::number(++tocd) + sect2 + txt + endsect;
+            //emit Debug(txt);
+            QFile fil(MP3File(-1) + QString::number(cdnr++) + ".wpl");
+            fil.open(QFile::WriteOnly);
+            QByteArray ba = txt.toUtf8();
+            fil.write(ba);
+            txt = "";
+            fil.flush();
+            fil.close();
+            samples = actsamples - pause;
+        }
+        txt += "            <media src=\"" + QString("%1 ").arg(i + ui->sbxStartNr->value(), 2, 10, QChar('0')) + ui->tableTracks->item(i, indextext)->text() + ".mp3\"/>\r\n";
+        samples += pause;
+    }
+
+    txt = sect1 + QString::number(++tocd) + sect2 + txt + endsect;
+    //emit Debug(txt);
+    QFile fil(MP3File(-1) + QString::number(cdnr++) + ".wpl");
+    fil.open(QFile::WriteOnly);
+    QByteArray ba = txt.toUtf8();
+    fil.write(ba);
+    fil.flush();
+    fil.close();
 }
 
 QString MainWindow::getTime(int samples)
@@ -1414,4 +1473,16 @@ void MainWindow::on_actionReadAutoSaved_triggered()
                                                         getPath() + "full.raw", tr("Audio Files (*.raw *.wav)"));
         open(fileName, true);
     }
+}
+
+void MainWindow::on_actionTrackEnd_FadeIn_triggered()
+{
+    ui->widget->getMarks()->setMark(Marks::EndTrack);
+    ui->widget->getMarks()->Add(ui->widget->getMarks()->lastPos() - 11025, Marks::FadeOut);
+}
+
+void MainWindow::on_actionTrackStart_FadeIn_triggered()
+{
+    ui->widget->getMarks()->setMark(Marks::StartTrack);
+    ui->widget->getMarks()->Add(ui->widget->getMarks()->lastPos() + 7350, Marks::FadeIn);
 }

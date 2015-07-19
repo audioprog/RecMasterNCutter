@@ -74,6 +74,7 @@ void SaveTracks::finished()
             else
                 finished();
         }
+        emit Debug(command);
         if (command != "")
             proc.start(command);
     }
@@ -161,7 +162,7 @@ void SaveTracks::Save(int startmark, int faddin, int faddout, int endmark)
     strlist << "-V3" << "-r" << "44100" << "-s" << "-3" << "-c" << "2" << file->fileName() << "-t" << "wavpcm" << path + QString::number(marks->Pos(startmark)) + ".wav"
                               << "trim" << QString::number(marks->Pos(startmark)) + "s" << QString::number(marks->Pos(endmark) - marks->Pos(startmark)) + "s";
     if (faddin > -1 && faddout > -1)
-        strlist << "fade" << "t" << QString::number(marks->Pos(faddin) - marks->Pos(startmark)) + "s" << "0"
+        strlist << "fade" << "t" << QString::number(marks->Pos(faddin) - marks->Pos(startmark)) + "s" << QString::number(marks->Pos(endmark) - marks->Pos(startmark)) + "s"
                 << QString::number(marks->Pos(endmark) - marks->Pos(faddout)) + "s";
                 //<< QString::number(marks->Pos(endmark) - marks->Pos(startmark)) + "s"
                 //<< QString::number(marks->Pos(endmark) - marks->Pos(faddout)) + "s";
@@ -173,6 +174,8 @@ void SaveTracks::Save(int startmark, int faddin, int faddout, int endmark)
                 << QString::number(marks->Pos(endmark) - marks->Pos(faddout)) + "s";
     }
     strlist << "gain" << "-n";
+
+    emit Debug(soxpath + "sox " + strlist.join(" "));
     //Profen und erstellen Dir
     proc.start(soxpath + "sox", strlist);
     //qDebug() << strlist;
@@ -189,6 +192,9 @@ void SaveTracks::SaveMerged(int startmark, int fadein, int fadeout, int endmark)
     qint64 fadeoutlast = -1;
     qint64 fillen = 0;
 
+    QString mainfilecmd = "\"" + soxpath + "sox\" -r 44100 -s -3 -c 2 \"" + file->fileName() + "\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".wav\" trim "
+            + QString::number(marks->Pos(startmark)) + "s " + QString::number(marks->Pos(endmark) - marks->Pos(startmark)) + "s";
+    parts << mainfilecmd;
     for (int i = startmark + 1; i < endmark; i++) {
         if (marks->Type(i) == Marks::StartSilence) {
             silence++;
@@ -197,8 +203,8 @@ void SaveTracks::SaveMerged(int startmark, int fadein, int fadeout, int endmark)
                     fadeinlen += (marks->Pos(i) - marks->Pos(last));
                 if (i > fadeout && fadeoutlast > -1)
                     fadeoutlen += marks->Pos(i) - marks->Pos(fadeoutlast);
-                QString part = "\"" + soxpath + "sox\" -r 44100 -s -3 -c 2 \"" + file->fileName() + "\" -t wavpcm \"" + file->fileName() + "." + QString::number(++nr) + ".wav\" trim "
-                        + QString::number(marks->Pos(last)) + "s " + QString::number(marks->Pos(i) - marks->Pos(last)) + "s";
+                QString part = "\"" + soxpath + "sox\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".wav\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + "." + QString::number(++nr) + ".wav\" trim "
+                        + QString::number(marks->Pos(last) - marks->Pos(startmark)) + "s " + QString::number(marks->Pos(i) - marks->Pos(last)) + "s";
                 fillen += marks->Pos(i) - marks->Pos(last) - 4410;
                 parts.append(part);
                 last = 0;
@@ -211,21 +217,23 @@ void SaveTracks::SaveMerged(int startmark, int fadein, int fadeout, int endmark)
                 fadeoutlast = i;
             }
         }
-        else if (marks->Type(i) == Marks::FadeIn && i < fadein)
+        else if (marks->Type(i) == Marks::FadeIn && i <= fadein)
             fadeinlen += (marks->Pos(i) - marks->Pos(last));
         else if (marks->Type(i) == Marks::FadeOut && fadeout == i)
             fadeoutlast = marks->Pos(i);
     }
     if (last > 0) {
-        parts << "\"" + soxpath + "sox\" -r 44100 -s -3 -c 2 \"" + file->fileName() + "\" -t wavpcm \"" + file->fileName() + "." + QString::number(++nr) + ".wav\" trim "
-                + QString::number(marks->Pos(last)) + "s " + QString::number(marks->Pos(endmark) - marks->Pos(last)) + "s";
+        parts << "\"" + soxpath + "sox\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".wav\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + "." + QString::number(++nr) + ".wav\" trim "
+                + QString::number(marks->Pos(last) - marks->Pos(startmark)) + "s " + QString::number(marks->Pos(endmark) - marks->Pos(last)) + "s";
         fillen += marks->Pos(endmark) - marks->Pos(last);
     }
+    fadeoutlen = marks->Pos(endmark) - fadeoutlast;
+    parts.append("del \"" + path + QString::number(marks->Pos(startmark)) + ".wav\"");
     if (parts.length() > 0) {
 
         QString command = "\"" + soxpath + "sox\" ";
         for (int i = 1; i <= nr; i++)
-            command += "\"" + file->fileName() + "." + QString::number(i) + ".wav\" ";
+            command += "\"" + path + QString::number(marks->Pos(startmark)) + "." + QString::number(i) + ".wav\" ";
         if (fadein == -1 && fadeout == -1)
             command += "-t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".wav\" splice 4410s gain -n silence 1 0.5 -67d -1 1 -71d";
         else
@@ -233,7 +241,7 @@ void SaveTracks::SaveMerged(int startmark, int fadein, int fadeout, int endmark)
         parts << command;
 
         for (int i = 1; i <= nr; i++)
-            parts << "del \"" + file->fileName().replace('/', '\\') + "." + QString::number(i) + ".wav\"";
+            parts << "del \"" + path.replace('/', '\\') + QString::number(marks->Pos(startmark)) + "." + QString::number(i) + ".wav\"";
 
         if (fadein > -1 && fadeout > -1) {
             parts << "\"" + soxpath + "sox\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".tofade.wav\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".wav\" fade t " + QString::number(fadeinlen) + "s %" + QString::number(fillen) + "s " + QString::number(fadeoutlen) + "s";

@@ -37,6 +37,8 @@
         <file alias="SaveTxt">icons/saveTxt.png</file>
         <file alias="NewCDProj">icons/newAudioCDProj.png</file>
         <file alias="AutoPlaze">icons/HandautoPlaze.png</file>
+        <file alias="End_FadeOut">icons/End_FadeOut.png</file>
+        <file alias="Start_FadeIn">icons/Start_FadeIn.png</file>
     </qresource>
     <qresource prefix="/buttonstateicons">
         <file alias="MP3">buttonstyleicons/notecompress24.png</file>
