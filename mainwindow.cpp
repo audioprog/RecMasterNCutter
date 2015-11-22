@@ -261,9 +261,9 @@ void MainWindow::SaveTrackFinished(int startmark)
     qint64 fullsize = 0;
     QString path = getPath();
     for (int i = 0; i < ui->tableTracks->rowCount(); i++) {
-        int row = qVariantValue<int>(ui->tableTracks->item(i, indexstart)->data(Qt::UserRole));
+        int row = ui->tableTracks->item(i, indexstart)->data(Qt::UserRole).value<int>();
         if (row == startmark) {
-            ButtonState bst = qVariantValue<ButtonState>(ui->tableTracks->item(i, 0)->data(0));
+            ButtonState bst = ui->tableTracks->item(i, 0)->data(0).value<ButtonState>();
             bst.setIconMode(QIcon::Selected);
             ui->tableTracks->item(i, 0)->setData(0, qVariantFromValue(bst));
         }
@@ -314,7 +314,7 @@ void MainWindow::MarksChanged()
     for (int i = 0; i < marks->Count(); ++i) {
         Marks::MarkTypes typ;
         if (ui->markTable->item(i, 0) != NULL) {
-            typ = static_cast<Marks::MarkTypes>(qVariantValue<int>(ui->markTable->item(i, 0)->data(Qt::DisplayRole)));
+            typ = static_cast<Marks::MarkTypes>(ui->markTable->item(i, 0)->data(Qt::DisplayRole).value<int>());
             if (typ != marks->Type(i)) {
                 typ = marks->Type(i);
                 QTableWidgetItem *wi = new QTableWidgetItem(mimages.icon(typ), "");
@@ -371,16 +371,16 @@ void MainWindow::MarksChanged()
             else {
                 if (QFile(path + "/" + wavefile).exists()) {
                     if (inProcList.contains(i)) {
-                        if (((ButtonState)qVariantValue<ButtonState>(ui->tableTracks->item(idxStartTrack, 0)->data(0))).IconMode() != QIcon::Active) {
-                            ButtonState bst = qVariantValue<ButtonState>(ui->tableTracks->item(idxStartTrack, 0)->data(0));
+                        if (((ButtonState)ui->tableTracks->item(idxStartTrack, 0)->data(0).value<ButtonState>()).IconMode() != QIcon::Active) {
+                            ButtonState bst = ui->tableTracks->item(idxStartTrack, 0)->data(0).value<ButtonState>();
                             bst.setIconMode(QIcon::Active);
                             ui->tableTracks->item(idxStartTrack, 0)->setData(0, qVariantFromValue(bst));
                         }
                         //else
 
                     }
-                    else if (((ButtonState)qVariantValue<ButtonState>(ui->tableTracks->item(idxStartTrack, 0)->data(0))).IconMode() != QIcon::Selected) {
-                        ButtonState bst = qVariantValue<ButtonState>(ui->tableTracks->item(idxStartTrack, 0)->data(0));
+                    else if (((ButtonState)ui->tableTracks->item(idxStartTrack, 0)->data(0).value<ButtonState>()).IconMode() != QIcon::Selected) {
+                        ButtonState bst = ui->tableTracks->item(idxStartTrack, 0)->data(0).value<ButtonState>();
                         bst.setIconMode(QIcon::Selected);
                         ui->tableTracks->item(idxStartTrack, 0)->setData(0, qVariantFromValue(bst));
                     }
@@ -388,14 +388,14 @@ void MainWindow::MarksChanged()
                     fullsize += lastlen;
                 }
                 else if (inProcList.contains(i)) {
-                    if (((ButtonState)qVariantValue<ButtonState>(ui->tableTracks->item(idxStartTrack, 0)->data(0))).IconMode() != QIcon::Active) {
-                        ButtonState bst = qVariantValue<ButtonState>(ui->tableTracks->item(idxStartTrack, 0)->data(0));
+                    if (((ButtonState)ui->tableTracks->item(idxStartTrack, 0)->data(0).value<ButtonState>()).IconMode() != QIcon::Active) {
+                        ButtonState bst = ui->tableTracks->item(idxStartTrack, 0)->data(0).value<ButtonState>();
                         bst.setIconMode(QIcon::Active);
                         ui->tableTracks->item(idxStartTrack, 0)->setData(0, qVariantFromValue(bst));
                     }
                 }
-                else if (((ButtonState)qVariantValue<ButtonState>(ui->tableTracks->item(idxStartTrack, 0)->data(0))).IconMode() != QIcon::Normal) {
-                    ButtonState bst = qVariantValue<ButtonState>(ui->tableTracks->item(idxStartTrack, 0)->data(0));
+                else if (((ButtonState)ui->tableTracks->item(idxStartTrack, 0)->data(0).value<ButtonState>()).IconMode() != QIcon::Normal) {
+                    ButtonState bst = ui->tableTracks->item(idxStartTrack, 0)->data(0).value<ButtonState>();
                     bst.setIconMode(QIcon::Normal);
                     ui->tableTracks->item(idxStartTrack, 0)->setData(0, qVariantFromValue(bst));
                 }
@@ -1053,7 +1053,7 @@ void MainWindow::on_tableTracks_cellDoubleClicked(int row, int column)
     try {
     if (ui->tableTracks->item(row, column) != NULL) {
         if (column == 0) {
-            int start = qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole));
+            int start = ui->tableTracks->item(row, indexstart)->data(Qt::UserRole).value<int>();
             if (marks->NextTrackEnd(start) > -1) {
                 if (marks->Count(Marks::EndTrack, start) > 0) {
                     QString path = getPath();
@@ -1061,7 +1061,7 @@ void MainWindow::on_tableTracks_cellDoubleClicked(int row, int column)
 
                     tracks->SaveTrack(start);
 
-                    ButtonState st = qVariantValue<ButtonState>(ui->tableTracks->item(row, 0)->data(0));
+                    ButtonState st = ui->tableTracks->item(row, 0)->data(0).value<ButtonState>();
                     st.setIconMode(QIcon::Disabled);
                     ui->tableTracks->item(row, 0)->setData(0, qVariantFromValue(st));
                 }
@@ -1075,13 +1075,13 @@ void MainWindow::on_tableTracks_cellDoubleClicked(int row, int column)
 
             if (QFile(path + filename).exists()) {
                 QProcess::startDetached(waveprog, QStringList(path + filename));
-                ButtonState st = qVariantValue<ButtonState>(ui->tableTracks->item(row, 1)->data(0));
+                ButtonState st = ui->tableTracks->item(row, 1)->data(0).value<ButtonState>();
                 st.setIconMode(QIcon::Disabled);
                 ui->tableTracks->item(row, 1)->setData(0, qVariantFromValue(st));
             }
         }
         else if (column == indexstart) {
-            int idx = qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole));
+            int idx = ui->tableTracks->item(row, indexstart)->data(Qt::UserRole).value<int>();
             ui->markTable->selectRow(idx);
         }
         else if (column == indexmp3) {
@@ -1111,7 +1111,7 @@ void MainWindow::on_tableTracks_cellDoubleClicked(int row, int column)
                     //emit mDebug(lameprog.replace('/', '\\') + " " + params.join(" ").replace('/', '\\'));
 
                     QProcess::startDetached(lameprog, params);
-                    ButtonState st = qVariantValue<ButtonState>(ui->tableTracks->item(row, indexmp3)->data(0));
+                    ButtonState st = ui->tableTracks->item(row, indexmp3)->data(0).value<ButtonState>();
                     st.setIconMode(QIcon::Selected);
                     ui->tableTracks->item(row, indexmp3)->setData(0, qVariantFromValue(st));
                 }
@@ -1126,7 +1126,7 @@ void MainWindow::on_tableTracks_cellDoubleClicked(int row, int column)
 void MainWindow::on_tableTracks_cellChanged(int row, int column)
 {
     if (column == indextext) {
-        int idx = qVariantValue<int>(ui->tableTracks->item(row, indexstart)->data(Qt::UserRole));
+        int idx = ui->tableTracks->item(row, indexstart)->data(Qt::UserRole).value<int>();
         marks->setText(idx, ui->tableTracks->item(row, column)->text());
     }
 }
@@ -1219,7 +1219,7 @@ QString MainWindow::waveFile(int Nr, int MarkNr)
         path += "/";
     int idx = MarkNr;
     if (idx == -1)
-        idx = qVariantValue<int>(ui->tableTracks->item(Nr, indexstart)->data(Qt::UserRole));
+        idx = ui->tableTracks->item(Nr, indexstart)->data(Qt::UserRole).value<int>();
     qint64 pos = marks->Pos(idx);
     QString filename = QString::number(pos) + ".wav";
     if (MarkNr == -1 && QFile(path + filename).exists()) {

@@ -1,6 +1,6 @@
 //#define QUAZIP_STATIC
 
-#include <QtGui/QApplication>
+#include <QApplication>
 #include <QSettings>
 #include <QXmlStreamReader>
 #include <QDir>

@@ -7,5 +7,5 @@ IconDelegate::IconDelegate(QObject *parent) :
 
 void IconDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    painter->drawPixmap(option.rect.left(), option.rect.top(), images.pix(qVariantValue<int>(index.data())));
+    painter->drawPixmap(option.rect.left(), option.rect.top(), images.pix(index.data().value<int>()));
 }

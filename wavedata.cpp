@@ -86,7 +86,7 @@ void WaveData::run()
         int retnr = 0;
         if (samplesize == 3) {
             maxclip = 0x7fffff;
-            qint32 max1[channel], max2[channel];
+            qint32 max1[MAXCHANNEL], max2[MAXCHANNEL];
             qint32 act;
             for(int i = 0; retnr < ret.count() && (i + channel) * samplesize < ba.count() && !breakWork; i+=channel) {
                 for (uint j = 0; j < channel; j++) {
@@ -124,7 +124,7 @@ void WaveData::run()
         }
         else if (samplesize == 2) {
             maxclip = 0x7fff;
-            qint16 max1[channel], max2[channel];
+            qint16 max1[MAXCHANNEL], max2[MAXCHANNEL];
             qint16 act;
 
             for(int i = 0; retnr < ret.count() && (i + channel) * samplesize < ba.count() && !breakWork; i+=channel) {
@@ -157,7 +157,7 @@ void WaveData::run()
         }
         else if (samplesize == 4) {
             maxclip = 0x7fffffff;
-            qint32 max1[channel], max2[channel];
+            qint32 max1[MAXCHANNEL], max2[MAXCHANNEL];
             qint32 act;
 
             for(int i = 0; retnr < ret.count() && (i + channel) * samplesize < ba.count() && !breakWork; i+=channel) {
@@ -191,7 +191,7 @@ void WaveData::run()
         else if (samplesize == 4) {
             maxclip = 0x7fff;
             float forintmax = maxclip;
-            float max1[channel], max2[channel];
+            float max1[MAXCHANNEL], max2[MAXCHANNEL];
             float act;
             float *actdata = reinterpret_cast<float*>(ba.data());
 

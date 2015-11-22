@@ -6,7 +6,7 @@
 
 QT += core gui
 #QT += network
-QT += multimedia
+QT += multimedia widgets
 
 TARGET = RecMasterNCutter
 TEMPLATE = app
@@ -122,9 +122,7 @@ OTHER_FILES += \
     icons/openrec.png \
     icons/player_play_atline.png \
     RecMasterNCutter_de.ts \
-    quazip/zlibstat.lib \
-    RecMasterNCutter_de.qm \
-    RecMasterNCutter_de.qm \
+	RecMasterNCutter_de.qm \
     icons/Cd-Edit-32.png \
     icons/saveTxt.png \
     icons/newAudioCDProj.png \
@@ -141,13 +139,7 @@ TRANSLATIONS = RecMasterNCutter_de.ts
 unix:!symbian {
     LIBS += -lz
 }
-win32 {
-    win32: LIBS += -L$$PWD/quazip/ -lzlibstat
-    PRE_TARGETDEPS += $$PWD/quazip/zlibstat.lib
-}
+LIBS += -L$$PWD/quazip/ -lzlibstat
+PRE_TARGETDEPS += $$PWD/quazip/zlibstat.lib
 
-
-
-
-
-
+DEPENDPATH += $$PWD/quazip

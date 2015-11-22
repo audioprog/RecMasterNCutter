@@ -112,8 +112,8 @@ return m_headerLength;
 int WavFile::SampleCount() const
 {
     int ret = size() - m_headerLength;
-    if (m_fileFormat.channels() > 0)
-        ret /= (m_fileFormat.channels() * (m_fileFormat.sampleSize() / 8));
+    if (m_fileFormat.channelCount() > 0)
+        ret /= (m_fileFormat.channelCount() * (m_fileFormat.sampleSize() / 8));
     return ret;
 }
 
@@ -156,9 +156,9 @@ bool WavFile::readHeader()
                 seek(pos() + dataHeader.descriptor.size + 8);
 
             int bps = qFromLittleEndian<quint16>(header.wave.bitsPerSample);
-            m_fileFormat.setChannels(qFromLittleEndian<quint16>(header.wave.numChannels));
+            m_fileFormat.setChannelCount(qFromLittleEndian<quint16>(header.wave.numChannels));
             m_fileFormat.setCodec("audio/pcm");
-            m_fileFormat.setFrequency(qFromLittleEndian<quint32>(header.wave.sampleRate));
+            m_fileFormat.setSampleRate(qFromLittleEndian<quint32>(header.wave.sampleRate));
             m_fileFormat.setSampleSize(qFromLittleEndian<quint16>(header.wave.bitsPerSample));
             if (header.wave.audioFormat == 3)
                 m_fileFormat.setSampleType(QAudioFormat::Float);

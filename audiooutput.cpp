@@ -308,8 +308,8 @@ void AudioOutput::startPlaying(qint64 newpos)
         convert = false;
         QAudioFormat format;
         // Set up the format, eg.
-        format.setFrequency(44100);
-        format.setChannels(2);
+        format.setSampleRate(44100);
+        format.setChannelCount(2);
         format.setSampleSize(abs(marks->SampleSize()) * 8);
         format.setCodec("audio/pcm");
         format.setByteOrder(QAudioFormat::LittleEndian);

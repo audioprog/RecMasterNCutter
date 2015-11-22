@@ -7,8 +7,8 @@
 void ButtonStateItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                          const QModelIndex &index) const
 {
-    if (qVariantCanConvert<ButtonState>(index.data())) {
-        ButtonState buttonState = qVariantValue<ButtonState>(index.data());
+    if (index.data().canConvert<ButtonState>()) {
+        ButtonState buttonState = index.data().value<ButtonState>();
 
         if (option.state & QStyle::State_Selected)
             painter->fillRect(option.rect, option.palette.highlight());
@@ -27,8 +27,8 @@ void ButtonStateItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 QSize ButtonStateItemDelegate::sizeHint(const QStyleOptionViewItem &option,
                              const QModelIndex &index) const
 {
-    if (qVariantCanConvert<ButtonState>(index.data())) {
-        ButtonState buttonState = qVariantValue<ButtonState>(index.data());
+    if (index.data().canConvert<ButtonState>()) {
+        ButtonState buttonState = index.data().value<ButtonState>();
         return buttonState.sizeHint();
     } else {
         return QStyledItemDelegate::sizeHint(option, index);
@@ -42,9 +42,9 @@ QWidget *ButtonStateItemDelegate::createEditor(QWidget *parent,
                                     const QModelIndex &index) const
 
 {
-    if (qVariantCanConvert<ButtonState>(index.data())) {
+    if (index.data().canConvert<ButtonState>()) {
         ButtonStateWidget *editor = new ButtonStateWidget(parent);
-        editor->setButtonState(qVariantValue<ButtonState>(index.data()));
+        editor->setButtonState(index.data().value<ButtonState>());
         editor->setPos(index.row(), index.column());
         connect(editor, SIGNAL(editingFinished()),
                 this, SLOT(commitAndCloseEditor()));
@@ -59,8 +59,8 @@ QWidget *ButtonStateItemDelegate::createEditor(QWidget *parent,
 void ButtonStateItemDelegate::setEditorData(QWidget *editor,
                                  const QModelIndex &index) const
 {
-    if (qVariantCanConvert<ButtonState>(index.data())) {
-        ButtonState buttonState = qVariantValue<ButtonState>(index.data());
+    if (index.data().canConvert<ButtonState>()) {
+        ButtonState buttonState = index.data().value<ButtonState>();
         ButtonStateWidget *buttonStateWidget = qobject_cast<ButtonStateWidget *>(editor);
         buttonStateWidget->setButtonState(buttonState);
     } else {
@@ -73,7 +73,7 @@ void ButtonStateItemDelegate::setEditorData(QWidget *editor,
 void ButtonStateItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
                                 const QModelIndex &index) const
 {
-    if (qVariantCanConvert<ButtonState>(index.data())) {
+    if (index.data().canConvert<ButtonState>()) {
         ButtonStateWidget *buttonStateWidget = qobject_cast<ButtonStateWidget *>(editor);
         model->setData(index, qVariantFromValue(buttonStateWidget->buttonState()));
     } else {

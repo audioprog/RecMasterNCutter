@@ -6,6 +6,8 @@
 #include <QVector>
 #include <QReadWriteLock>
 
+#define MAXCHANNEL 2
+
 class WaveData : public QThread
 {
     Q_OBJECT
