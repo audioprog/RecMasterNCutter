@@ -35,7 +35,7 @@
         <file alias="PlayFromMark">icons/player_play_atline.png</file>
         <file alias="CDlabel">icons/Cd-Edit-32.png</file>
         <file alias="SaveTxt">icons/saveTxt.png</file>
-        <file alias="NewCDProj">icons/newAudioCDProj.png</file>
+        <file alias="NewCDProj.png">icons/newAudioCDProj.png</file>
         <file alias="AutoPlaze">icons/HandautoPlaze.png</file>
         <file alias="End_FadeOut">icons/End_FadeOut.png</file>
         <file alias="Start_FadeIn">icons/Start_FadeIn.png</file>

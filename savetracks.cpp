@@ -22,10 +22,11 @@ void SaveTracks::canread()
     //qDebug() << out;
 }
 
-void SaveTracks::SaveTrack(int TrackNr)
+void SaveTracks::SaveTrack(int TrackNr, const QString& fileTitle)
 {
     //qDebug() << "SaveTrack" << TrackNr << isworking;
     proclist[TrackNr] = QStringList();
+    fileTitles[TrackNr] = fileTitle;
     if (!isworking)
         Start();
 }
@@ -114,7 +115,7 @@ void SaveTracks::Start()
         }
         if (last > 0) {
             if (proclist.keys().first() == last - 1) { // No Marks between Start and End of Track
-                Save(proclist.keys().first(), -1, -1, last);
+                Save(proclist.keys().first(), -1, -1, last, fileTitles[proclist.keys().first()]);
             }
             else {
                 int silent = 0;
@@ -134,14 +135,14 @@ void SaveTracks::Start()
                         fadeout = i;
                 }
                 if (!havesilent && silent == 0) {
-                    Save(proclist.keys().first(), fadein, fadeout, last);
+                    Save(proclist.keys().first(), fadein, fadeout, last, fileTitles[proclist.keys().first()]);
                 }
                 else if (!havesilent && silent > 0) { // silent starts, but not end
                     last = firstsilent; // set Track-end to silent start
-                    Save(proclist.keys().first(), fadein, fadeout, last);
+                    Save(proclist.keys().first(), fadein, fadeout, last, fileTitles[proclist.keys().first()]);
                 }
                 else if (havesilent) {
-                    SaveMerged(proclist.keys().first(), fadein, fadeout, last);
+                    SaveMerged(proclist.keys().first(), fadein, fadeout, last, fileTitles[proclist.keys().first()]);
                 }
             }
         }
@@ -155,11 +156,11 @@ void SaveTracks::Start()
         isworking = false;
 }
 
-void SaveTracks::Save(int startmark, int faddin, int faddout, int endmark)
+void SaveTracks::Save(int startmark, int faddin, int faddout, int endmark, const QString& fileTitle)
 {
     isworking = true;
     QStringList strlist;
-    strlist << "-V3" << "-r" << "44100" << "-s" << "-3" << "-c" << "2" << file->fileName() << "-t" << "wavpcm" << path + QString::number(marks->Pos(startmark)) + ".wav"
+    strlist << "-V3" << "-r" << "44100" << "-s" << "-3" << "-c" << "2" << file->fileName() << "-t" << "wavpcm" << path + fileTitle + ".wav"
                               << "trim" << QString::number(marks->Pos(startmark)) + "s" << QString::number(marks->Pos(endmark) - marks->Pos(startmark)) + "s";
     if (faddin > -1 && faddout > -1)
         strlist << "fade" << "t" << QString::number(marks->Pos(faddin) - marks->Pos(startmark)) + "s" << QString::number(marks->Pos(endmark) - marks->Pos(startmark)) + "s"
@@ -181,7 +182,7 @@ void SaveTracks::Save(int startmark, int faddin, int faddout, int endmark)
     //qDebug() << strlist;
 }
 
-void SaveTracks::SaveMerged(int startmark, int fadein, int fadeout, int endmark)
+void SaveTracks::SaveMerged(int startmark, int fadein, int fadeout, int endmark, const QString& fileTitle)
 {
     QStringList parts;
     int silence = 0;
@@ -192,7 +193,7 @@ void SaveTracks::SaveMerged(int startmark, int fadein, int fadeout, int endmark)
     qint64 fadeoutlast = -1;
     qint64 fillen = 0;
 
-    QString mainfilecmd = "\"" + soxpath + "sox\" -r 44100 -s -3 -c 2 \"" + file->fileName() + "\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".wav\" trim "
+    QString mainfilecmd = "\"" + soxpath + "sox\" -r 44100 -s -3 -c 2 \"" + file->fileName() + "\" -t wavpcm \"" + path + fileTitle + ".wav\" trim "
             + QString::number(marks->Pos(startmark)) + "s " + QString::number(marks->Pos(endmark) - marks->Pos(startmark)) + "s";
     parts << mainfilecmd;
     for (int i = startmark + 1; i < endmark; i++) {
@@ -203,7 +204,7 @@ void SaveTracks::SaveMerged(int startmark, int fadein, int fadeout, int endmark)
                     fadeinlen += (marks->Pos(i) - marks->Pos(last));
                 if (i > fadeout && fadeoutlast > -1)
                     fadeoutlen += marks->Pos(i) - marks->Pos(fadeoutlast);
-                QString part = "\"" + soxpath + "sox\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".wav\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + "." + QString::number(++nr) + ".wav\" trim "
+                QString part = "\"" + soxpath + "sox\" -t wavpcm \"" + path + fileTitle + ".wav\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + "." + QString::number(++nr) + ".wav\" trim "
                         + QString::number(marks->Pos(last) - marks->Pos(startmark)) + "s " + QString::number(marks->Pos(i) - marks->Pos(last)) + "s";
                 fillen += marks->Pos(i) - marks->Pos(last) - 4410;
                 parts.append(part);
@@ -223,19 +224,19 @@ void SaveTracks::SaveMerged(int startmark, int fadein, int fadeout, int endmark)
             fadeoutlast = marks->Pos(i);
     }
     if (last > 0) {
-        parts << "\"" + soxpath + "sox\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".wav\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + "." + QString::number(++nr) + ".wav\" trim "
+        parts << "\"" + soxpath + "sox\" -t wavpcm \"" + path + fileTitle + ".wav\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + "." + QString::number(++nr) + ".wav\" trim "
                 + QString::number(marks->Pos(last) - marks->Pos(startmark)) + "s " + QString::number(marks->Pos(endmark) - marks->Pos(last)) + "s";
         fillen += marks->Pos(endmark) - marks->Pos(last);
     }
     fadeoutlen = marks->Pos(endmark) - fadeoutlast;
-    parts.append("del \"" + path + QString::number(marks->Pos(startmark)) + ".wav\"");
+    parts.append("del \"" + path + fileTitle + ".wav\"");
     if (parts.length() > 0) {
 
         QString command = "\"" + soxpath + "sox\" ";
         for (int i = 1; i <= nr; i++)
             command += "\"" + path + QString::number(marks->Pos(startmark)) + "." + QString::number(i) + ".wav\" ";
         if (fadein == -1 && fadeout == -1)
-            command += "-t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".wav\" splice 4410s gain -n silence 1 0.5 -67d -1 1 -71d";
+            command += "-t wavpcm \"" + path + fileTitle + ".wav\" splice 4410s gain -n silence 1 0.5 -67d -1 1 -71d";
         else
             command += "-t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".tofade.wav\" splice 4410s gain -n silence 1 0.5 -67d -1 1 -71d";
         parts << command;
@@ -244,18 +245,18 @@ void SaveTracks::SaveMerged(int startmark, int fadein, int fadeout, int endmark)
             parts << "del \"" + path.replace('/', '\\') + QString::number(marks->Pos(startmark)) + "." + QString::number(i) + ".wav\"";
 
         if (fadein > -1 && fadeout > -1) {
-            parts << "\"" + soxpath + "sox\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".tofade.wav\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".wav\" fade t " + QString::number(fadeinlen) + "s %" + QString::number(fillen) + "s " + QString::number(fadeoutlen) + "s";
+            parts << "\"" + soxpath + "sox\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".tofade.wav\" -t wavpcm \"" + path + fileTitle + ".wav\" fade t " + QString::number(fadeinlen) + "s %" + QString::number(fillen) + "s " + QString::number(fadeoutlen) + "s";
             parts << "del \"" + path + QString::number(marks->Pos(startmark)) + ".tofade.wav\"";
             //parts << "fade t " + QString::number(fadeinlen) + "s 0 " + QString::number(fadeoutlen) + "s";
         }
         else if (fadein > -1)
         {
-            parts << "\"" + soxpath + "sox\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".tofade.wav\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".wav\" fade t " + QString::number(fadeinlen) + "s";
+            parts << "\"" + soxpath + "sox\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".tofade.wav\" -t wavpcm \"" + path + fileTitle + ".wav\" fade t " + QString::number(fadeinlen) + "s";
             parts << "del \"" + path + QString::number(marks->Pos(startmark)) + ".tofade.wav\"";
         }
         else if (fadeout > -1)
         {
-            parts << "\"" + soxpath + "sox\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".tofade.wav\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".wav\" fade t 0 %" + QString::number(fillen) + "s " + QString::number(fadeoutlen) + "s";
+            parts << "\"" + soxpath + "sox\" -t wavpcm \"" + path + QString::number(marks->Pos(startmark)) + ".tofade.wav\" -t wavpcm \"" + path + fileTitle + ".wav\" fade t 0 %" + QString::number(fillen) + "s " + QString::number(fadeoutlen) + "s";
             parts << "del \"" + path + QString::number(marks->Pos(startmark)) + ".tofade.wav\"";
         }
             //parts << "fade t 0 0 " + QString::number(fadeoutlen) + "s";

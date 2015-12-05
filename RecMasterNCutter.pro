@@ -8,6 +8,8 @@ QT += core gui
 #QT += network
 QT += multimedia widgets
 
+include(quazip/quazip.pri)
+
 TARGET = RecMasterNCutter
 TEMPLATE = app
 
@@ -30,15 +32,6 @@ SOURCES += main.cpp\
     buttonstateitemdelegate.cpp \
     buttonstate.cpp \
     buttonstatewidget.cpp \
-    quazip/zip.c \
-    quazip/unzip.c \
-    quazip/quazipnewinfo.cpp \
-    quazip/quazipfile.cpp \
-    quazip/quazip.cpp \
-    quazip/quacrc32.cpp \
-    quazip/quaadler32.cpp \
-    quazip/qioapi.cpp \
-    quazip/JlCompress.cpp \
     ziprw.cpp
 
 HEADERS  += mainwindow.h \
@@ -54,21 +47,6 @@ HEADERS  += mainwindow.h \
     buttonstateitemdelegate.h \
     buttonstate.h \
     buttonstatewidget.h \
-    quazip/zip.h \
-    quazip/unzip.h \
-    quazip/quazipnewinfo.h \
-    quazip/quazipfileinfo.h \
-    quazip/quazipfile.h \
-    quazip/quazip_global.h \
-    quazip/quazip.h \
-    quazip/quacrc32.h \
-    quazip/quachecksum32.h \
-    quazip/quaadler32.h \
-    quazip/JlCompress.h \
-    quazip/ioapi.h \
-    quazip/crypt.h \
-    quazip/zconf.h \
-    quazip/zlib.h \
     ziprw.h
 
 FORMS    += mainwindow.ui \
@@ -135,11 +113,3 @@ RESOURCES += \
 RC_FILE = myapp.rc
 
 TRANSLATIONS = RecMasterNCutter_de.ts
-
-unix:!symbian {
-    LIBS += -lz
-}
-LIBS += -L$$PWD/quazip/ -lzlibstat
-PRE_TARGETDEPS += $$PWD/quazip/zlibstat.lib
-
-DEPENDPATH += $$PWD/quazip

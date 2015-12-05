@@ -26,7 +26,7 @@ signals:
     void Debug(QString text);
 
 public slots:
-    void SaveTrack(int TrackNr);
+    void SaveTrack(int TrackNr, const QString &fileTitle);
     void ReadSettings();
 
 private slots:
@@ -36,8 +36,8 @@ private slots:
 private:
     void Start();
 
-    void Save(int startmark, int fadein, int fadeout, int endmark);
-    void SaveMerged(int startmark, int fadein, int fadeout, int endmark);
+    void Save(int startmark, int fadein, int fadeout, int endmark, const QString &fileTitle);
+    void SaveMerged(int startmark, int fadein, int fadeout, int endmark, const QString &fileTitle);
 
     QProcess proc;
 
@@ -50,6 +50,7 @@ private:
     //QList<int> list;
 
     QHash<int, QStringList> proclist;
+    QHash<int, QString> fileTitles;
 };
 
 #endif // SAVETRACKS_H

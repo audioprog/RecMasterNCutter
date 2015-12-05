@@ -1059,7 +1059,8 @@ void MainWindow::on_tableTracks_cellDoubleClicked(int row, int column)
                     QString path = getPath();
                     tracks->SetPath(path);
 
-                    tracks->SaveTrack(start);
+                    QString filename = waveFile(row);
+                    tracks->SaveTrack(start, filename);
 
                     ButtonState st = ui->tableTracks->item(row, 0)->data(0).value<ButtonState>();
                     st.setIconMode(QIcon::Disabled);
