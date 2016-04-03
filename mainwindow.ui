@@ -1008,6 +1008,39 @@
     </layout>
    </widget>
   </widget>
+  <widget class="QDockWidget" name="dockWidget">
+   <property name="windowTitle">
+    <string>Icons</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_8">
+    <layout class="QVBoxLayout" name="verticalLayout_12">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QTreeWidget" name="treeWidget">
+       <column>
+        <property name="text">
+         <string notr="true">1</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
   <action name="action_Open">
    <property name="icon">
     <iconset resource="icons.qrc">
@@ -1340,8 +1373,8 @@
   </action>
   <action name="actionSave_Track">
    <property name="icon">
-    <iconset>
-     <normaloff>:/symbols/icons/saveWave.png</normaloff>:/symbols/icons/saveWave.png</iconset>
+    <iconset resource="icons.qrc">
+     <normaloff>:/symbols/SaveWave</normaloff>:/symbols/SaveWave</iconset>
    </property>
    <property name="text">
     <string>&amp;Save Track</string>
@@ -1507,8 +1540,8 @@
   </action>
   <action name="actionCreateCDLabel">
    <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/symbols/CDlabel</normaloff>:/symbols/CDlabel</iconset>
+    <iconset resource="icons2.qrc">
+     <normaloff>:/icons2/cdlabel</normaloff>:/icons2/cdlabel</iconset>
    </property>
    <property name="text">
     <string>CreateCDLabel</string>
@@ -1534,8 +1567,8 @@
   </action>
   <action name="actionSaveTexts">
    <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/symbols/SaveTxt</normaloff>:/symbols/SaveTxt</iconset>
+    <iconset resource="icons2.qrc">
+     <normaloff>:/icons2/savetxt</normaloff>:/icons2/savetxt</iconset>
    </property>
    <property name="text">
     <string>SaveTexts</string>
@@ -1543,8 +1576,8 @@
   </action>
   <action name="actionNewAudioCDProject">
    <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/symbols/NewCDProj.png</normaloff>:/symbols/NewCDProj.png</iconset>
+    <iconset resource="icons2.qrc">
+     <normaloff>:/icons2/audiocdproj</normaloff>:/icons2/audiocdproj</iconset>
    </property>
    <property name="text">
     <string>NewAudioCDProject</string>
@@ -1567,8 +1600,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/symbols/AutoPlaze</normaloff>:/symbols/AutoPlaze</iconset>
+    <iconset resource="icons2.qrc">
+     <normaloff>:/icons2/autoplace</normaloff>:/icons2/autoplace</iconset>
    </property>
    <property name="text">
     <string>AutoPlaze</string>
@@ -1576,8 +1609,8 @@
   </action>
   <action name="actionTrackEnd_FadeIn">
    <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/symbols/End_FadeOut</normaloff>:/symbols/End_FadeOut</iconset>
+    <iconset resource="icons2.qrc">
+     <normaloff>:/icons2/endfadeout</normaloff>:/icons2/endfadeout</iconset>
    </property>
    <property name="text">
     <string>TrackEnd FadeIn</string>
@@ -1585,8 +1618,8 @@
   </action>
   <action name="actionTrackStart_FadeIn">
    <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/symbols/Start_FadeIn</normaloff>:/symbols/Start_FadeIn</iconset>
+    <iconset resource="icons2.qrc">
+     <normaloff>:/icons2/startfadein</normaloff>:/icons2/startfadein</iconset>
    </property>
    <property name="text">
     <string>TrackStart FadeIn</string>
@@ -1604,6 +1637,7 @@
  </customwidgets>
  <resources>
   <include location="icons.qrc"/>
+  <include location="icons2.qrc"/>
  </resources>
  <connections>
   <connection>

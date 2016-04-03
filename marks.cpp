@@ -9,7 +9,7 @@ Marks::Marks()
     _startnr = 1;
 
     timer = new QTimer();
-    connect(timer, SIGNAL(timeout()), this, SLOT(tmpSave()));
+    connect(timer, &QTimer::timeout, this, &Marks::tmpSave);
 }
 
 void Marks::Save(QFile *file, QStringList label)
@@ -18,6 +18,7 @@ void Marks::Save(QFile *file, QStringList label)
     validate();
     file->open(QFile::WriteOnly);
     QTextStream ts(file);
+    ts.setCodec("UTF-8");
     ts << (_samplesize * 8) << ";" << _startnr << ";" << label.join("\\") << "\n";
     for (int i = 0; i < _pos.count(); i++) {
         if (_strings.at(i) != "")
@@ -44,7 +45,7 @@ QStringList Marks::Read(QFile *file)
     if (file->exists()) {
         file->open(QFile::ReadOnly);
         if (!file->atEnd()) {
-            QString line = file->readLine();
+            QString line = QString::fromUtf8(file->readLine());
             bool ok;
             _samplesize = line.section(';', 0, 0).toInt(&ok);
             if (!ok) {

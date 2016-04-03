@@ -10,6 +10,8 @@ QT += multimedia widgets
 
 include(quazip/quazip.pri)
 
+QMAKE_RESOURCE_FLAGS += -no-compress
+
 TARGET = RecMasterNCutter
 TEMPLATE = app
 
@@ -109,7 +111,8 @@ OTHER_FILES += \
     icons/Start_FadeIn.png
 
 RESOURCES += \
-    icons.qrc
+    icons.qrc \
+    icons2.qrc
 RC_FILE = myapp.rc
 
 TRANSLATIONS = RecMasterNCutter_de.ts

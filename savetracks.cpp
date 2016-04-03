@@ -160,7 +160,7 @@ void SaveTracks::Save(int startmark, int faddin, int faddout, int endmark, const
 {
     isworking = true;
     QStringList strlist;
-    strlist << "-V3" << "-r" << "44100" << "-s" << "-3" << "-c" << "2" << file->fileName() << "-t" << "wavpcm" << path + fileTitle + ".wav"
+    strlist << "-V3" << "-r" << "44100" << "-s" << "-3" << "-c" << "2" << file->fileName() << "-t" << "wavpcm" << path + fileTitle
                               << "trim" << QString::number(marks->Pos(startmark)) + "s" << QString::number(marks->Pos(endmark) - marks->Pos(startmark)) + "s";
     if (faddin > -1 && faddout > -1)
         strlist << "fade" << "t" << QString::number(marks->Pos(faddin) - marks->Pos(startmark)) + "s" << QString::number(marks->Pos(endmark) - marks->Pos(startmark)) + "s"

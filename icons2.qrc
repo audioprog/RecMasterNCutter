@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/icons2">
+        <file alias="audiocdproj">icons/newAudioCDProj.png</file>
+        <file alias="savetxt">icons/saveTxt.png</file>
+        <file alias="cdlabel">icons/Cd-Edit-32.png</file>
+        <file alias="endfadeout">icons/End_FadeOut.png</file>
+        <file alias="startfadein">icons/Start_FadeIn.png</file>
+        <file alias="autoplace">icons/HandautoPlaze.png</file>
+    </qresource>
+</RCC>

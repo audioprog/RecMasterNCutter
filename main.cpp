@@ -14,6 +14,8 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
+    Q_INIT_RESOURCE(icons);
+
     QString locale = QLocale::system().name().left(2);
     //qDebug() << locale;
 

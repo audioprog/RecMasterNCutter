@@ -1,5 +1,6 @@
 #include <QFile>
 #include <QFileDialog>
+#include <QFileSystemModel>
 #include <QTime>
 #include <QCloseEvent>
 #include <QProcess>
@@ -15,6 +16,48 @@
 #include "buttonstate.h"
 #include "wavfile.h"
 #include "ziprw.h"
+
+void MainWindow::testSubdirAdd(QString fileDir, QHash<QString,QTreeWidgetItem*>& parents)
+{
+    QDir dir(fileDir);
+    QFileInfoList list = dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
+
+    for (const QFileInfo& item : list)
+    {
+        if (item.isFile())
+        {
+            QPixmap pix(item.filePath());
+            QTreeWidgetItem* treeItem = new QTreeWidgetItem(QStringList(item.fileName()));
+            treeItem->setData(0, Qt::DecorationRole, pix);
+            QString path = item.path();
+            if (parents[path] != NULL)
+            {
+                parents[path]->addChild(treeItem);
+            }
+            else
+            {
+                ui->treeWidget->addTopLevelItem(treeItem);
+            }
+        }
+        else if (item.isDir())
+        {
+            QTreeWidgetItem* treeItem = new QTreeWidgetItem(QStringList(item.fileName()));
+            QString newDir = item.filePath();
+            parents[newDir] = treeItem;
+            QString parentDir = item.path();
+
+            if (parents[parentDir] != NULL)
+            {
+                parents[parentDir]->addChild(treeItem);
+            }
+            else
+            {
+                ui->treeWidget->addTopLevelItem(treeItem);
+            }
+            testSubdirAdd(newDir, parents);
+        }
+    }
+}
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -156,6 +199,10 @@ MainWindow::MainWindow(QWidget *parent) :
     } catch (...) {
         emit mDebug("MainWindow Konstruktor");
     }
+
+    QString fileDir = ":/";
+    QHash<QString,QTreeWidgetItem*> parents;
+    testSubdirAdd(fileDir, parents);
 
     initializing = false;
 }
@@ -1221,13 +1268,9 @@ QString MainWindow::waveFile(int Nr, int MarkNr)
     int idx = MarkNr;
     if (idx == -1)
         idx = ui->tableTracks->item(Nr, indexstart)->data(Qt::UserRole).value<int>();
-    qint64 pos = marks->Pos(idx);
-    QString filename = QString::number(pos) + ".wav";
-    if (MarkNr == -1 && QFile(path + filename).exists()) {
-        QString newname = getFilename(Nr);
-        QFile(path + filename).rename(path + newname + ".wav");
-        return newname + ".wav";
-    }
+    //qint64 pos = marks->Pos(idx);
+    QString filename = getFilename(Nr) + ".wav";
+
     if (!QFile(path + filename).exists()) {
         QString newname = QString("%1").arg(Nr + ui->sbxStartNr->value(), 2, 10, QChar('0'));
         QStringList lst = QDir(path).entryList(QStringList(newname + "*.wav"));
@@ -1240,7 +1283,11 @@ QString MainWindow::waveFile(int Nr, int MarkNr)
 QString MainWindow::getFilename(int Nr)
 {
     QString newname = QString("%1").arg(Nr + ui->sbxStartNr->value(), 2, 10, QChar('0'));
-    QString nfilname = ui->tableTracks->item(Nr, indextext)->text().simplified().replace(QRegExp("[/\\\\$\\?~+\\'\\\"&]"), " ").simplified();
+    QString nfilname;
+    if (Nr < ui->tableTracks->rowCount() && indextext < ui->tableTracks->columnCount() && ui->tableTracks->item(Nr, indextext))
+    {
+        nfilname = ui->tableTracks->item(Nr, indextext)->text().simplified().replace(QRegExp("[/\\\\$\\?~+\\'\\\"&]"), " ").simplified();
+    }
     if (nfilname != "")
         newname += " " + nfilname;
     return newname;

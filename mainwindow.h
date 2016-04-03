@@ -17,6 +17,8 @@ namespace Ui {
     class MainWindow;
 }
 
+class QTreeWidgetItem;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -218,6 +220,7 @@ private:
     int indexmp3;
 
     bool DoNotNotify;
+    void testSubdirAdd(QString fileDir, QHash<QString, QTreeWidgetItem *> &parents);
 };
 
 #endif // MAINWINDOW_H
