@@ -45,6 +45,8 @@ private slots:
 
     void on_tbtnOpts2Del_clicked();
 
+    void on_toolButtonPaRec_clicked();
+
 private:
     Ui::OptionsDialog *ui;
 };

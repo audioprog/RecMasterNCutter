@@ -25,6 +25,7 @@ OptionsDialog::OptionsDialog(QWidget *parent) :
     QString mp3path = settings.value("MP3Path", QDir::homePath()).toString();
 #endif
     ui->ledMp3Path->setText(mp3path);
+    ui->lineEditPaRec->setText(settings.value("parec", "").toString());
     ui->ledSoxPath->setText(settings.value("soxpath", "").toString());
     ui->ledLamePath->setText(lameprog);
     ui->ledAudioProc->setText(waveprog);
@@ -57,6 +58,7 @@ void OptionsDialog::on_buttonBox_accepted()
     QSettings settings;
     settings.setValue("PathList", lst);
     settings.setValue("MP3Path", ui->ledMp3Path->text());
+    settings.setValue("parec", ui->lineEditPaRec->text());
     settings.setValue("soxpath", ui->ledSoxPath->text());
     settings.setValue("Lame", ui->ledLamePath->text());
     settings.setValue("WaveProc", ui->ledAudioProc->text());
@@ -181,4 +183,16 @@ void OptionsDialog::on_tbtnOpts2Del_clicked()
 {
     if (ui->lstwOpts2->selectedItems().count() > 0)
         ui->lstwOpts2->takeItem(ui->lstwOpts2->currentRow());
+}
+
+void OptionsDialog::on_toolButtonPaRec_clicked()
+{
+#ifdef Q_OS_WIN32
+    QString file = QFileDialog::getOpenFileName(this, "parec Aufnehme", ui->lineEditPaRec->text(), "parec.exe");
+#else
+    QString file = QFileDialog::getOpenFileName(this, "parec Aufnehme", ui->lineEditPaRec->text(), "");
+#endif
+    if (file != "") {
+        ui->lineEditPaRec->setText(file);
+    }
 }

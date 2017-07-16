@@ -121,8 +121,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->actionLastMarkEnd_Silence->setIcon(mimages.icon(4));
     ui->FollowWaveEnd->SetFollowEnd(true);
     ui->FollowWaveEnd->AddInsertPos(0.0);
-    ui->FollowWaveEnd->AddInsertPos(0.6);
-    ui->FollowWaveEnd->AddInsertPos(0.9);
+    ui->FollowWaveEnd->AddInsertPos(0.6f);
+    ui->FollowWaveEnd->AddInsertPos(0.9f);
     ui->FollowWaveEnd->AddInsertPos(1.0);
     ui->Overview->SetRulerHeight(0);
     ui->Overview->SetDotWidthSecs(1);
@@ -800,7 +800,8 @@ void MainWindow::on_btnListDevices_clicked()
     QProcess devlist;
     devlist.setProcessChannelMode(QProcess::SeparateChannels);
 #ifdef Q_OS_WIN32
-    devlist.start("parec -s");
+    QString parec = QSettings().value("parec", "parec.exe").toString();
+    devlist.start(QDir::toNativeSeparators(parec) + " -s");
 #else
     devlist.start("arecord -l");
 #endif
@@ -872,7 +873,8 @@ void MainWindow::on_btnStartRec_clicked()
             }
             else
                 path += "full.raw";
-            if (QProcess::startDetached("parec " + QString::number(nr) + " \"" + path + "\"")) {
+            QString parec = settings.value("parec", "parec.exe").toString();
+            if (QProcess::startDetached(parec + " " + QString::number(nr) + " \"" + path + "\"")) {
                 QTimer::singleShot(1000, this, SLOT(on_btnOpen_clicked()));
             }
         }
