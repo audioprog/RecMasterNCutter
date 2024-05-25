@@ -455,10 +455,10 @@
        <attribute name="verticalHeaderVisible">
         <bool>false</bool>
        </attribute>
-       <attribute name="verticalHeaderDefaultSectionSize">
+       <attribute name="verticalHeaderMinimumSectionSize">
         <number>17</number>
        </attribute>
-       <attribute name="verticalHeaderMinimumSectionSize">
+       <attribute name="verticalHeaderDefaultSectionSize">
         <number>17</number>
        </attribute>
        <column>
@@ -836,7 +836,17 @@
             </property>
             <item>
              <property name="text">
+              <string>Früh</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
               <string>Morgen</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Zwischen</string>
              </property>
             </item>
             <item>

@@ -153,12 +153,16 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->cboxPath->insertItems(0, settings.value("PathList", QStringList()).toStringList());
     ui->cboxPath->setCurrentIndex(settings.value("PathIndex", -1).toInt());
     ui->dateEdit->setDate(QDate::currentDate());
-    if (QTime::currentTime().hour() < 12)
+    if (QTime::currentTime().hour() < 9)
         ui->comboDayTime->setCurrentIndex(0);
-    else if (QTime::currentTime().hour() < 17)
+    else if (QTime::currentTime().hour() < 12)
         ui->comboDayTime->setCurrentIndex(1);
-    else
+    else if (QTime::currentTime().hour() < 14)
         ui->comboDayTime->setCurrentIndex(2);
+    else if (QTime::currentTime().hour() < 17)
+        ui->comboDayTime->setCurrentIndex(3);
+    else
+        ui->comboDayTime->setCurrentIndex(4);
     ui->vslVol->setValue(settings.value("Volume", 0).toInt());
 
     this->setWindowTitle(QCoreApplication::organizationName() + " " + QCoreApplication::applicationName() + " " + QCoreApplication::applicationVersion());
@@ -919,15 +923,11 @@ QString MainWindow::getPath()
     QString path = ui->cboxPath->currentText().replace('\\', "/");
     if (!path.endsWith("/"))
         path += "/";
-    path += ui->dateEdit->date().toString("yyyy-MM-dd");
+    path += ui->dateEdit->date().toString("yyyy-MM-dd") + " " + ui->dateEdit->date().toString("ddd").left(2);
 
-    if (ui->comboDayTime->currentIndex() < 3)
-        path += ui->comboDayTime->currentText().left(1);
-    else
-        path += ui->comboDayTime->currentText();
-    path += "/";
-    path += ui->dateEdit->date().toString("dd.MM.yyyy");
-    path += " " + ui->comboDayTime->currentText() + "/";
+    path += QString(" ") + QChar('a' + ui->comboDayTime->currentIndex()) + " ";
+
+    path += ui->comboDayTime->currentText() + "/";
     return path;
 }
 
@@ -1000,7 +1000,7 @@ QString MainWindow::MP3File(int title)
     if (!pmp3path.endsWith("/"))
         pmp3path += "/";
     pmp3path += ui->dateEdit->date().toString("yyyy-MM-dd");
-    if (ui->comboDayTime->currentIndex() < 3)
+	if (ui->comboDayTime->currentIndex() < 4)
         pmp3path += ui->comboDayTime->currentText().left(1);
     else
         pmp3path += ui->comboDayTime->currentText();
@@ -1144,7 +1144,7 @@ void MainWindow::on_tableTracks_cellDoubleClicked(int row, int column)
                     if (!pmp3path.endsWith("/"))
                         pmp3path += "/";
                     pmp3path += ui->dateEdit->date().toString("yyyy-MM-dd");
-                    if (ui->comboDayTime->currentIndex() < 3)
+					if (ui->comboDayTime->currentIndex() < 4)
                         pmp3path += ui->comboDayTime->currentText().left(1);
                     else
                         pmp3path += ui->comboDayTime->currentText();
@@ -1308,10 +1308,14 @@ void MainWindow::on_actionRec_triggered()
 void MainWindow::on_actionOpenRec_triggered()
 {
     QString path = getPath();
-    while (!QFile::exists(path + "full.raw") && ui->comboDayTime->currentIndex() > 0) {
-        ui->comboDayTime->setCurrentIndex(ui->comboDayTime->currentIndex()-1);
-        path = getPath();
-    }
+    if (ui->comboDayTime->currentIndex() < 5)
+        ui->comboDayTime->setCurrentIndex(4);
+    else if (ui->comboDayTime->currentIndex())
+        ui->comboDayTime->setCurrentIndex(ui->comboDayTime->count() - 1);
+    while ((!QFile::exists(path + "full.raw")) && ui->comboDayTime->currentIndex() > 0) {
+		ui->comboDayTime->setCurrentIndex(ui->comboDayTime->currentIndex()-1);
+		path = getPath();
+	}
 
     if (QFile::exists(path + "full.raw")) {
         QString fileName = QFileDialog::getOpenFileName(this, tr("Open Audio"),
