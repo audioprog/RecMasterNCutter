@@ -348,7 +348,11 @@ void AudioOutput::startPlaying(qint64 newpos)
         audio->start(out);
     }
     else {
-        outfile = &inputFile;
+        audio->stop();
+        if (outfile != NULL)
+            outfile->deleteLater();
+        outfile = new QFile();
+        outfile->setFileName(inputFile.fileName());
         outfile->open(QFile::ReadOnly);
         if (inputFile.fileName().section('.', -1, -1).toLower() == "wav") {
             WavFile wf(inputFile.fileName());

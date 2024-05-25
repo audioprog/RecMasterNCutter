@@ -110,7 +110,7 @@ private:
     QAudioOutput* audio;
     bool convert;
     WaveOutIODevice *out;
-    QFile *outfile;
+    QFile *outfile = NULL;
     bool firstrun;
     int hardware, oldhardware;
     int startvol;
